@@ -1,0 +1,11 @@
+{
+  "name": "maledicta-character-builder",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "busboy": "^1.6.0"
+  }
+}
