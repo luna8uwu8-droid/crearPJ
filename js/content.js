@@ -2216,6 +2216,10 @@ Pero todavía nadie sabía exactamente de qué.`
         name: 'El árbol decadente',
         creature: 'Ent EAA (De MOD)',
         health: '150000',
+        images: [
+    'https://media.discordapp.net/attachments/1445787284015415500/1562077096979726407/image.png?ex=6ad8ad29&is=6ad75ba9&hm=025f18e966cd58013e844e018019381ebefc7bef1aa7c5350ebd7217079859f2&=&format=webp&quality=lossless',
+    'https://media.discordapp.net/attachments/1445787284015415500/1562077048762142730/image.png?ex=6ad8ad1e&is=6ad75b9e&hm=b934ac80c578bacd4b39ebd411906b57e879706cc3217866e59d5d3809c0f264&=&format=webp&quality=lossless'
+  ],
         loot: [
           { chance: '100%', item: 'entre 40 y 75 platas' },
           { chance: '2%', item: '1 oro' },
