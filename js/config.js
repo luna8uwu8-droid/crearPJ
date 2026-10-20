@@ -26,7 +26,10 @@ export const HUB_SECTIONS = [
 ];
 
 export const ETHNICITIES = [
-  { value: 'Humanos', description: 'La única raza disponible para el registro de personaje.' }
+  {
+    value: 'Humanos',
+    description: 'La única raza disponible para el registro de personaje.'
+  }
 ];
 
 export const IMAGE_LIMITS = {
@@ -42,7 +45,7 @@ export const SEX_OPTIONS = [
   { value: 'Prefiero no decir', description: 'Sin especificar.' }
 ];
 
-/*export const CHARACTER_CATALOG = {
+export const CHARACTER_CATALOG = {
   classes: [
     { value: 'Paladines', description: 'Defienden la fe, el honor y la línea entre la luz y la corrupción.' },
     { value: 'Monje', description: 'Equilibra disciplina corporal, meditación y fuerza interior.' },
@@ -53,7 +56,8 @@ export const SEX_OPTIONS = [
     { value: 'Magos', description: 'Controlan energía arcana con cálculo y paciencia.' },
     { value: 'Druidas', description: 'Se conectan con la naturaleza, el ciclo y la magia viva.' },
     { value: 'Pícaro', description: 'Actúa con rapidez, sigilo y una inteligencia despiadada.' }
-  ],*/
+  ],
+
   archetypes: [
     {
       value: 'Humanos',
@@ -188,18 +192,19 @@ export const SEX_OPTIONS = [
       ]
     }
   ],
-  alignments [
+
+  alignments: [
     { value: 'Legal', description: 'Actúa bajo juramentos, obligaciones y honor.' },
     { value: 'Neutral', description: 'Decide según el equilibrio entre necesidad y riesgo.' },
     { value: 'Caótica', description: 'Se mueve por impulso, libertad y cambio constante.' },
     { value: 'Oscura', description: 'Acepta lo prohibido como camino inevitable.' }
   ]
-;
+};
 
 export const ACCEPTANCE_ITEMS = [
   { key: 'lore', label: 'He leído el lore de Maledicta.' },
   { key: 'rules', label: 'He leído las normativas del servidor.' },
-  { key: 'rules', label: 'Declaro que tengo más de 18 años.' },
+  { key: 'age', label: 'Declaro que tengo más de 18 años.' },
   { key: 'conditions', label: 'Acepto las condiciones del servidor.' }
 ];
 
@@ -232,5 +237,6 @@ export const defaultCharacter = () => ({
 export const defaultAcceptances = () => ({
   lore: false,
   rules: false,
+  age: false,
   conditions: false
 });
