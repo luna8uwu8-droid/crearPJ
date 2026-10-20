@@ -1,20 +1,50 @@
-export const STEPS = [
-  { id: 'identity', label: 'IDENTIDAD', title: 'Identidad' },
-  { id: 'story', label: 'HISTORIA', title: 'Historia' },
-  { id: 'consent', label: 'CONSENTIMIENTOS', title: 'Consentimientos' },
-  { id: 'image', label: 'IMAGEN', title: 'Imagen del Personaje' },
-  { id: 'review', label: 'REVISIÓN', title: 'Revisión' }
+export const CREATION_STEPS = [
+  { id: 'datos', label: 'PERSONAJE', title: 'Datos básicos', nav: 'Personaje' },
+  { id: 'apariencia', label: 'APARIENCIA', title: 'Apariencia física', nav: 'Apariencia' },
+  { id: 'etnia', label: 'RAZA', title: 'Raza', nav: 'Raza' },
+  { id: 'imagen', label: 'IMAGEN', title: 'Imagen del personaje', nav: 'Imagen' },
+  { id: 'lore', label: 'LORE', title: 'El mundo de Maledicta', nav: 'Lore' },
+  { id: 'normativas', label: 'NORMAS', title: 'Normativas del servidor', nav: 'Normativas' },
+  { id: 'confirmacion', label: 'CONFIRMACIÓN', title: 'Aceptar condiciones', nav: 'Confirmación' },
+  { id: 'revision', label: 'FICHA', title: 'Revisión y generación', nav: 'Ficha' }
+];
+
+export const HUB_SECTIONS = [
+  { id: 'inicio', label: 'Inicio', icon: '◈' },
+  { id: 'mi-personaje', label: 'Mi Personaje', icon: '✦', requiresCharacter: true },
+  { id: 'fandom', label: 'Fandom', icon: '☽' },
+  { id: 'lore', label: 'Lore', icon: '◉' },
+  { id: 'razas', label: 'Razas', icon: '☘', parent: 'fandom' },
+  { id: 'historia', label: 'Historia', icon: '⌛', parent: 'fandom' },
+  { id: 'ciudades', label: 'Ciudades', icon: '⌂', parent: 'fandom' },
+  { id: 'dioses', label: 'Dioses', icon: '✧', parent: 'fandom' },
+  { id: 'eventos', label: 'Eventos', icon: '⚡', parent: 'fandom' },
+  { id: 'bosses-de-maledicta', label: 'Bosses de Maledicta', icon: '♜', parent: 'fandom' },
+  { id: 'noticias', label: 'Noticias', icon: '▣' },
+  { id: 'guias', label: 'Guías', icon: '❖' },
+  { id: 'otros-juegos', label: 'Otros juegos', icon: '▷' },
+  { id: 'faq', label: 'FAQ', icon: '?' },
+  { id: 'normativas', label: 'Normas', icon: '⚖' }
+];
+
+export const ETHNICITIES = [
+  { value: 'Humanos', description: 'La única raza disponible para el registro de personaje.' }
+];
+
+export const IMAGE_LIMITS = {
+  maxBytes: 10 * 1024 * 1024,
+  minSize: 512,
+  types: ['image/png', 'image/jpeg']
+};
+
+export const SEX_OPTIONS = [
+  { value: 'Masculino', description: 'Identidad masculina.' },
+  { value: 'Femenino', description: 'Identidad femenina.' },
+  { value: 'No binario', description: 'Identidad fuera del binario tradicional.' },
+  { value: 'Prefiero no decir', description: 'Sin especificar.' }
 ];
 
 export const CHARACTER_CATALOG = {
-  professions: [
-    { value: 'Rúnico', description: 'Escribe poder sobre metal, piedra y memoria ancestral.' },
-    { value: 'Recolector', description: 'Recorre la naturaleza y sabe dónde yace lo útil.' },
-    { value: 'Sanador', description: 'Domina la curación, la continuidad y la protección corporal.' },
-    { value: 'Herrero', description: 'Forja armas, armaduras y límites de resistencia.' },
-    { value: 'Tabernero', description: 'Conoce secretos, rumores y la moral de cada rincón.' },
-    { value: 'Alquimista', description: 'Transforma elementos, venenos y brebajes con precisión.' }
-  ],
   classes: [
     { value: 'Paladines', description: 'Defienden la fe, el honor y la línea entre la luz y la corrupción.' },
     { value: 'Monje', description: 'Equilibra disciplina corporal, meditación y fuerza interior.' },
@@ -27,12 +57,138 @@ export const CHARACTER_CATALOG = {
     { value: 'Pícaro', description: 'Actúa con rapidez, sigilo y una inteligencia despiadada.' }
   ],
   archetypes: [
-    { value: 'Feéricos', description: 'Entienden el misterio, la gracia y la fragilidad del mundo.' },
-    { value: 'Ogroides', description: 'Tienen fuerza ancestral, resistencia y presencia intimidante.' },
-    { value: 'Bestiales', description: 'Se mueven por instinto, ferocidad y conexión primigenia.' },
-    { value: 'Humanoides', description: 'Representan la complejidad del deseo, la historia y la ambición.' },
-    { value: 'Celestiales', description: 'Llevan un fuego divino, justicia y visión superior.' },
-    { value: 'Infernales', description: 'Aceptan fuego, decadencia y verdad aún más profunda.' }
+    {
+      value: 'Humanos',
+      description: 'Identidad racial: Adaptabilidad, supervivencia y capacidad para aprender de otras civilizaciones.',
+      abilities: [
+        ['Nivel 1 — Adaptación', 'Pueden adaptarse rápidamente a situaciones desconocidas y obtienen una pequeña bonificación al realizar una habilidad que no hayan utilizado recientemente.'],
+        ['Nivel 2 — Versatilidad', 'Pueden elegir temporalmente una especialización entre varias disciplinas y obtener una bonificación moderada durante un período limitado.'],
+        ['Nivel 3 — Experiencia Compartida', 'Al presenciar a un aliado realizar correctamente una acción especializada, pueden obtener temporalmente parte de ese conocimiento.'],
+        ['Nivel 4 — Determinación', 'Una vez por período de descanso, cuando fallan una acción importante, pueden repetirla inmediatamente, aceptando una consecuencia menor determinada por la situación.'],
+        ['Nivel 5 — Legado del Pacto', 'Pueden combinar temporalmente dos especializaciones diferentes para realizar una acción excepcional.']
+      ]
+    },
+    {
+      value: 'Enanos',
+      description: 'Identidad racial: Resistencia, metalurgia, construcción y dominio de las montañas.',
+      abilities: [
+        ['Nivel 1 — Sangre de la Montaña', 'Soportan mejor el frío, la fatiga y las condiciones ambientales extremas. También pueden transportar cargas mayores.'],
+        ['Nivel 2 — Piel de Hierro', 'Su cuerpo compacto resiste mejor los impactos físicos y reduce la eficacia de los efectos que intenten derribarlos o desplazarlos.'],
+        ['Nivel 3 — Maestro Artesano', 'Obtienen ventajas al reparar, fabricar y mejorar equipamiento, y reconocen con facilidad materiales de calidad o estructuras deterioradas.'],
+        ['Nivel 4 — Anclaje', 'Pueden adoptar una postura defensiva que dificulta enormemente moverlos, sacrificando parte de su movilidad.'],
+        ['Nivel 5 — Corazón de la Forja', 'Pueden reforzar temporalmente un arma, armadura u objeto aliado y otorgarle una propiedad especial.']
+      ]
+    },
+    {
+      value: 'Elfos',
+      description: 'Identidad racial: Percepción, naturaleza, precisión y conocimiento ancestral.',
+      abilities: [
+        ['Nivel 1 — Sentidos Élficos', 'Poseen una percepción superior y detectan detalles, sonidos o movimientos que otras razas podrían ignorar.'],
+        ['Nivel 2 — Paso Silencioso', 'Se desplazan con menor ruido y dejan menos señales de su presencia, especialmente en bosques y terrenos naturales.'],
+        ['Nivel 3 — Memoria Ancestral', 'Pueden recordar información sobre lugares, criaturas, símbolos o acontecimientos que hayan estudiado previamente.'],
+        ['Nivel 4 — Ojo del Cazador', 'Después de observar a un objetivo, pueden identificar una vulnerabilidad y obtener una ventaja contra él durante un período limitado.'],
+        ['Nivel 5 — Comunión Natural', 'Establecen una conexión temporal con el entorno natural, detectando presencias cercanas y lo ocurrido recientemente en la zona.']
+      ]
+    },
+    {
+      value: 'Dracónidos',
+      description: 'Identidad racial: Poder físico, linaje dracónico y dominio elemental.',
+      abilities: [
+        ['Nivel 1 — Sangre Dracónica', 'Poseen resistencia natural frente a un tipo de daño elemental asociado a su linaje.'],
+        ['Nivel 2 — Escamas', 'Sus escamas funcionan como protección natural y reducen parcialmente determinados ataques físicos.'],
+        ['Nivel 3 — Aliento Ancestral', 'Pueden liberar una descarga elemental de corto alcance cuyo tipo depende de su linaje.'],
+        ['Nivel 4 — Furia del Dragón', 'Cuando su vida disminuye considerablemente, despiertan su naturaleza dracónica y obtienen mayor capacidad ofensiva temporal.'],
+        ['Nivel 5 — Herencia Primordial', 'Liberan una manifestación poderosa de su linaje que afecta una zona con su elemento y requiere un tiempo de reutilización elevado.']
+      ]
+    },
+    {
+      value: 'Cambiapieles / Yokai',
+      description: 'Identidad racial: Transformación, instinto, engaño y naturaleza sobrenatural.',
+      abilities: [
+        ['Nivel 1 — Instinto Bestial', 'Perciben rastros recientes, detectan determinadas presencias y siguen criaturas con mayor facilidad.'],
+        ['Nivel 2 — Rostro Prestado', 'Adoptan temporalmente una apariencia alternativa de su propia naturaleza, sin copiar habilidades físicas de otra raza.'],
+        ['Nivel 3 — Forma Salvaje', 'Se transforman parcialmente y obtienen una mejora temporal relacionada con su animal espiritual.'],
+        ['Nivel 4 — Espíritu Errante', 'Pueden separar parcialmente su esencia del cuerpo durante unos instantes y percibir aquello que normalmente quedaría fuera de sus sentidos.'],
+        ['Nivel 5 — Verdadera Forma', 'Liberan completamente su naturaleza Yokai durante un período limitado y obtienen capacidades únicas determinadas por su linaje.']
+      ]
+    },
+    {
+      value: 'Celestiales',
+      description: 'Identidad racial: Luz, voluntad, protección y conexión con fuerzas superiores.',
+      abilities: [
+        ['Nivel 1 — Aura Serena', 'Generan una presencia que ayuda a mantener la calma de los aliados cercanos y dificulta determinados efectos de miedo.'],
+        ['Nivel 2 — Luz Protectora', 'Envuelven temporalmente a un aliado con energía celestial y reducen parcialmente el impacto de un ataque o efecto negativo.'],
+        ['Nivel 3 — Juicio', 'Pueden marcar a una criatura considerada una amenaza para que determinadas acciones contra ella sean más eficaces.'],
+        ['Nivel 4 — Alas del Firmamento', 'Manifiestan energía celestial que mejora temporalmente su movilidad y permite maniobras extraordinarias.'],
+        ['Nivel 5 — Milagro Celestial', 'Invocan una manifestación de poder superior capaz de afectar a varios aliados o enemigos dentro de una zona.']
+      ]
+    },
+    {
+      value: 'Elementales',
+      description: 'Identidad racial: Manipulación de las fuerzas primordiales.',
+      abilities: [
+        ['Nivel 1 — Afinidad Elemental', 'Poseen afinidad natural con un elemento determinado y resistencia frente a él.'],
+        ['Nivel 2 — Manifestación', 'Crean pequeñas manifestaciones de su elemento para interactuar con el entorno y generar efectos menores.'],
+        ['Nivel 3 — Forma Elemental', 'Durante un período limitado, parte de su cuerpo se convierte en su elemento y modifica sus capacidades físicas y resistencia.'],
+        ['Nivel 4 — Dominio Primordial', 'Alteran temporalmente una pequeña zona del entorno mediante su elemento.'],
+        ['Nivel 5 — Avatar Elemental', 'Adoptan durante un tiempo limitado una forma completamente dominada por su elemento.']
+      ]
+    },
+    {
+      value: 'Semi-Gigantes',
+      description: 'Identidad racial: Tamaño, fuerza, resistencia y presencia física.',
+      abilities: [
+        ['Nivel 1 — Sangre Titánica', 'Pueden cargar grandes cantidades de peso y realizar esfuerzos físicos prolongados sin agotarse con facilidad.'],
+        ['Nivel 2 — Pisada Pesada', 'Ejercen mayor impacto al empujar, derribar o desplazar objetos y criaturas.'],
+        ['Nivel 3 — Piel de Titán', 'Su cuerpo se vuelve extremadamente resistente frente a determinados tipos de daño físico.'],
+        ['Nivel 4 — Rugido del Coloso', 'Emiten un poderoso rugido capaz de intimidar a criaturas cercanas y alterar momentáneamente su comportamiento.'],
+        ['Nivel 5 — Legado del Titán', 'Alcanzan una manifestación de su sangre titánica que aumenta su capacidad física, pero reduce su movilidad y sutileza.']
+      ]
+    },
+    {
+      value: 'Serpentinos',
+      description: 'Identidad racial: Veneno, supervivencia, sigilo y adaptación a ambientes hostiles.',
+      abilities: [
+        ['Nivel 1 — Sangre Fría', 'Toleran mejor ambientes cálidos y poseen resistencia natural frente a determinados venenos.'],
+        ['Nivel 2 — Sentido Vibratorio', 'Perciben vibraciones cercanas a través del suelo y detectan movimiento con visibilidad limitada.'],
+        ['Nivel 3 — Veneno Serpentino', 'Aplican una toxina natural a sus ataques que provoca un efecto progresivo sobre el objetivo.'],
+        ['Nivel 4 — Muda', 'Pueden desprenderse temporalmente de una capa de piel para liberarse de ciertos efectos físicos negativos o restricciones.'],
+        ['Nivel 5 — Depredador Ancestral', 'Sus sentidos e instintos alcanzan su máxima expresión para rastrear, emboscar y atacar con eficacia excepcional.']
+      ]
+    },
+    {
+      value: 'Cirrus',
+      description: 'Identidad racial: Dos almas, dualidad y conflicto interno.',
+      abilities: [
+        ['Nivel 1 — Segundo Susurro', 'La segunda alma puede advertir de determinados peligros y proporcionar una percepción adicional en situaciones críticas.'],
+        ['Nivel 2 — Dualidad', 'Pueden alternar entre sus dos personalidades espirituales, cada una con una tendencia o especialización diferente.'],
+        ['Nivel 3 — Alma Dominante', 'En situaciones extremas, una de las almas puede tomar temporalmente el control y modificar determinadas capacidades.'],
+        ['Nivel 4 — Sincronía', 'Ambas almas cooperan simultáneamente para realizar acciones complejas que normalmente requerirían dos personas.'],
+        ['Nivel 5 — Convergencia', 'Durante un período muy limitado, ambas almas se fusionan y utilizan simultáneamente sus fortalezas.']
+      ]
+    },
+    {
+      value: 'Dhampiros',
+      description: 'Identidad racial: Sangre vampírica, hambre, velocidad y supervivencia nocturna.',
+      abilities: [
+        ['Nivel 1 — Sangre Nocturna', 'Poseen adaptación natural a la oscuridad y perciben mejor durante la noche.'],
+        ['Nivel 2 — Hambre de Sangre', 'Al herir a una criatura, pueden recuperar una pequeña cantidad de vitalidad bajo determinadas condiciones.'],
+        ['Nivel 3 — Paso de la Noche', 'Se desplazan rápidamente durante breves períodos y dejan una silueta difícil de seguir visualmente.'],
+        ['Nivel 4 — Dominio del Hambre', 'Cuando su vitalidad es baja, obtienen mejoras físicas temporales, pero aumenta su necesidad de alimentarse.'],
+        ['Nivel 5 — Herencia Vampírica', 'Liberan su sangre ancestral y manifiestan características vampíricas superiores, afrontando después sus consecuencias.']
+      ]
+    },
+    {
+      value: 'Licántropos',
+      description: 'Identidad racial: Maldición, transformación, instinto y brutalidad.',
+      abilities: [
+        ['Nivel 1 — Instinto del Cazador', 'Detectan y siguen rastros de criaturas con mayor facilidad.'],
+        ['Nivel 2 — Garras de la Maldición', 'La transformación se manifiesta físicamente y permite utilizar garras con ventajas en combate cuerpo a cuerpo.'],
+        ['Nivel 3 — Transformación Parcial', 'Transforman partes de su cuerpo para aumentar temporalmente fuerza, velocidad o percepción.'],
+        ['Nivel 4 — Furia Lunar', 'Al recibir grandes cantidades de daño, aumenta temporalmente su capacidad ofensiva.'],
+        ['Nivel 5 — Bestia Completa', 'Liberan la maldición y adoptan su forma bestial, obteniendo capacidades físicas extraordinarias con posible pérdida de control.']
+      ]
+    }
   ],
   alignments: [
     { value: 'Legal', description: 'Actúa bajo juramentos, obligaciones y honor.' },
@@ -42,85 +198,41 @@ export const CHARACTER_CATALOG = {
   ]
 };
 
-export const CONSENT_CATEGORIES = [
-  {
-    key: 'violence',
-    title: 'Violencia',
-    prompt: '¿Qué nivel de violencia aceptás dentro del rol?',
-    options: [
-      { value: 'nada', label: 'Nada', description: 'Sin violencia activa ni amenaza directa.' },
-      { value: 'leve', label: 'Leve', description: 'Golpes, discusiones y conflictos breves.' },
-      { value: 'moderada', label: 'Moderada', description: 'Combates presentes y consecuencias visibles.' },
-      { value: 'alta', label: 'Alta', description: 'Violencia intensa, cruenta y decisiva.' }
-    ]
-  },
-  {
-    key: 'gore',
-    title: 'Gore',
-    prompt: '¿Qué nivel de gore tolerás visual o descriptivo?',
-    options: [
-      { value: 'nada', label: 'Nada', description: 'Sin descripciones explícitas ni detalles corporales.' },
-      { value: 'leve', label: 'Leve', description: 'Heridas y sangre moderada.' },
-      { value: 'moderada', label: 'Moderada', description: 'Desgarramientos, sangre y mutilación puntual.' },
-      { value: 'alto', label: 'Alto', description: 'Escenas impactantes y detalles intensos.' }
-    ]
-  },
-  {
-    key: 'erp',
-    title: 'ERP / Rol sexual',
-    prompt: '¿Qué intensidad de contenido íntimo o erótico aceptás?',
-    options: [
-      { value: 'nada', label: 'Nada', description: 'Sin contenido sexual ni sugerencias explícitas.' },
-      { value: 'subtil', label: 'Subtil', description: 'Tensión romántica o insinuaciones leves.' },
-      { value: 'sugerido', label: 'Sugerido', description: 'Escenas sugeridas, sin detalle explícito.' },
-      { value: 'explicito', label: 'Explícito', description: 'Contenido sexual claro y detallado.' }
-    ]
-  },
-  {
-    key: 'confinementTemporary',
-    title: 'Confinamiento temporal',
-    prompt: '¿Aceptás escenarios de encierro breve o incomodidad temporal?',
-    options: [
-      { value: 'nada', label: 'Nada', description: 'No acepto limitación de movimiento ni cautiverio.' },
-      { value: 'leve', label: 'Leve', description: 'Restricciones breves e incidentales.' },
-      { value: 'moderado', label: 'Moderado', description: 'Confinamiento corto con presión emocional.' },
-      { value: 'alto', label: 'Alto', description: 'Cautiverio temporal con mayor intensidad.' }
-    ]
-  },
-  {
-    key: 'confinementPermanent',
-    title: 'Confinamiento permanente',
-    prompt: '¿Aceptás encierro prolongado, institucional o eterno?',
-    options: [
-      { value: 'nada', label: 'Nada', description: 'Sin escenarios de encierro permanente.' },
-      { value: 'leve', label: 'Leve', description: 'Restricción prolongada, sin ataduras eternas.' },
-      { value: 'moderado', label: 'Moderado', description: 'Prisiones prolongadas con impacto narrativo.' },
-      { value: 'alto', label: 'Alto', description: 'Cautiverio prolongado o condición casi irreversible.' }
-    ]
-  }
+export const ACCEPTANCE_ITEMS = [
+  { key: 'lore', label: 'He leído el lore de Maledicta.' },
+  { key: 'rules', label: 'He leído las normativas del servidor.' },
+  { key: 'rules', label: 'Declaro que tengo más de 18 años.' },
+  { key: 'conditions', label: 'Acepto las condiciones del servidor.' }
 ];
 
 export const defaultCharacter = () => ({
   name: '',
   age: '',
-  profession: '',
-  classType: '',
-  archetype: '',
-  alignment: '',
-  story: '',
-  consent: {
-    violence: '',
-    gore: '',
-    erp: '',
-    confinementTemporary: '',
-    confinementPermanent: ''
-  },
+  sex: '',
+  origin: '',
+  height: '',
+  distinctiveFeatures: '',
+  physicalDescription: '',
+  ethnicity: '',
+  ethnicityDetail: '',
+  imageStatus: 'missing',
+  imageError: '',
   image: {
     dataUrl: null,
     name: null,
     size: null,
     width: null,
     height: null,
-    uploadedAt: null
-  }
+    uploadedAt: null,
+    serverValidated: false
+  },
+  validationCode: null,
+  sheetGeneratedAt: null,
+  lastEditedAt: null
+});
+
+export const defaultAcceptances = () => ({
+  lore: false,
+  rules: false,
+  conditions: false
 });

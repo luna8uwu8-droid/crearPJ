@@ -1,807 +1,1054 @@
-import { STEPS, CHARACTER_CATALOG, CONSENT_CATEGORIES, defaultCharacter } from './config.js';
-import { loadState, saveState, clearState } from './storage.js';
+import {
+  CREATION_STEPS,
+  HUB_SECTIONS,
+  ETHNICITIES,
+  SEX_OPTIONS,
+  ACCEPTANCE_ITEMS,
+  IMAGE_LIMITS,
+  defaultCharacter,
+  defaultAcceptances
+} from './config.js';
+import {
+  WELCOME,
+  LORE_SECTIONS,
+  NORMATIVE_CATEGORIES,
+  FANDOM,
+  NEWS,
+  GUIDES,
+  FAQ,
+  OTHER_GAMES,
+  STAFF_DELIVERY,
+  CONTENT_PENDING
+} from './content.js';
+import {
+  loadState,
+  saveState,
+  clearState,
+  hydrateImage,
+  loadBossGalleryImages,
+  saveBossGalleryImage,
+  deleteBossGalleryImage
+} from './storage.js';
+import { downloadCharacterSheet, generateValidationCode, printCharacterSheet } from './sheet.js';
 
 const appRoot = document.querySelector('#app');
-const stepNav = document.querySelector('#step-nav');
-const stepContent = document.querySelector('#step-content');
-const actionBar = document.querySelector('#action-bar');
-const progressIndicator = document.querySelector('#progress-indicator');
-const progressFill = document.querySelector('#progress-fill');
-const statusBanner = document.querySelector('#status-banner');
+const printRoot = document.querySelector('#print-sheet');
 
 const baseState = {
-  currentStep: 0,
-  completed: false,
-  confirmed: false,
+  version: 2,
+  phase: 'welcome',
+  creationStep: 0,
+  hubSection: 'inicio',
+  characterComplete: false,
+  editingCharacter: false,
+  sheetDelivered: false,
+  acceptances: defaultAcceptances(),
   banner: '',
+  bannerTone: 'danger',
   character: defaultCharacter()
 };
 
-let state = (() => {
-  const saved = loadState();
-  if (!saved) {
-    return structuredClone(baseState);
-  }
-
-  return {
-    ...baseState,
-    ...saved,
-    character: {
-      ...defaultCharacter(),
-      ...(saved.character ?? {})
-    }
-  };
-})();
+let state = { ...structuredClone(baseState) };
+let historyReaderIndex = null;
+let bossGalleryViewer = null;
+const bossGalleryImages = new Map();
 
 const escapeHtml = (value = '') => String(value)
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
   .replace(/>/g, '&gt;')
-  .replace(/\"/g, '&quot;')
+  .replace(/"/g, '&quot;')
   .replace(/'/g, '&#039;');
 
-const getProgress = () => {
-  const requiredFields = ['name', 'age', 'profession', 'classType', 'archetype', 'alignment', 'story'];
-  const consentKeys = Object.keys(state.character.consent);
-  const filled = requiredFields.filter((key) => {
-    const value = state.character[key];
-    if (typeof value === 'string') return value.trim().length > 0;
-    return value !== '' && value !== null && value !== undefined;
-  }).length;
-
-  const consentFilled = consentKeys.filter((key) => state.character.consent[key]).length;
-  const imageFilled = isImageValid();
-  const total = requiredFields.length + consentKeys.length + 1;
-  const complete = filled + consentFilled + (imageFilled ? 1 : 0);
-  return Math.min(100, Math.max(0, Math.round((complete / total) * 100)));
+const formatDate = (value) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'fecha no disponible';
+  return new Intl.DateTimeFormat('es-ES', { dateStyle: 'long', timeStyle: 'short' }).format(date);
 };
 
-const persist = () => {
-  saveState(state);
-};
+const persist = () => saveState(state);
 
-const setBanner = (message = '') => {
+const setBanner = (message = '', tone = 'danger') => {
   state.banner = message;
-  if (message) {
-    statusBanner.textContent = message;
-    statusBanner.classList.remove('hidden');
-  } else {
-    statusBanner.textContent = '';
-    statusBanner.classList.add('hidden');
-  }
+  state.bannerTone = tone;
 };
 
-const getSelectedOption = (catalog, value) => {
-  return catalog.find((item) => item.value === value) || null;
+const currentStepId = () => CREATION_STEPS[state.creationStep]?.id || 'datos';
+
+const isImageValid = () => {
+  const image = state.character.image;
+  return Boolean(
+    image?.dataUrl
+    && image.name
+    && image.size <= IMAGE_LIMITS.maxBytes
+    && image.width >= IMAGE_LIMITS.minSize
+    && image.height >= IMAGE_LIMITS.minSize
+    && state.character.imageStatus === 'valid'
+  );
 };
 
-const getConsentLabel = (key) => {
-  const category = CONSENT_CATEGORIES.find((item) => item.key === key);
-  const selected = category?.options.find((option) => option.value === state.character.consent[key]);
-  return selected ? selected.label : 'Sin definir';
+const getCreationProgress = () => {
+  const checks = [
+    Boolean(state.character.name.trim()),
+    Boolean(state.character.age && Number(state.character.age) > 0),
+    Boolean(state.character.sex),
+    Boolean(state.character.height.trim()),
+    Boolean(state.character.distinctiveFeatures.trim()),
+    Boolean(state.character.physicalDescription.trim()),
+    Boolean(state.character.ethnicity),
+    isImageValid(),
+    state.acceptances.lore,
+    state.acceptances.rules,
+    state.acceptances.conditions
+  ];
+  const complete = checks.filter(Boolean).length;
+  return Math.round((complete / checks.length) * 100);
 };
 
-const getValidationErrors = () => {
+const getStepErrors = (stepId = currentStepId()) => {
+  const c = state.character;
   const errors = [];
 
-  if (!state.character.name.trim()) {
-    errors.push({ field: 'name', message: 'Este personaje todavía necesita un nombre.' });
+  if (stepId === 'datos') {
+    if (!c.name.trim()) errors.push('Este personaje todavía necesita un nombre.');
+    if (!c.age || Number(c.age) <= 0) errors.push('La edad del personaje debe estar definida.');
+    if (!c.sex) errors.push('Elige el sexo o género del personaje.');
   }
 
-  if (!state.character.age || Number(state.character.age) <= 0) {
-    errors.push({ field: 'age', message: 'La edad del personaje debe estar definida.' });
+  if (stepId === 'apariencia') {
+    if (!c.height.trim()) errors.push('Indica la altura del personaje.');
+    if (!c.distinctiveFeatures.trim()) errors.push('Describe al menos un rasgo distintivo.');
+    if (!c.physicalDescription.trim()) errors.push('La descripción física no puede quedar vacía.');
   }
 
-  if (!state.character.profession) {
-    errors.push({ field: 'profession', message: 'Falta la profesión del personaje.' });
-  }
-
-  if (!state.character.classType) {
-    errors.push({ field: 'classType', message: 'Debes elegir una clase para continuar.' });
-  }
-
-  if (!state.character.archetype) {
-    errors.push({ field: 'archetype', message: 'Falta definir el arquetipo.' });
-  }
-
-  if (!state.character.alignment) {
-    errors.push({ field: 'alignment', message: 'La alineación del personaje aún no está definida.' });
-  }
-
-  if (!state.character.story.trim()) {
-    errors.push({ field: 'story', message: 'La historia del personaje no puede quedar vacía.' });
-  }
-
-  for (const category of CONSENT_CATEGORIES) {
-    if (!state.character.consent[category.key]) {
-      errors.push({ field: category.key, message: `Falta la preferencia de ${category.title.toLowerCase()}.` });
+  if (stepId === 'etnia') {
+    if (!c.ethnicity) errors.push('Selecciona una raza para continuar.');
+    const option = ETHNICITIES.find((item) => item.value === c.ethnicity);
+    if (option?.needsDetail && !c.ethnicityDetail.trim()) {
+      errors.push('Indica cuál es la etnia permitida por el Staff.');
     }
   }
 
-  if (!isImageValid()) {
-    errors.push({ field: 'image', message: 'Debes cargar una imagen válida del personaje antes de continuar.' });
+  if (stepId === 'imagen') {
+    if (c.imageStatus === 'analyzing') errors.push('Espera a que termine la verificación de la imagen.');
+    else if (!isImageValid()) errors.push(c.imageError || 'Debes cargar una imagen válida del personaje.');
+  }
+
+  if (stepId === 'confirmacion' || stepId === 'revision') {
+    ACCEPTANCE_ITEMS.forEach((item) => {
+      if (!state.acceptances[item.key]) errors.push(`Falta aceptar: ${item.label}`);
+    });
+  }
+
+  if (stepId === 'revision' && !isImageValid()) {
+    errors.push('Falta una imagen válida para generar la ficha.');
   }
 
   return errors;
 };
 
-const isImageValid = () => {
-  const image = state.character.image;
-  return Boolean(image?.dataUrl && image.name && image.size <= 10 * 1024 * 1024 && image.width >= 512 && image.height >= 512);
+const allRequiredComplete = () => {
+  return ['datos', 'apariencia', 'etnia', 'imagen', 'confirmacion'].every((id) => getStepErrors(id).length === 0);
 };
 
-const getImageStatus = () => {
-  const image = state.character.image;
-  if (!image?.dataUrl) return { label: 'Sin imagen', className: 'image-status-missing' };
-  return { label: 'Imagen cargada', className: 'image-status-approved' };
+const brandMark = () => `
+  <div class="brand-mark">
+    <img src="./assets/maledicta-logo.png" alt="" hidden onload="this.hidden = false; this.nextElementSibling.hidden = true;" onerror="this.hidden = true; this.nextElementSibling.hidden = false;" />
+    <span>M</span>
+  </div>
+`;
+
+const bannerHtml = () => {
+  if (!state.banner) return '';
+  return `<div class="status-banner ${state.bannerTone === 'ok' ? 'status-ok' : ''}" role="status">${escapeHtml(state.banner)}</div>`;
 };
 
-const validateCurrentStep = () => {
-  const errors = getValidationErrors();
-  const currentStep = STEPS[state.currentStep]?.id;
+const syncHash = () => {
+  let hash = '#bienvenida';
+  if (state.phase === 'creating') hash = `#crear/${currentStepId()}`;
+  if (state.phase === 'entrega') hash = '#entrega';
+  if (state.phase === 'hub') hash = `#${state.hubSection}`;
+  if (location.hash !== hash) {
+    history.replaceState(null, '', hash);
+  }
+};
 
-  if (currentStep === 'identity') {
-    const identityErrors = errors.filter((item) => ['name', 'age', 'profession', 'classType', 'archetype', 'alignment'].includes(item.field));
-    if (identityErrors.length) {
-      setBanner(identityErrors[0].message);
-      return false;
+const applyHash = () => {
+  const raw = (location.hash || '#bienvenida').replace('#', '');
+  const [section, sub] = raw.split('/');
+
+  if (section === 'bienvenida' || section === 'inicio' && state.phase === 'welcome') {
+    if (!state.characterComplete) state.phase = 'welcome';
+    else {
+      state.phase = 'hub';
+      state.hubSection = 'inicio';
     }
+    return;
   }
 
-  if (currentStep === 'story') {
-    const storyErrors = errors.filter((item) => item.field === 'story');
-    if (storyErrors.length) {
-      setBanner(storyErrors[0].message);
-      return false;
-    }
+  if (section === 'crear') {
+    state.phase = 'creating';
+    const index = CREATION_STEPS.findIndex((step) => step.id === sub);
+    state.creationStep = index >= 0 ? index : 0;
+    return;
   }
 
-  if (currentStep === 'consent') {
-    const consentErrors = errors.filter((item) => item.field.startsWith('confinement') || item.field === 'violence' || item.field === 'gore' || item.field === 'erp');
-    if (consentErrors.length) {
-      setBanner(consentErrors[0].message);
-      return false;
-    }
+  if (section === 'entrega') {
+    state.phase = state.characterComplete ? 'entrega' : 'creating';
+    return;
   }
 
-  if (currentStep === 'image' && !isImageValid()) {
-    const imageError = errors.find((item) => item.field === 'image');
-    setBanner(imageError?.message || 'Carga una imagen válida para continuar.');
-    return false;
+  const hubIds = HUB_SECTIONS.map((item) => item.id);
+  if (hubIds.includes(section) || section === 'fandom') {
+    state.phase = 'hub';
+    state.hubSection = section === 'fandom' ? 'fandom' : section;
   }
+};
 
+const goToPhase = (phase, extra = {}) => {
+  state.phase = phase;
+  Object.assign(state, extra);
   setBanner('');
-  return true;
+  persist();
+  render();
 };
 
-const renderStepNav = () => {
-  const progress = getProgress();
-  const items = STEPS.map((step, index) => {
-    const active = index === state.currentStep;
-    const done = index < state.currentStep || progress >= 100;
-    return `
-      <button
-        class="step-item ${active ? 'active' : ''} ${done ? 'done' : ''}"
-        type="button"
-        data-step-index="${index}"
-        aria-current="${active ? 'step' : 'false'}"
-      >
-        <span class="step-index">${index + 1}</span>
-        <span class="step-copy">
-          <span class="step-label">${step.label}</span>
-          <span class="step-title">${step.title}</span>
-        </span>
-        <span class="step-status">${done ? '✓' : ''}</span>
-      </button>
-    `;
-  }).join('');
+const goToStep = (index) => {
+  state.phase = 'creating';
+  state.creationStep = Math.max(0, Math.min(index, CREATION_STEPS.length - 1));
+  setBanner('');
+  persist();
+  render();
+};
 
-  stepNav.innerHTML = items;
-  progressIndicator.textContent = `${progress}%`;
-  progressFill.style.width = `${progress}%`;
-  progressFill.className = 'progress-fill';
-  const progressBar = document.querySelector('.progress-fill');
-  if (progressBar) {
-    progressBar.style.width = `${progress}%`;
+const handleContinue = () => {
+  const errors = getStepErrors();
+  if (errors.length) {
+    setBanner(errors[0]);
+    render();
+    return;
   }
+  if (state.creationStep < CREATION_STEPS.length - 1) {
+    goToStep(state.creationStep + 1);
+    return;
+  }
+  handleGenerateSheet();
 };
 
-const renderIdentityStep = () => {
-  const selectedProfession = getSelectedOption(CHARACTER_CATALOG.professions, state.character.profession);
-  const selectedClass = getSelectedOption(CHARACTER_CATALOG.classes, state.character.classType);
-  const selectedArchetype = getSelectedOption(CHARACTER_CATALOG.archetypes, state.character.archetype);
-  const selectedAlignment = getSelectedOption(CHARACTER_CATALOG.alignments, state.character.alignment);
+const handleGenerateSheet = async () => {
+  const errors = getStepErrors('revision');
+  if (errors.length) {
+    setBanner(errors[0]);
+    render();
+    return;
+  }
+  if (!state.character.validationCode) {
+    state.character.validationCode = generateValidationCode();
+  }
+  const now = new Date().toISOString();
+  if (state.characterComplete && state.editingCharacter) {
+    state.character.lastEditedAt = now;
+  } else if (!state.character.sheetGeneratedAt) {
+    state.character.sheetGeneratedAt = now;
+  }
+  state.characterComplete = true;
+  state.editingCharacter = false;
+  persist();
+  await downloadCharacterSheet(state.character, state.character.validationCode);
+  state.phase = 'entrega';
+  setBanner('Ficha generada. Descárgala e infórmala al Staff por Discord.', 'ok');
+  persist();
+  render();
+};
 
-  const renderSelect = (name, label, options, selected) => `
+const renderWelcome = () => `
+  <section class="welcome-screen">
+    ${bannerHtml()}
+    <div class="welcome-orb" aria-hidden="true"></div>
+    <header class="welcome-brand">
+      ${brandMark()}
+      <p class="eyebrow">${escapeHtml(WELCOME.tagline)}</p>
+      <h1>${escapeHtml(WELCOME.title)}</h1>
+    </header>
+    <p class="welcome-intro">${escapeHtml(WELCOME.intro)}</p>
+    <div class="welcome-process">
+      <h2>El ingreso</h2>
+      <p>${escapeHtml(WELCOME.processSummary)}</p>
+      <ol class="journey-list">
+        <li>Datos y apariencia</li>
+        <li>Etnia e imagen</li>
+        <li>Lore y normativas</li>
+        <li>Ficha y ticket en Discord</li>
+      </ol>
+    </div>
+    <p class="welcome-note">${escapeHtml(WELCOME.discordNote)}</p>
+    <div class="welcome-actions">
+      <button class="action-btn" type="button" data-route="crear">${state.creationStep > 0 || state.character.name ? 'Continuar registro' : 'Crear personaje'}</button>
+      <button class="ghost-btn" type="button" data-route="hub/fandom">Centro de información</button>
+    </div>
+  </section>
+`;
+
+const renderChoiceCards = (name, options, selected) => `
+  <div class="choice-grid">
+    ${options.map((option) => `
+      <button
+        type="button"
+        class="choice-card ${selected === option.value ? 'selected' : ''}"
+        data-field="${name}"
+        data-value="${escapeHtml(option.value)}"
+      >
+        <strong>${escapeHtml(option.value)}</strong>
+        <span>${escapeHtml(option.description || '')}</span>
+      </button>
+    `).join('')}
+  </div>
+`;
+
+const renderDatos = () => `
+  <div class="section-intro">
+    <p class="eyebrow">01 — DATOS BÁSICOS</p>
+    <h2>Nombra a quien va a cruzar</h2>
+    <p class="section-subtitle">Empieza por lo esencial. El resto del registro se apoyará en esta identidad.</p>
+  </div>
+  <div class="field-grid">
     <label class="field-card">
-      <span class="field-label">${label} <span class="field-hint">Selecciona una</span></span>
-      <select class="input-shell select-shell" name="${name}">
-        <option value="">Seleccionar...</option>
-        ${options.map((option) => `
-          <option value="${option.value}" ${state.character[name] === option.value ? 'selected' : ''}>${option.value}</option>
-        `).join('')}
-      </select>
-      <div class="selection-preview">
-        <strong>${selected ? selected.value : 'Sin seleccionar'}</strong>
-        ${selected ? ` · ${selected.description}` : ' · Elige una opción del menú desplegable.'}
-      </div>
+      <span class="field-label">Nombre del personaje <span class="field-hint">Requerido</span></span>
+      <input class="input-shell" name="name" type="text" maxlength="40" value="${escapeHtml(state.character.name)}" placeholder="Ej. Aelren Vey" />
     </label>
-  `;
+    <label class="field-card">
+      <span class="field-label">Edad <span class="field-hint">Requerido</span></span>
+      <input class="input-shell" name="age" type="number" min="1" max="99999" value="${escapeHtml(state.character.age)}" placeholder="35" />
+    </label>
+    <label class="field-card field-span">
+      <span class="field-label">Lugar de origen <span class="field-hint">Opcional</span></span>
+      <input class="input-shell" name="origin" type="text" maxlength="80" value="${escapeHtml(state.character.origin)}" placeholder="Ciudad, región o linaje de origen" />
+    </label>
+  </div>
+  <div class="block-gap">
+    <span class="field-label">Sexo / Género <span class="field-hint">Requerido</span></span>
+    ${renderChoiceCards('sex', SEX_OPTIONS, state.character.sex)}
+  </div>
+`;
 
+const renderApariencia = () => {
+  const desc = state.character.physicalDescription || '';
   return `
     <div class="section-intro">
-      <p class="eyebrow">01 — IDENTIDAD</p>
-      <h2>Define la esencia del personaje</h2>
-      <p class="section-subtitle">Cada decisión deja una huella sobre el destino que le espera a este alma en Maledicta.</p>
+      <p class="eyebrow">02 — APARIENCIA FÍSICA</p>
+      <h2>Da forma al cuerpo que habitará el mundo</h2>
+      <p class="section-subtitle">No es una planilla: es el retrato que el resto del servidor aprenderá a reconocer.</p>
     </div>
-
     <div class="field-grid">
       <label class="field-card">
-        <span class="field-label">Nombre del personaje <span class="field-hint">Requerido</span></span>
-        <input class="input-shell" name="name" type="text" maxlength="40" value="${escapeHtml(state.character.name)}" placeholder="Ej. Aelren Vey" />
+        <span class="field-label">Altura <span class="field-hint">Requerido</span></span>
+        <input class="input-shell" name="height" type="text" maxlength="20" value="${escapeHtml(state.character.height)}" placeholder="Ej. 1,78 m" />
       </label>
-
       <label class="field-card">
-        <span class="field-label">Edad <span class="field-hint">Requerido</span></span>
-        <input class="input-shell" name="age" type="number" min="1" max="99999" value="${escapeHtml(state.character.age)}" placeholder="35" />
+        <span class="field-label">Rasgos distintivos <span class="field-hint">Requerido</span></span>
+        <input class="input-shell" name="distinctiveFeatures" type="text" maxlength="180" value="${escapeHtml(state.character.distinctiveFeatures)}" placeholder="Ej. cicatriz en la ceja, tatuaje en el cuello, cojera o mirada intensa" />
       </label>
-
-      ${renderSelect('profession', 'Profesión', CHARACTER_CATALOG.professions, selectedProfession)}
-      ${renderSelect('classType', 'Clase', CHARACTER_CATALOG.classes, selectedClass)}
-      ${renderSelect('archetype', 'Arquetipo', CHARACTER_CATALOG.archetypes, selectedArchetype)}
-      ${renderSelect('alignment', 'Alineación', CHARACTER_CATALOG.alignments, selectedAlignment)}
     </div>
-  `;
-};
-
-const renderStoryStep = () => {
-  const story = state.character.story || '';
-  const counter = story.length;
-  const maxLength = 1500;
-
-  return `
-    <div class="section-intro">
-      <p class="eyebrow">02 — HISTORIA</p>
-      <h2>Escribe la memoria del personaje</h2>
-      <p class="section-subtitle">La historia no es un formulario: es la marca que lo convierte en alguien real dentro del mundo.</p>
-    </div>
-
     <div class="codex-panel">
       <div class="codex-header">
-        <span class="field-label">Historia del personaje</span>
-        <span class="char-counter">${counter}/${maxLength}</span>
+        <span class="field-label">Descripción física</span>
+        <span class="char-counter">${desc.length}/1500</span>
       </div>
-      <textarea
-        class="textarea-shell"
-        name="story"
-        maxlength="${maxLength}"
-        placeholder="Escribe la historia de este personaje..."
-      >${escapeHtml(story)}</textarea>
+      <textarea class="textarea-shell" name="physicalDescription" maxlength="1500" placeholder="Describe su presencia, gesto, vestimenta habitual y lo que se percibe al verlo por primera vez.">${escapeHtml(desc)}</textarea>
     </div>
   `;
 };
 
-const renderConsentStep = () => {
+const renderEtnia = () => {
+  const selected = ETHNICITIES.find((item) => item.value === state.character.ethnicity);
   return `
     <div class="section-intro">
-      <p class="eyebrow">03 — CONSENTIMIENTOS Y LÍMITES</p>
-      <h2>Establece tus límites con claridad</h2>
-      <p class="section-subtitle">Estas preferencias ayudan a definir el tono del rol sin ambigüedades ni sorpresas.</p>
+      <p class="eyebrow">03 — RAZA</p>
+      <h2>Elige la raza del personaje</h2>
+      <p class="section-subtitle">El registro admite únicamente la raza humana.</p>
     </div>
-
-    <div class="consent-grid">
-      ${CONSENT_CATEGORIES.map((category) => `
-        <div class="option-panel">
-          <h3>${category.title}</h3>
-          <p class="panel-copy">${category.prompt}</p>
-          <div class="preference-list">
-            ${category.options.map((option) => `
-              <button
-                type="button"
-                class="preference-item ${state.character.consent[category.key] === option.value ? 'selected' : ''}"
-                data-field="consent"
-                data-category="${category.key}"
-                data-value="${option.value}"
-                title="${option.description}"
-              >
-                ${option.label}
-              </button>
-            `).join('')}
-          </div>
-        </div>
-      `).join('')}
-    </div>
+    ${renderChoiceCards('ethnicity', ETHNICITIES, state.character.ethnicity)}
+    ${selected?.needsDetail ? `
+      <label class="field-card block-gap">
+        <span class="field-label">Especifica la etnia permitida <span class="field-hint">Requerido</span></span>
+        <input class="input-shell" name="ethnicityDetail" type="text" maxlength="80" value="${escapeHtml(state.character.ethnicityDetail)}" placeholder="Nombre de la etnia autorizada por el Staff" />
+      </label>
+    ` : ''}
   `;
 };
 
-const renderImageStep = () => {
+const imageStatusCopy = () => {
+  const status = state.character.imageStatus;
+  if (status === 'analyzing') return { label: 'Analizando...', className: 'image-status-warning' };
+  if (status === 'valid') return { label: 'Imagen válida', className: 'image-status-approved' };
+  if (status === 'rejected') return { label: 'Imagen rechazada · se requiere otra imagen', className: 'image-status-rejected' };
+  return { label: 'Sin imagen', className: 'image-status-missing' };
+};
+
+const renderImagen = () => {
   const image = state.character.image;
-  const status = getImageStatus();
-  const imageError = state.character.imageError || '';
+  const status = imageStatusCopy();
   const preview = image?.dataUrl
-    ? `<div class="image-preview-wrap"><img class="image-preview" src="${image.dataUrl}" alt="Vista previa de ${escapeHtml(image.name || 'la imagen del personaje')}" /><div class="image-details"><strong>${escapeHtml(image.name)}</strong><span>${Math.round(image.size / 1024)} KB · ${image.width} × ${image.height}px</span></div><button class="secondary-btn" type="button" data-action="remove-image">Reemplazar imagen</button></div>`
-    : `<div class="upload-placeholder"><strong>Suelta aquí el retrato de tu personaje</strong><span>PNG, JPG o JPEG · máximo 10 MB · mínimo 512 × 512 px</span></div>`;
+    ? `<div class="image-preview-wrap"><img class="image-preview" src="${image.dataUrl}" alt="Vista previa de ${escapeHtml(image.name || 'la imagen del personaje')}" /><div class="image-details"><strong>${escapeHtml(image.name || '')}</strong><span>${Math.round((image.size || 0) / 1024)} KB · ${image.width} × ${image.height}px</span></div><div class="button-row"><button class="secondary-btn" type="button" data-action="replace-image">Reemplazar imagen</button><button class="ghost-btn" type="button" data-action="remove-image">Eliminar imagen</button></div></div>`
+    : `<div class="upload-placeholder"><strong>Suelta aquí el retrato de tu personaje</strong><span>PNG o JPG · máximo 10 MB · mínimo 512 × 512 px</span></div>`;
 
   return `
     <div class="section-intro">
       <p class="eyebrow">04 — IMAGEN DEL PERSONAJE</p>
       <h2>Da rostro a su leyenda</h2>
-      <p class="section-subtitle">Carga una imagen original y representativa. Será revisada antes de permitir el registro final.</p>
+      <p class="section-subtitle">La imagen se verifica automáticamente por formato, peso y resolución. Puedes seguir explorando la web mientras se analiza.</p>
     </div>
     <div class="image-upload-panel">
       <input id="character-image-input" class="visually-hidden" type="file" accept="image/png,image/jpeg" />
-      <label class="drop-zone" for="character-image-input" data-drop-zone>
+      <label class="drop-zone ${state.character.imageStatus === 'analyzing' ? 'is-busy' : ''}" for="character-image-input" data-drop-zone>
         ${preview}
         ${image?.dataUrl ? '' : '<span class="upload-icon" aria-hidden="true">↑</span><span class="upload-action">Seleccionar archivo</span>'}
       </label>
       <div class="image-status ${status.className}"><span class="status-dot"></span><strong>${status.label}</strong></div>
-      ${imageError ? `<div class="image-error" role="alert">${escapeHtml(imageError)}</div>` : ''}
-      <p class="image-note">La imagen se valida por formato, tamaño y resolución antes de continuar.</p>
+      ${state.character.imageError ? `<div class="image-error" role="alert">${escapeHtml(state.character.imageError)}</div>` : ''}
+      <p class="image-note">La verificación automática comprueba que el archivo sea una imagen real PNG o JPEG, no exceda 10 MB y alcance al menos 512 × 512 píxeles.</p>
     </div>
   `;
 };
 
-const renderReviewStep = () => {
-  const story = state.character.story.trim();
-  const consentEntries = CONSENT_CATEGORIES.map((category) => ({
-    label: category.title,
-    value: getConsentLabel(category.key)
-  }));
-  const image = state.character.image;
-  const imageStatus = getImageStatus();
+const renderLore = () => `
+  <div class="section-intro">
+    <p class="eyebrow">05 — LORE</p>
+    <h2>Sumérgete en Maledicta</h2>
+    <p class="section-subtitle">Lee lo que el servidor ya tiene publicado. Lo que aún no está escrito por el Staff aparece marcado con claridad.</p>
+  </div>
+  <div class="chapter-stack">
+    ${LORE_SECTIONS.map((section) => `
+      <details class="lore-chapter">
+        <summary>
+          <span class="chapter-kicker">${escapeHtml(section.summary)}</span>
+          <strong>${escapeHtml(section.title)}</strong>
+        </summary>
+        <p>${escapeHtml(section.body)}</p>
+        ${section.related ? `<div class="entry-grid compact">${section.related.map((item) => `<article class="entry-card"><h3>${escapeHtml(item.value)}</h3><p>${escapeHtml(item.description)}</p></article>`).join('')}</div>` : ''}
+      </details>
+    `).join('')}
+  </div>
+`;
+
+const renderNormativas = () => `
+  <div class="section-intro">
+    <p class="eyebrow">06 — NORMATIVAS</p>
+    <h2>Las leyes que sostienen el servidor</h2>
+    <p class="section-subtitle">Consulta por categoría. El texto oficial se mostrará aquí cuando el Staff lo publique.</p>
+  </div>
+  <div class="chapter-stack">
+    ${NORMATIVE_CATEGORIES.map((category) => `
+      <details class="lore-chapter">
+        <summary><strong>${escapeHtml(category.title)}</strong></summary>
+        ${category.items.map((item) => `<div class="rule-block"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></div>`).join('')}
+      </details>
+    `).join('')}
+  </div>
+`;
+
+const renderConfirmacion = () => {
+  const missing = ACCEPTANCE_ITEMS.filter((item) => !state.acceptances[item.key]);
+  return `
+    <div class="section-intro">
+      <p class="eyebrow">07 — CONFIRMACIÓN</p>
+      <h2>Acepta las condiciones del cruce</h2>
+      <p class="section-subtitle">Sin estas confirmaciones no se genera la ficha. Marca solo lo que hayas leído de verdad.</p>
+    </div>
+    <div class="accept-panel">
+      ${ACCEPTANCE_ITEMS.map((item) => `
+        <label class="accept-row">
+          <input type="checkbox" data-accept="${item.key}" ${state.acceptances[item.key] ? 'checked' : ''} />
+          <span>${escapeHtml(item.label)}</span>
+        </label>
+      `).join('')}
+    </div>
+    ${missing.length ? `<div class="incomplete-list"><strong>Aún falta:</strong><ul>${missing.map((item) => `<li>${escapeHtml(item.label)}</li>`).join('')}</ul></div>` : '<p class="ready-note">Condiciones aceptadas. Ya puedes revisar y generar la ficha.</p>'}
+  `;
+};
+
+const characterSummary = () => {
+  const c = state.character;
+  const ethnicity = c.ethnicity;
+  const editedNotice = c.lastEditedAt
+    ? `<div class="edited-notice" role="status">Ficha editada el ${escapeHtml(formatDate(c.lastEditedAt))}</div>`
+    : '';
+  return `
+    <div class="review-layout">
+      <div class="review-panel">
+        <h3 class="summary-hero">${escapeHtml(c.name || 'Sin nombre')}</h3>
+        ${editedNotice}
+        <div class="summary-grid">
+          <div class="summary-item"><span class="summary-label">Edad</span><span class="summary-value">${escapeHtml(c.age || 'No definida')}</span></div>
+          <div class="summary-item"><span class="summary-label">Sexo / Género</span><span class="summary-value">${escapeHtml(c.sex || 'No definido')}</span></div>
+          <div class="summary-item"><span class="summary-label">Origen</span><span class="summary-value">${escapeHtml(c.origin || 'No especificado')}</span></div>
+          <div class="summary-item"><span class="summary-label">Raza</span><span class="summary-value">${escapeHtml(ethnicity || 'No definida')}</span></div>
+          <div class="summary-item"><span class="summary-label">Altura</span><span class="summary-value">${escapeHtml(c.height || 'No definida')}</span></div>
+        </div>
+        <div class="history-block">
+          <h4>Apariencia</h4>
+          <p class="history-text">${escapeHtml(c.distinctiveFeatures || '')}</p>
+          <div class="history-text">${escapeHtml(c.physicalDescription || 'Todavía no hay descripción física.')}</div>
+        </div>
+        ${c.validationCode ? `<p class="code-chip">Código: ${escapeHtml(c.validationCode)}</p>` : ''}
+      </div>
+      <div class="review-image-panel">
+        <h4>Imagen del personaje</h4>
+        ${c.image?.dataUrl ? `<img class="review-image" src="${c.image.dataUrl}" alt="Vista previa del personaje" />` : '<div class="review-image missing">No se ha cargado una imagen.</div>'}
+      </div>
+    </div>
+  `;
+};
+
+const renderRevision = () => `
+  <div class="section-intro">
+    <p class="eyebrow">08 — FICHA</p>
+    <h2>Revisa la forma final del personaje</h2>
+    <p class="section-subtitle">Comprueba cada dato antes de sellar el registro. Podrás editar sin perder lo escrito.</p>
+  </div>
+  ${characterSummary()}
+`;
+
+const renderStepBody = () => {
+  const id = currentStepId();
+  if (id === 'datos') return renderDatos();
+  if (id === 'apariencia') return renderApariencia();
+  if (id === 'etnia') return renderEtnia();
+  if (id === 'imagen') return renderImagen();
+  if (id === 'lore') return renderLore();
+  if (id === 'normativas') return renderNormativas();
+  if (id === 'confirmacion') return renderConfirmacion();
+  return renderRevision();
+};
+
+const renderWizard = () => {
+  const progress = getCreationProgress();
+  const isFirst = state.creationStep === 0;
+  const isLast = currentStepId() === 'revision';
+  const confirmReady = getStepErrors('confirmacion').length === 0 && allRequiredComplete();
+
+  return `
+    <div class="wizard-layout app-shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          ${brandMark()}
+          <div class="brand-copy">
+            <p class="eyebrow">${escapeHtml(WELCOME.tagline)}</p>
+            <h1>MALEDICTA</h1>
+          </div>
+        </div>
+        <div class="progress-block">
+          <div class="progress-meta">
+            <span>Paso ${state.creationStep + 1} de ${CREATION_STEPS.length}</span>
+            <strong>${progress}%</strong>
+          </div>
+          <div class="progress-track"><span class="progress-fill" style="width:${progress}%"></span></div>
+          <p class="progress-now">${escapeHtml(CREATION_STEPS[state.creationStep].title)}</p>
+        </div>
+        <nav class="step-nav" aria-label="Pasos del registro">
+          ${CREATION_STEPS.map((step, index) => `
+            <button class="step-item ${index === state.creationStep ? 'active' : ''} ${index < state.creationStep ? 'done' : ''}" type="button" data-step-index="${index}">
+              <span class="step-index">${index + 1}</span>
+              <span class="step-copy">
+                <span class="step-label">${escapeHtml(step.label)}</span>
+                <span class="step-title">${escapeHtml(step.nav)}</span>
+              </span>
+              <span class="step-status">${index < state.creationStep ? '✓' : ''}</span>
+            </button>
+          `).join('')}
+        </nav>
+        <button class="ghost-btn nav-side-link" type="button" data-route="hub/fandom">Centro de información</button>
+      </aside>
+      <main class="main-panel">
+        ${bannerHtml()}
+        <nav class="path-nav" aria-label="Recorrido">Inicio → ${CREATION_STEPS.map((step, index) => `<span class="${index === state.creationStep ? 'is-current' : ''}">${escapeHtml(step.nav)}</span>`).join(' → ')}</nav>
+        <section class="step-content">${renderStepBody()}</section>
+        <footer class="action-bar">
+          <div class="left-group">
+            ${isFirst ? '<button class="ghost-btn" type="button" data-route="bienvenida">Volver al umbral</button>' : '<button class="secondary-btn" type="button" data-action="prev">Atrás</button>'}
+          </div>
+          <div class="right-group">
+            ${isLast ? '<button class="secondary-btn" type="button" data-action="edit">Editar personaje</button>' : ''}
+            ${isLast
+              ? `<button class="action-btn" type="button" data-action="generate" ${confirmReady ? '' : 'disabled'}>Generar ficha</button>`
+              : '<button class="action-btn" type="button" data-action="next">Continuar</button>'}
+          </div>
+        </footer>
+      </main>
+    </div>
+  `;
+};
+
+const renderEntrega = () => `
+  <section class="delivery-screen">
+    ${bannerHtml()}
+    <div class="complete-panel">
+      <div class="complete-badge">✦</div>
+      <h2>${escapeHtml(STAFF_DELIVERY.title)}</h2>
+      <p>La web ya no es un formulario: es tu portal. El último sello, sin embargo, lo pone el Staff en Discord.</p>
+      <ol class="delivery-steps">
+        ${STAFF_DELIVERY.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}
+      </ol>
+      <p class="welcome-note">${escapeHtml(STAFF_DELIVERY.reminder)}</p>
+      <div class="button-row">
+        <button class="action-btn" type="button" data-action="download">Descargar ficha</button>
+        <button class="secondary-btn" type="button" data-action="print">Imprimir ficha</button>
+        <button class="ghost-btn" type="button" data-route="hub/mi-personaje">Ir al centro de información</button>
+      </div>
+    </div>
+  </section>
+`;
+
+const pendingCard = (title, description) => `
+  <article class="entry-card pending">
+    <h3>${escapeHtml(title)}</h3>
+    <p>${escapeHtml(description || CONTENT_PENDING)}</p>
+  </article>
+`;
+
+const renderFandomHome = () => `
+  <div class="section-intro">
+    <p class="eyebrow">FANDOM OFICIAL</p>
+    <h2>El archivo de Maledicta</h2>
+    <p class="section-subtitle">Solo se muestra lo que ya existe en esta web. El resto espera publicación del Staff.</p>
+  </div>
+  <div class="hub-card-grid">
+    ${[
+      ['razas', FANDOM.razas],
+      ['historia', FANDOM.historia],
+      ['ciudades', FANDOM.ciudades],
+      ['dioses', FANDOM.dioses],
+      ['eventos', FANDOM.eventos],
+      ['bosses-de-maledicta', FANDOM.bosses]
+    ].map(([id, data]) => `
+      <button class="hub-link-card" type="button" data-route="hub/${id}">
+        <strong>${escapeHtml(data.title)}</strong>
+        <span>${escapeHtml(data.description)}</span>
+      </button>
+    `).join('')}
+  </div>
+`;
+
+const renderBossesSection = () => `
+  <div class="section-intro">
+    <p class="eyebrow">FANDOM · BESTIARIO</p>
+    <h2>${escapeHtml(FANDOM.bosses.title)}</h2>
+    <p class="section-subtitle">${escapeHtml(FANDOM.bosses.description)}</p>
+  </div>
+  <div class="boss-card-list">
+    ${FANDOM.bosses.entries.map((boss) => {
+      const images = bossGalleryImages.get(boss.id) || [];
+      return `
+        <article class="boss-card" id="boss-${escapeHtml(boss.id)}">
+          <header class="boss-card-heading">
+            <div><p class="eyebrow">JEFE DE MALEDICTA</p><h3>${escapeHtml(boss.name)}</h3></div>
+            <div class="boss-health"><span>VIDA</span><strong>${escapeHtml(boss.health)}</strong></div>
+          </header>
+          <div class="boss-creature"><span>Criatura</span><strong>${escapeHtml(boss.creature)}</strong></div>
+          <div class="boss-details-grid">
+            <section class="boss-loot">
+              <h4>Botín</h4>
+              <ul>${boss.loot.map((drop) => `<li><span class="loot-chance">${escapeHtml(drop.chance)}</span><span>${escapeHtml(drop.item)}</span></li>`).join('')}</ul>
+            </section>
+            <dl class="boss-facts">
+              <div><dt>Spawn</dt><dd>${escapeHtml(boss.spawn)}</dd></div>
+              <div><dt>Ubicación</dt><dd>${escapeHtml(boss.location)}</dd></div>
+            </dl>
+          </div>
+          <section class="boss-gallery" aria-label="Galería de ${escapeHtml(boss.name)}">
+            <div class="boss-gallery-heading">
+              <div><h4>Galería</h4><span>${images.length} ${images.length === 1 ? 'imagen' : 'imágenes'}</span></div>
+              <button class="secondary-btn" type="button" data-boss-gallery-action="add" data-boss-id="${escapeHtml(boss.id)}">＋ Agregar imágenes</button>
+              <input class="visually-hidden" id="boss-images-${escapeHtml(boss.id)}" type="file" accept="image/png,image/jpeg" multiple data-boss-file-input="${escapeHtml(boss.id)}" />
+            </div>
+            ${images.length ? `
+              <div class="boss-gallery-grid">
+                ${images.map((image, index) => `
+                  <div class="boss-gallery-item">
+                    <button class="boss-gallery-image" type="button" data-boss-gallery-action="open" data-boss-id="${escapeHtml(boss.id)}" data-image-index="${index}" aria-label="Ampliar imagen ${index + 1} de ${escapeHtml(boss.name)}">
+                      <img src="${image.url}" alt="${escapeHtml(image.name)}" />
+                    </button>
+                    <button class="boss-gallery-delete" type="button" data-boss-gallery-action="delete" data-boss-id="${escapeHtml(boss.id)}" data-image-id="${escapeHtml(image.id)}" aria-label="Eliminar ${escapeHtml(image.name)}" title="Eliminar imagen">×</button>
+                    <span class="boss-gallery-filename">${escapeHtml(image.name)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : '<div class="boss-gallery-empty"><span aria-hidden="true">✧</span><strong>Aún no hay imágenes</strong><small>Las imágenes de este jefe aparecerán aquí.</small></div>'}
+          </section>
+        </article>
+      `;
+    }).join('')}
+  </div>
+`;
+
+const renderBossGalleryViewer = () => {
+  if (!bossGalleryViewer) return '';
+  const boss = FANDOM.bosses.entries.find((entry) => entry.id === bossGalleryViewer.bossId);
+  const images = bossGalleryImages.get(bossGalleryViewer.bossId) || [];
+  const image = images[bossGalleryViewer.index];
+  if (!boss || !image) return '';
+  return `
+    <section class="boss-lightbox" role="dialog" aria-modal="true" aria-label="Galería de ${escapeHtml(boss.name)}" data-boss-gallery-action="close">
+      <div class="boss-lightbox-panel" data-lightbox-panel>
+        <header><span>${escapeHtml(boss.name)} · ${bossGalleryViewer.index + 1} / ${images.length}</span><button class="reader-control" type="button" data-boss-gallery-action="close" aria-label="Cerrar galería">×</button></header>
+        <div class="boss-lightbox-stage">
+          <button class="boss-lightbox-nav" type="button" data-boss-gallery-action="previous" aria-label="Imagen anterior">‹</button>
+          <img src="${image.url}" alt="${escapeHtml(image.name)}" />
+          <button class="boss-lightbox-nav" type="button" data-boss-gallery-action="next" aria-label="Imagen siguiente">›</button>
+        </div>
+        <p>${escapeHtml(image.name)}</p>
+      </div>
+    </section>
+  `;
+};
+
+const renderCatalogSection = (data, extra = []) => `
+  <div class="section-intro">
+    <p class="eyebrow">FANDOM</p>
+    <h2>${escapeHtml(data.title)}</h2>
+    <p class="section-subtitle">${escapeHtml(data.description)}</p>
+  </div>
+  <div class="entry-grid">
+    ${data.entries.map((entry) => `
+      <article class="entry-card">
+        <h3>${escapeHtml(entry.value || entry.title)}</h3>
+        ${entry.body
+          ? entry.body.split(/\n\n+/).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')
+          : `<p>${escapeHtml(entry.description || CONTENT_PENDING)}</p>`}
+        ${entry.abilities?.length ? `
+          <div class="ability-list">
+            ${entry.abilities.map(([title, description]) => `
+              <div class="ability-item">
+                <strong>${escapeHtml(title)}</strong>
+                <p>${escapeHtml(description)}</p>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </article>
+    `).join('')}
+    ${extra.map((entry) => `
+      <article class="entry-card">
+        <h3>${escapeHtml(entry.value)}</h3>
+        <p>${escapeHtml(entry.description)}</p>
+      </article>
+    `).join('')}
+  </div>
+`;
+
+const renderHistoryBody = (body) => body
+  .split(/\r?\n\r?\n+/)
+  .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
+  .join('');
+
+const renderHistoryReader = () => {
+  const tomes = FANDOM.historia.entries;
+  const tome = tomes[historyReaderIndex];
+  return `
+    <section class="history-reader" aria-label="Lector de Historia" role="dialog" aria-modal="true">
+      <div class="history-reader-topbar">
+        <button class="reader-control" type="button" data-history-action="close" aria-label="Cerrar lector">× <span>Cerrar</span></button>
+        <span class="reader-location">Historia · Tomo ${historyReaderIndex + 1} de ${tomes.length}</span>
+        <button class="reader-control" type="button" data-history-action="close">Volver al índice</button>
+      </div>
+      <article class="history-book">
+        <header class="history-book-cover">
+          <span class="history-book-kicker">CRÓNICAS DE MALEDICTA</span>
+          <h2>${escapeHtml(tome.title)}</h2>
+          <span class="history-book-rule"></span>
+          <p>Historia canon</p>
+        </header>
+        <div class="history-book-content">
+          ${renderHistoryBody(tome.body)}
+        </div>
+        <footer class="history-reader-footer">
+          <button class="secondary-btn" type="button" data-history-action="previous" ${historyReaderIndex === 0 ? 'disabled' : ''}>← Tomo anterior</button>
+          <span>Página de lectura</span>
+          <button class="secondary-btn" type="button" data-history-action="next" ${historyReaderIndex === tomes.length - 1 ? 'disabled' : ''}>Tomo siguiente →</button>
+        </footer>
+      </article>
+    </section>
+  `;
+};
+
+const renderHistorySection = () => {
+  const tomes = FANDOM.historia.entries;
 
   return `
     <div class="section-intro">
-      <p class="eyebrow">04 — REVISIÓN</p>
-      <h2>Revisa la forma final del personaje</h2>
-      <p class="section-subtitle">Comprobá que cada elemento del registro encaje con la identidad que deseas sostener.</p>
+      <p class="eyebrow">FANDOM · ARCHIVO HISTÓRICO</p>
+      <h2>${escapeHtml(FANDOM.historia.title)}</h2>
+      <p class="section-subtitle">${escapeHtml(FANDOM.historia.description)} Elige un tomo para abrirlo como un libro.</p>
     </div>
-
-    <div class="review-layout">
-      <div class="review-panel">
-        <h3 class="summary-hero">Maledicta</h3>
-        <div class="summary-grid">
-          <div class="summary-item"><span class="summary-label">Nombre</span><span class="summary-value">${escapeHtml(state.character.name || 'No definido')}</span></div>
-          <div class="summary-item"><span class="summary-label">Edad</span><span class="summary-value">${escapeHtml(state.character.age || 'No definida')}</span></div>
-          <div class="summary-item"><span class="summary-label">Arquetipo</span><span class="summary-value">${escapeHtml(state.character.archetype || 'No definido')}</span></div>
-          <div class="summary-item"><span class="summary-label">Profesión</span><span class="summary-value">${escapeHtml(state.character.profession || 'No definida')}</span></div>
-          <div class="summary-item"><span class="summary-label">Clase</span><span class="summary-value">${escapeHtml(state.character.classType || 'No definida')}</span></div>
-          <div class="summary-item"><span class="summary-label">Alineación</span><span class="summary-value">${escapeHtml(state.character.alignment || 'No definida')}</span></div>
-        </div>
-
-        <div class="history-block">
-          <h4>Historia</h4>
-          <div class="history-text">${escapeHtml(story || 'Todavía no se ha escrito la historia del personaje.')}</div>
-        </div>
-      </div>
-
-      <div class="review-image-panel">
-        <h4>Imagen del personaje</h4>
-        ${image?.dataUrl ? `<img class="review-image" src="${image.dataUrl}" alt="Vista previa del personaje" />` : '<div class="review-image missing">No se ha cargado una imagen.</div>'}
-        <div class="image-status ${imageStatus.className}"><span class="status-dot"></span><strong>${imageStatus.label}</strong></div>
-        <p class="review-ai-result">La imagen cumple los requisitos técnicos del formulario.</p>
-      </div>
-
-      <div class="consent-summary">
-        <h4>Consentimientos</h4>
-        <div class="badge-list">
-          ${consentEntries.map((entry) => `<span class="badge">${entry.label}: ${entry.value}</span>`).join('')}
-        </div>
-      </div>
+    <div class="history-shelf">
+      ${tomes.map((tome, index) => `
+        <button class="history-volume" type="button" data-history-action="open" data-history-index="${index}">
+          <span class="history-volume-number">TOMO ${String(index + 1).padStart(2, '0')}</span>
+          <strong>${escapeHtml(tome.title.replace(/^Tomo [IVX]+ — /, ''))}</strong>
+          <span class="history-volume-cta">Abrir tomo <span aria-hidden="true">→</span></span>
+        </button>
+      `).join('')}
     </div>
   `;
 };
 
-const wrapText = (ctx, text, maxWidth) => {
-  const words = text.split(' ');
-  const lines = [];
-  let currentLine = '';
+const renderNews = () => `
+  <div class="section-intro">
+    <p class="eyebrow">NOTICIAS</p>
+    <h2>Voces del servidor</h2>
+    <p class="section-subtitle">Cuando el Staff publique avisos, aparecerán aquí como cartas fechadas.</p>
+  </div>
+  ${NEWS.length ? `
+    <div class="news-grid">
+      ${NEWS.map((item) => `
+        <article class="news-card">
+          ${item.image ? `<img src="${escapeHtml(item.image)}" alt="" />` : ''}
+          <time>${escapeHtml(item.date || '')}</time>
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>${escapeHtml(item.summary)}</p>
+          <details><summary>Leer completo</summary><p>${escapeHtml(item.body)}</p></details>
+        </article>
+      `).join('')}
+    </div>
+  ` : pendingCard('Sin noticias publicadas', 'Esta sección está lista para recibir titulares, fechas, imágenes y cuerpo de cada aviso.')}
+`;
 
-  for (const word of words) {
-    const testLine = currentLine ? `${currentLine} ${word}` : word;
-    const metrics = ctx.measureText(testLine);
+const renderGuides = () => `
+  <div class="section-intro">
+    <p class="eyebrow">GUÍAS</p>
+    <h2>Para quien acaba de cruzar</h2>
+    <p class="section-subtitle">Usa estas puertas para orientarte. El detalle de juego se ampliará cuando exista material oficial.</p>
+  </div>
+  <div class="chapter-stack">
+    ${GUIDES.map((guide) => `
+      <details class="lore-chapter">
+        <summary>
+          <span class="chapter-kicker">${escapeHtml(guide.summary)}</span>
+          <strong>${escapeHtml(guide.title)}</strong>
+        </summary>
+        <p>${escapeHtml(guide.body)}</p>
+      </details>
+    `).join('')}
+  </div>
+`;
 
-    if (metrics.width > maxWidth && currentLine) {
-      lines.push(currentLine);
-      currentLine = word;
-    } else {
-      currentLine = testLine;
-    }
+const renderFaq = () => `
+  <div class="section-intro">
+    <p class="eyebrow">FAQ</p>
+    <h2>Preguntas frecuentes</h2>
+    <p class="section-subtitle">Respuestas con lo que esta web ya puede afirmar.</p>
+  </div>
+  <div class="chapter-stack">
+    ${FAQ.map((item) => `
+      <details class="lore-chapter">
+        <summary><strong>${escapeHtml(item.question)}</strong></summary>
+        <p>${escapeHtml(item.answer)}</p>
+      </details>
+    `).join('')}
+  </div>
+`;
+
+const renderOtherGames = () => `
+  <section class="other-game-launch" aria-label="${escapeHtml(OTHER_GAMES[0].title)}">
+    <a class="other-game-play" href="${escapeHtml(OTHER_GAMES[0].url)}" target="_blank" rel="noopener noreferrer" aria-label="Jugar ${escapeHtml(OTHER_GAMES[0].title)}" title="Jugar">
+      <span aria-hidden="true">▶</span>
+      <span>Jugar</span>
+    </a>
+  </section>
+`;
+
+const renderMiPersonaje = () => {
+  if (!state.characterComplete && !state.character.name) {
+    return `
+      <div class="complete-panel">
+        <h2>Aún no hay un personaje sellado</h2>
+        <p>El registro no se ha completado. Puedes comenzar ahora y el progreso se guardará en este navegador.</p>
+        <button class="action-btn" type="button" data-route="crear">Crear personaje</button>
+      </div>
+    `;
   }
-
-  if (currentLine) {
-    lines.push(currentLine);
-  }
-
-  return lines;
-};
-
-const downloadCharacterSheet = async () => {
-  if (getProgress() < 100) {
-    setBanner('Completa todos los campos y consentimientos antes de descargar la ficha.');
-    return false;
-  }
-
-  const canvas = document.createElement('canvas');
-  canvas.width = 1400;
-  canvas.height = 1900;
-  const ctx = canvas.getContext('2d');
-
-  const consentEntries = CONSENT_CATEGORIES.map((category) => ({
-    label: category.title,
-    value: getConsentLabel(category.key)
-  }));
-
-  const name = (state.character.name || 'Personaje sin nombre').trim();
-  const title = 'MALEDICTA';
-
-  ctx.fillStyle = '#070b10';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  const logo = new Image();
-  logo.src = './assets/maledicta-logo.png';
-  await new Promise((resolve) => {
-    logo.onload = resolve;
-    logo.onerror = resolve;
-  });
-
-  const characterImage = new Image();
-  if (state.character.image?.dataUrl) {
-    characterImage.src = state.character.image.dataUrl;
-    await new Promise((resolve) => {
-      characterImage.onload = resolve;
-      characterImage.onerror = resolve;
-    });
-  }
-
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-  gradient.addColorStop(0, '#25131d');
-  gradient.addColorStop(0.55, '#160a12');
-  gradient.addColorStop(1, '#10070d');
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.strokeStyle = 'rgba(244, 220, 224, 0.5)';
-  ctx.lineWidth = 8;
-  ctx.beginPath();
-  ctx.roundRect(48, 52, canvas.width - 96, canvas.height - 104, 42);
-  ctx.stroke();
-
-  ctx.fillStyle = '#ffe9df';
-  ctx.font = 'bold 82px Georgia';
-  ctx.textAlign = 'center';
-  ctx.fillText(title, canvas.width / 2, 180);
-
-  if (logo.complete && logo.naturalWidth > 0) {
-    const logoSize = 170;
-    ctx.globalAlpha = 0.92;
-    ctx.drawImage(logo, canvas.width / 2 - logoSize / 2, 274, logoSize, logoSize);
-    ctx.globalAlpha = 1;
-  }
-
-  ctx.fillStyle = '#e6b4bd';
-  ctx.font = '600 28px Arial';
-  ctx.letterSpacing = '0.2em';
-  ctx.fillText('REGISTRO DE PERSONAJE', canvas.width / 2, 245);
-
-  const summary = [
-    ['Nombre', state.character.name || 'No definido'],
-    ['Edad', state.character.age || 'No definida'],
-    ['Arquetipo', state.character.archetype || 'No definido'],
-    ['Profesión', state.character.profession || 'No definida'],
-    ['Clase', state.character.classType || 'No definida'],
-    ['Alineación', state.character.alignment || 'No definida']
-  ];
-
-  const cardX = 110;
-  const cardY = 300;
-  const cardW = canvas.width - 220;
-  const itemW = cardW / 2 - 20;
-  const itemH = 110;
-
-  summary.forEach(([label, value], index) => {
-    const col = index % 2;
-    const row = Math.floor(index / 2);
-    const x = cardX + col * (itemW + 20);
-    const y = cardY + row * (itemH + 18);
-
-    ctx.fillStyle = 'rgba(255, 244, 240, 0.045)';
-    ctx.fillRect(x, y, itemW, itemH);
-    ctx.strokeStyle = 'rgba(244, 220, 224, 0.18)';
-    ctx.strokeRect(x, y, itemW, itemH);
-
-    ctx.fillStyle = '#d0b7bd';
-    ctx.font = '600 18px Arial';
-    ctx.textAlign = 'left';
-    ctx.fillText(label.toUpperCase(), x + 24, y + 34);
-
-    ctx.fillStyle = '#fff4f0';
-    ctx.font = '600 30px Arial';
-    const safeValue = String(value || 'No definido');
-    const valueLines = wrapText(ctx, safeValue, itemW - 30);
-    const maxLines = 2;
-    valueLines.slice(0, maxLines).forEach((line, lineIdx) => {
-      ctx.fillText(line, x + 24, y + 70 + lineIdx * 26);
-    });
-  });
-
-  const imageTitleY = 760;
-  ctx.fillStyle = '#e6b4bd';
-  ctx.font = '600 22px Arial';
-  ctx.textAlign = 'left';
-  ctx.fillText('IMAGEN DEL PERSONAJE', 110, imageTitleY);
-
-  const imageBoxX = 110;
-  const imageBoxY = 790;
-  const imageBoxW = canvas.width - 220;
-  const imageBoxH = 330;
-  ctx.fillStyle = 'rgba(48, 21, 35, 0.82)';
-  ctx.fillRect(imageBoxX, imageBoxY, imageBoxW, imageBoxH);
-  ctx.strokeStyle = 'rgba(239, 169, 173, 0.42)';
-  ctx.strokeRect(imageBoxX, imageBoxY, imageBoxW, imageBoxH);
-
-  if (characterImage.complete && characterImage.naturalWidth > 0) {
-    const padding = 18;
-    const maxW = imageBoxW - padding * 2;
-    const maxH = imageBoxH - padding * 2;
-    const scale = Math.min(maxW / characterImage.naturalWidth, maxH / characterImage.naturalHeight);
-    const drawW = characterImage.naturalWidth * scale;
-    const drawH = characterImage.naturalHeight * scale;
-    const drawX = imageBoxX + (imageBoxW - drawW) / 2;
-    const drawY = imageBoxY + (imageBoxH - drawH) / 2;
-    ctx.drawImage(characterImage, drawX, drawY, drawW, drawH);
-  }
-
-  const storyTitleY = 1160;
-  ctx.fillStyle = '#e6b4bd';
-  ctx.font = '600 22px Arial';
-  ctx.textAlign = 'left';
-  ctx.fillText('HISTORIA', 110, storyTitleY);
-
-  const storyBoxX = 110;
-  const storyBoxY = 1190;
-  const storyBoxW = canvas.width - 220;
-  const storyBoxH = 390;
-  ctx.fillStyle = 'rgba(255, 244, 240, 0.045)';
-  ctx.fillRect(storyBoxX, storyBoxY, storyBoxW, storyBoxH);
-  ctx.strokeStyle = 'rgba(244, 220, 224, 0.18)';
-  ctx.strokeRect(storyBoxX, storyBoxY, storyBoxW, storyBoxH);
-
-  ctx.fillStyle = '#fff4f0';
-  ctx.font = '22px Arial';
-  const storyText = state.character.story || 'Sin historia registrada.';
-  const storyLines = wrapText(ctx, storyText, storyBoxW - 50);
-  storyLines.slice(0, 12).forEach((line, index) => {
-    ctx.fillText(line, storyBoxX + 28, storyBoxY + 48 + index * 28);
-  });
-
-  const consentTitleY = 1630;
-  ctx.fillStyle = '#e6b4bd';
-  ctx.font = '600 22px Arial';
-  ctx.fillText('CONSENTIMIENTOS', 110, consentTitleY);
-
-  let badgeX = 110;
-  let badgeY = 1680;
-  let badgeIndex = 0;
-
-  consentEntries.forEach((entry) => {
-    const text = `${entry.label}: ${entry.value}`;
-    const badgeWidth = Math.max(170, ctx.measureText(text).width + 28);
-
-    if (badgeX + badgeWidth > canvas.width - 110) {
-      badgeX = 110;
-      badgeY += 54;
-    }
-
-    ctx.fillStyle = 'rgba(230, 180, 189, 0.1)';
-    ctx.fillRect(badgeX, badgeY, badgeWidth, 42);
-    ctx.strokeStyle = 'rgba(230, 180, 189, 0.28)';
-    ctx.strokeRect(badgeX, badgeY, badgeWidth, 42);
-    ctx.fillStyle = '#fff4f0';
-    ctx.font = '500 18px Arial';
-    ctx.fillText(text, badgeX + 14, badgeY + 27);
-
-    badgeX += badgeWidth + 14;
-    badgeIndex += 1;
-  });
-
-  const fileName = `${name.replace(/\s+/g, '_').toLowerCase()}_maledicta.png`;
-  const dataUrl = canvas.toDataURL('image/png');
-  const link = document.createElement('a');
-  link.download = fileName;
-  link.href = dataUrl;
-  link.click();
-
-  window.__lastCharacterSheetDownload = fileName;
-  return true;
-};
-
-const renderFinalStep = () => {
-  const canConfirm = getProgress() === 100;
-  const missingFields = getValidationErrors().map((error) => error.message);
-  const confirmed = state.confirmed && canConfirm;
-  const confirmedText = confirmed
-    ? 'Este personaje ya fue confirmado dentro de Maledicta.'
-    : canConfirm
-      ? 'Tu personaje ha sido registrado en Maledicta. El registro quedó guardado en este navegador para que puedas revisarlo y confirmar su estado final.'
-      : 'Tu ficha aún está incompleta. Completa los datos pendientes antes de confirmar el personaje o descargar la ficha.';
-  const missingText = canConfirm
-    ? ''
-    : `<div class="incomplete-list"><strong>Falta completar:</strong><ul>${missingFields.map((field) => `<li>${escapeHtml(field)}</li>`).join('')}</ul></div>`;
-
   return `
-    <div class="complete-panel">
-      <div class="complete-badge ${canConfirm ? '' : 'incomplete'}">${confirmed ? '✦' : canConfirm ? '✓' : '!'}</div>
-      <h2>${confirmed ? 'PERSONAJE CONFIRMADO' : canConfirm ? 'REGISTRO COMPLETADO' : 'FICHA INCOMPLETA'}</h2>
-      <p>${confirmedText}</p>
-      ${missingText}
-      <div class="button-row">
-        <button class="secondary-btn" type="button" data-action="edit">Editar personaje</button>
-        <button class="action-btn" type="button" data-action="confirm" ${canConfirm ? '' : 'disabled'}>${confirmed ? 'Personaje confirmado' : 'Confirmar personaje'}</button>
-        <button class="ghost-btn" type="button" data-action="restart">Reiniciar</button>
-        <button class="ghost-btn" type="button" data-action="save">Guardar</button>
+    <div class="section-intro">
+      <p class="eyebrow">MI PERSONAJE</p>
+      <h2>${escapeHtml(state.character.name || 'Personaje en curso')}</h2>
+      <p class="section-subtitle">Consulta, descarga o imprime cuando quieras. Editar no borra lo ya escrito.</p>
+    </div>
+    ${characterSummary()}
+    <div class="button-row">
+      <button class="action-btn" type="button" data-action="download" ${state.character.validationCode ? '' : 'disabled'}>Descargar ficha</button>
+      <button class="secondary-btn" type="button" data-action="print">Imprimir ficha</button>
+      <button class="ghost-btn" type="button" data-action="edit">Editar personaje</button>
+      <button class="ghost-btn danger-btn" type="button" data-action="delete-character">Borrar ficha</button>
+      ${state.characterComplete ? '<button class="ghost-btn" type="button" data-route="entrega">Cómo entregarla al Staff</button>' : ''}
+    </div>
+  `;
+};
+
+const renderHubSection = () => {
+  const id = state.hubSection;
+  if (id === 'inicio') {
+    return `
+      <div class="section-intro">
+        <p class="eyebrow">${escapeHtml(WELCOME.tagline)}</p>
+        <h2>Bienvenido de nuevo a Maledicta</h2>
+        <p class="section-subtitle">${escapeHtml(WELCOME.intro)}</p>
       </div>
-    </div>
+      <div class="hub-card-grid">
+        ${state.characterComplete ? `<button class="hub-link-card featured" type="button" data-route="hub/mi-personaje"><strong>Mi personaje</strong><span>Revisa, descarga o imprime tu ficha.</span></button>` : `<button class="hub-link-card featured" type="button" data-route="crear"><strong>Crear personaje</strong><span>Continúa el rito de ingreso.</span></button>`}
+          <button class="hub-link-card" type="button" data-route="hub/fandom"><strong>Fandom</strong><span>Razas, clases e historia publicada.</span></button>
+        <button class="hub-link-card" type="button" data-route="hub/lore"><strong>Lore</strong><span>El archivo de origen y el pacto, cuando exista.</span></button>
+        <button class="hub-link-card" type="button" data-route="hub/guias"><strong>Guías</strong><span>Primeros pasos para jugadores nuevos.</span></button>
+      </div>
+    `;
+  }
+  if (id === 'mi-personaje') return renderMiPersonaje();
+  if (id === 'fandom') return renderFandomHome();
+  if (id === 'lore') return renderLore();
+  if (id === 'razas') return `${renderCatalogSection(FANDOM.razas)}${renderCatalogSection(FANDOM.clases)}`;
+  if (id === 'historia') return renderHistorySection();
+  if (id === 'ciudades') return renderCatalogSection(FANDOM.ciudades);
+  if (id === 'dioses') return renderCatalogSection(FANDOM.dioses);
+  if (id === 'eventos') return `${renderCatalogSection(FANDOM.eventos)}${renderCatalogSection(FANDOM.actualizaciones)}`;
+  if (id === 'bosses-de-maledicta') return renderBossesSection();
+  if (id === 'noticias') return renderNews();
+  if (id === 'guias') return renderGuides();
+  if (id === 'otros-juegos') return renderOtherGames();
+  if (id === 'faq') return renderFaq();
+  if (id === 'normativas') return renderNormativas();
+  return renderFandomHome();
+};
+
+const renderHub = () => `
+  <div class="hub-layout">
+    <header class="hub-top">
+      <button class="brand-inline" type="button" data-route="hub/inicio">
+        ${brandMark()}
+        <span>
+          <span class="eyebrow">${escapeHtml(WELCOME.tagline)}</span>
+          <strong>MALEDICTA</strong>
+        </span>
+      </button>
+      <nav class="hub-nav" aria-label="Centro de información">
+        ${HUB_SECTIONS.filter((item) => !(item.requiresCharacter && !state.characterComplete && item.id === 'mi-personaje' && !state.character.name)).map((item) => `
+          <button class="hub-nav-item ${state.hubSection === item.id ? 'active' : ''}" type="button" data-route="hub/${item.id}">${escapeHtml(item.label)}</button>
+        `).join('')}
+      </nav>
+    </header>
+    <main class="hub-main">
+      ${bannerHtml()}
+      ${!state.characterComplete ? `<div class="resume-strip"><span>Registro en curso · ${getCreationProgress()}%</span><button class="action-btn" type="button" data-route="crear">Continuar personaje</button></div>` : ''}
+      ${renderHubSection()}
+    </main>
+  </div>
+  ${state.hubSection === 'historia' && historyReaderIndex !== null ? renderHistoryReader() : ''}
+  ${state.hubSection === 'bosses-de-maledicta' ? renderBossGalleryViewer() : ''}
+`;
+
+const fillPrintSheet = () => {
+  const c = state.character;
+  if (!c?.name && !c?.validationCode) {
+    printRoot.hidden = true;
+    printRoot.innerHTML = '';
+    return;
+  }
+  printRoot.hidden = false;
+  printRoot.innerHTML = `
+    <p class="print-kicker">Constelación de lo prohibido</p>
+    <h1>MALEDICTA</h1>
+    <p class="print-sub">Registro de personaje</p>
+    <p class="print-code">${escapeHtml(c.validationCode || 'SIN CÓDIGO')}</p>
+    ${c.lastEditedAt ? `<p class="print-edited">Ficha editada el ${escapeHtml(formatDate(c.lastEditedAt))}</p>` : ''}
+    ${c.image?.dataUrl ? `<img src="${c.image.dataUrl}" alt="" />` : ''}
+    <dl>
+      <div><dt>Nombre</dt><dd>${escapeHtml(c.name)}</dd></div>
+      <div><dt>Edad</dt><dd>${escapeHtml(c.age)}</dd></div>
+      <div><dt>Sexo / Género</dt><dd>${escapeHtml(c.sex)}</dd></div>
+      <div><dt>Origen</dt><dd>${escapeHtml(c.origin || '—')}</dd></div>
+      <div><dt>Raza</dt><dd>${escapeHtml(c.ethnicityDetail || c.ethnicity)}</dd></div>
+      <div><dt>Altura</dt><dd>${escapeHtml(c.height)}</dd></div>
+    </dl>
+    <h2>Descripción física</h2>
+    <p>${escapeHtml(c.distinctiveFeatures)}</p>
+    <p>${escapeHtml(c.physicalDescription)}</p>
   `;
 };
 
-const renderStepContent = () => {
-  if (state.completed) {
-    stepContent.innerHTML = renderFinalStep();
-    actionBar.innerHTML = '';
-    return;
-  }
-
-  const stepId = STEPS[state.currentStep].id;
-  let content = '';
-
-  if (stepId === 'identity') content = renderIdentityStep();
-  if (stepId === 'story') content = renderStoryStep();
-  if (stepId === 'consent') content = renderConsentStep();
-  if (stepId === 'image') content = renderImageStep();
-  if (stepId === 'review') content = renderReviewStep();
-
-  stepContent.innerHTML = content;
-  renderActionBar();
-};
-
-const renderActionBar = () => {
-  if (state.completed) {
-    return;
-  }
-
-  const currentIndex = state.currentStep;
-  const isFirst = currentIndex === 0;
-  const isLast = currentIndex === STEPS.length - 1;
-
-  actionBar.innerHTML = `
-    <div class="left-group">
-      ${isFirst ? '' : '<button class="secondary-btn" type="button" data-action="prev">Anterior</button>'}
-    </div>
-    <div class="right-group">
-      <button class="ghost-btn" type="button" data-action="save">Guardar</button>
-      <button class="action-btn" type="button" data-action="${isLast ? 'finish' : 'next'}">${isLast ? 'Finalizar registro' : 'Siguiente'}</button>
-    </div>
-  `;
-};
-
-const saveAndRender = () => {
-  persist();
-  renderStepNav();
-  renderStepContent();
-};
-
-const goToStep = (index) => {
-  state.currentStep = Math.max(0, Math.min(index, STEPS.length - 1));
-  setBanner('');
-  saveAndRender();
-};
-
-const handleNext = () => {
-  if (!validateCurrentStep()) {
-    return;
-  }
-
-  if (state.currentStep < STEPS.length - 1) {
-    state.currentStep += 1;
-    saveAndRender();
-    return;
-  }
-
-  state.completed = true;
-  persist();
-  renderStepNav();
-  renderStepContent();
-};
-
-const handleFinish = () => {
-  if (!validateCurrentStep()) {
-    return;
-  }
-
-  state.completed = true;
-  persist();
-  renderStepNav();
-  renderStepContent();
-};
-
-const handleInput = (event) => {
-  const { name, value } = event.target;
-  if (!name || event.target.matches('select')) return;
-
-  if (name === 'story') {
-    state.character.story = value;
-    persist();
-    renderStepNav();
-
-    const counter = event.target.closest('.codex-panel')?.querySelector('.char-counter');
-    if (counter) {
-      counter.textContent = `${value.length}/1500`;
-    }
-    return;
-  }
-
-  if (name === 'age') {
-    const cleanValue = value.replace(/[^\d]/g, '').slice(0, 5);
-    state.character.age = cleanValue;
-    event.target.value = cleanValue;
-  } else {
-    state.character[name] = value;
-  }
-
-  persist();
-  renderStepNav();
-};
-
-const handleSelectChange = (event) => {
-  const select = event.target.closest('select');
-  if (!select) return;
-
-  const { name, value } = select;
-  if (!name || !(name in state.character)) return;
-
-  state.character[name] = value;
-  persist();
-  renderStepNav();
-  renderStepContent();
+const render = () => {
+  document.body.classList.toggle('history-reading', historyReaderIndex !== null);
+  if (state.phase === 'welcome') appRoot.innerHTML = renderWelcome();
+  else if (state.phase === 'creating') appRoot.innerHTML = renderWizard();
+  else if (state.phase === 'entrega') appRoot.innerHTML = renderEntrega();
+  else appRoot.innerHTML = renderHub();
+  fillPrintSheet();
+  syncHash();
 };
 
 const handleImageFile = async (file) => {
   state.character.imageError = '';
-  const allowedTypes = ['image/png', 'image/jpeg'];
-  if (!file || !allowedTypes.includes(file.type)) {
-    state.character.imageError = 'Formato no permitido. Usa una imagen PNG, JPG o JPEG real.';
-    renderStepContent();
+  state.character.imageStatus = 'analyzing';
+  persist();
+  render();
+
+  const fail = (message) => {
+    state.character.imageError = message;
+    state.character.imageStatus = 'rejected';
+    state.character.image = defaultCharacter().image;
+    persist();
+    render();
+  };
+
+  if (!file || !IMAGE_LIMITS.types.includes(file.type)) {
+    fail('Formato no permitido. Usa una imagen PNG, JPG o JPEG real.');
     return;
   }
-  if (file.size > 10 * 1024 * 1024) {
-    state.character.imageError = 'La imagen supera el tamaño máximo de 10 MB.';
-    renderStepContent();
+  if (file.size > IMAGE_LIMITS.maxBytes) {
+    fail('La imagen supera el tamaño máximo de 10 MB.');
     return;
   }
 
-  const dataUrl = await new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-  const imageElement = new Image();
-  imageElement.src = dataUrl;
-  await new Promise((resolve, reject) => {
-    imageElement.onload = resolve;
-    imageElement.onerror = reject;
-  }).catch(() => {
-    state.character.imageError = 'No se pudo leer la imagen. El archivo podría estar dañado.';
-  });
-  if (state.character.imageError) {
-    renderStepContent();
+  let dataUrl;
+  try {
+    dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  } catch {
+    fail('No se pudo leer la imagen. El archivo podría estar dañado.');
     return;
   }
-  if (imageElement.naturalWidth < 512 || imageElement.naturalHeight < 512) {
-    state.character.imageError = 'La resolución mínima es de 512 × 512 píxeles.';
-    renderStepContent();
+
+  const imageElement = new Image();
+  imageElement.src = dataUrl;
+  try {
+    await new Promise((resolve, reject) => {
+      imageElement.onload = resolve;
+      imageElement.onerror = reject;
+    });
+  } catch {
+    fail('No se pudo leer la imagen. El archivo podría estar dañado.');
     return;
+  }
+
+  if (imageElement.naturalWidth < IMAGE_LIMITS.minSize || imageElement.naturalHeight < IMAGE_LIMITS.minSize) {
+    fail('La resolución mínima es de 512 × 512 píxeles.');
+    return;
+  }
+
+  let serverValidated = false;
+  try {
+    const form = new FormData();
+    form.append('image', file);
+    const response = await fetch('/api/analyze-image', { method: 'POST', body: form });
+    const payload = await response.json();
+    if (!response.ok) {
+      fail(payload.error || 'La verificación automática rechazó la imagen.');
+      return;
+    }
+    serverValidated = true;
+  } catch {
+    serverValidated = false;
   }
 
   state.character.image = {
@@ -810,141 +1057,307 @@ const handleImageFile = async (file) => {
     size: file.size,
     width: imageElement.naturalWidth,
     height: imageElement.naturalHeight,
-    uploadedAt: new Date().toISOString()
+    uploadedAt: new Date().toISOString(),
+    serverValidated
   };
-  persist();
+  state.character.imageStatus = 'valid';
+  state.character.imageError = serverValidated ? '' : 'Verificada en este dispositivo. El servidor no respondió; el Staff puede revisarla de nuevo.';
   setBanner('');
-  renderStepNav();
-  renderStepContent();
-};
-
-const removeImage = () => {
-  state.character.image = defaultCharacter().image;
-  state.character.imageError = '';
   persist();
-  setBanner('La imagen fue eliminada. Debes cargar otra para continuar.');
-  renderStepNav();
-  renderStepContent();
+  render();
 };
 
-const handleOptionSelect = (event) => {
-  const button = event.target.closest('[data-field]');
-  if (!button) return;
+const handleBossGalleryFiles = async (bossId, files) => {
+  const selectedFiles = [...files];
+  let savedCount = 0;
+  let rejectedCount = 0;
 
-  const field = button.dataset.field;
-  if (field === 'consent') {
-    state.character.consent[button.dataset.category] = button.dataset.value;
-    persist();
-    renderStepContent();
-    return;
+  for (const file of selectedFiles) {
+    if (!IMAGE_LIMITS.types.includes(file.type) || file.size > IMAGE_LIMITS.maxBytes) {
+      rejectedCount += 1;
+      continue;
+    }
+    try {
+      const bitmap = await createImageBitmap(file);
+      bitmap.close();
+      const image = {
+        id: crypto.randomUUID(),
+        bossId,
+        name: file.name,
+        blob: file,
+        addedAt: new Date().toISOString()
+      };
+      await saveBossGalleryImage(image);
+      const gallery = bossGalleryImages.get(bossId) || [];
+      gallery.push({ ...image, url: URL.createObjectURL(file) });
+      bossGalleryImages.set(bossId, gallery);
+      savedCount += 1;
+    } catch {
+      rejectedCount += 1;
+    }
   }
 
-  state.character[field] = button.dataset.value;
-  persist();
-  renderStepContent();
+  setBanner(
+    rejectedCount
+      ? `${savedCount} imagen(es) guardada(s); ${rejectedCount} archivo(s) no válido(s) o no pudieron guardarse.`
+      : `${savedCount} imagen(es) guardada(s) en la galería.`,
+    rejectedCount ? 'danger' : 'ok'
+  );
+  render();
 };
 
-const handleAction = (event) => {
-  const actionBtn = event.target.closest('[data-action]');
-  if (!actionBtn) return;
-
-  const action = actionBtn.dataset.action;
-
-  if (action === 'next') {
-    handleNext();
-  }
-
-  if (action === 'finish') {
-    handleFinish();
-  }
-
-  if (action === 'prev') {
-    goToStep(state.currentStep - 1);
-  }
-
-  if (action === 'save') {
-    persist();
-    setBanner('El personaje quedó guardado en este navegador.');
-    renderStepContent();
-    renderStepNav();
-  }
-
-  if (action === 'remove-image') {
-    removeImage();
-  }
-
-  if (action === 'edit') {
-    state.completed = false;
-    state.currentStep = 0;
-    state.confirmed = false;
-    setBanner('');
-    saveAndRender();
-  }
-
-  if (action === 'confirm') {
-    if (getProgress() < 100) {
-      setBanner('Completa todos los campos y consentimientos antes de confirmar el personaje.');
-      renderStepContent();
-      renderStepNav();
+const bindAppEvents = () => {
+  appRoot.addEventListener('click', async (event) => {
+    const historyButton = event.target.closest('[data-history-action]');
+    if (historyButton) {
+      const action = historyButton.dataset.historyAction;
+      if (action === 'open') historyReaderIndex = Number(historyButton.dataset.historyIndex);
+      if (action === 'close') historyReaderIndex = null;
+      if (action === 'previous' && historyReaderIndex > 0) historyReaderIndex -= 1;
+      if (action === 'next' && historyReaderIndex < FANDOM.historia.entries.length - 1) historyReaderIndex += 1;
+      render();
+      requestAnimationFrame(() => document.querySelector('.history-book-content')?.scrollTo({ top: 0, behavior: 'auto' }));
       return;
     }
 
-    state.confirmed = true;
-    persist();
-    downloadCharacterSheet();
-    setBanner('Tu personaje ha sido confirmado dentro de Maledicta.');
-    renderStepContent();
-    renderStepNav();
-  }
-
-  if (action === 'restart') {
-    state = {
-      ...baseState,
-      character: defaultCharacter()
-    };
-    clearState();
-    setBanner('Se reinició la creación del personaje.');
-    saveAndRender();
-  }
-};
-
-const bindEvents = () => {
-  stepNav.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-step-index]');
-    if (!button) return;
-    const index = Number(button.dataset.stepIndex);
-    if (index <= state.currentStep) {
-      goToStep(index);
+    const galleryButton = event.target.closest('[data-boss-gallery-action]');
+    if (galleryButton) {
+      const action = galleryButton.dataset.bossGalleryAction;
+      const bossId = galleryButton.dataset.bossId || bossGalleryViewer?.bossId;
+      if (action === 'close') {
+        if (galleryButton.classList.contains('boss-lightbox') && event.target !== galleryButton) return;
+        bossGalleryViewer = null;
+      }
+      if (action === 'add') {
+        document.querySelector(`#boss-images-${CSS.escape(bossId)}`)?.click();
+        return;
+      }
+      if (action === 'open') {
+        bossGalleryViewer = { bossId, index: Number(galleryButton.dataset.imageIndex) };
+      }
+      if (action === 'delete') {
+        const gallery = bossGalleryImages.get(bossId) || [];
+        const index = gallery.findIndex((image) => image.id === galleryButton.dataset.imageId);
+        if (index >= 0) {
+          try {
+            await deleteBossGalleryImage(gallery[index].id);
+            URL.revokeObjectURL(gallery[index].url);
+            gallery.splice(index, 1);
+            bossGalleryImages.set(bossId, gallery);
+            if (bossGalleryViewer?.bossId === bossId) {
+              if (!gallery.length) bossGalleryViewer = null;
+              else if (bossGalleryViewer.index >= gallery.length) bossGalleryViewer.index = gallery.length - 1;
+              else if (index < bossGalleryViewer.index) bossGalleryViewer.index -= 1;
+            }
+            setBanner('Imagen eliminada de la galería.', 'ok');
+          } catch {
+            setBanner('No se pudo eliminar la imagen de su almacenamiento.', 'danger');
+          }
+        }
+      }
+      if (action === 'previous' || action === 'next') {
+        const gallery = bossGalleryImages.get(bossId) || [];
+        if (gallery.length) {
+          const offset = action === 'previous' ? -1 : 1;
+          bossGalleryViewer.index = (bossGalleryViewer.index + offset + gallery.length) % gallery.length;
+        }
+      }
+      render();
       return;
     }
-    if (index === state.currentStep + 1 && validateCurrentStep()) {
-      goToStep(index);
+
+    const routeBtn = event.target.closest('[data-route]');
+    if (routeBtn) {
+      const route = routeBtn.dataset.route;
+      if (route === 'bienvenida') {
+        goToPhase(state.characterComplete ? 'hub' : 'welcome', { hubSection: 'inicio' });
+        return;
+      }
+      if (route === 'crear' || route.startsWith('crear/')) {
+        goToPhase('creating');
+        return;
+      }
+      if (route === 'entrega') {
+        goToPhase(state.characterComplete ? 'entrega' : 'creating');
+        return;
+      }
+      if (route.startsWith('hub/')) {
+        const section = route.replace('hub/', '');
+        goToPhase('hub', { hubSection: section });
+      }
+      return;
+    }
+
+    const stepBtn = event.target.closest('[data-step-index]');
+    if (stepBtn) {
+      const index = Number(stepBtn.dataset.stepIndex);
+      if (index <= state.creationStep) {
+        goToStep(index);
+        return;
+      }
+      if (index === state.creationStep + 1 && !getStepErrors().length) {
+        goToStep(index);
+        return;
+      }
+      setBanner(getStepErrors()[0] || 'Completa este paso antes de avanzar.');
+      render();
+      return;
+    }
+
+    const choice = event.target.closest('[data-field]');
+    if (choice) {
+      const field = choice.dataset.field;
+      state.character[field] = choice.dataset.value;
+      persist();
+      render();
+      return;
+    }
+
+    const actionBtn = event.target.closest('[data-action]');
+    if (!actionBtn) return;
+    const action = actionBtn.dataset.action;
+
+    if (action === 'next') handleContinue();
+    if (action === 'prev') goToStep(state.creationStep - 1);
+    if (action === 'edit') {
+      state.phase = 'creating';
+      state.creationStep = 0;
+      state.editingCharacter = true;
+      persist();
+      render();
+    }
+    if (action === 'delete-character') {
+      if (!window.confirm('¿Seguro que quieres borrar esta ficha? Se eliminarán sus datos y podrás crear un personaje nuevo.')) return;
+      await clearState();
+      state = structuredClone(baseState);
+      state.phase = 'welcome';
+      setBanner('Ficha borrada. Ya puedes crear un personaje nuevo.', 'ok');
+      render();
+    }
+    if (action === 'generate') handleGenerateSheet();
+    if (action === 'download') {
+      if (!state.character.validationCode) state.character.validationCode = generateValidationCode();
+      persist();
+      await downloadCharacterSheet(state.character, state.character.validationCode);
+    }
+    if (action === 'print') {
+      fillPrintSheet();
+      printCharacterSheet();
+    }
+    if (action === 'remove-image' || action === 'replace-image') {
+      state.character.image = defaultCharacter().image;
+      state.character.imageStatus = 'missing';
+      state.character.imageError = action === 'remove-image' ? 'La imagen fue eliminada. Debes cargar otra para continuar.' : '';
+      persist();
+      render();
+      if (action === 'replace-image') document.querySelector('#character-image-input')?.click();
     }
   });
 
-  stepContent.addEventListener('input', handleInput);
-  stepContent.addEventListener('change', handleSelectChange);
-  stepContent.addEventListener('click', handleAction);
-  stepContent.addEventListener('click', handleOptionSelect);
-  stepContent.addEventListener('change', (event) => {
-    if (event.target.id === 'character-image-input') handleImageFile(event.target.files[0]);
+  appRoot.addEventListener('change', (event) => {
+    if (event.target.matches('[data-accept]')) {
+      state.acceptances[event.target.dataset.accept] = event.target.checked;
+      persist();
+      render();
+      return;
+    }
+    const select = event.target.closest('select');
+    if (select?.name && select.name in state.character) {
+      state.character[select.name] = select.value;
+      persist();
+      render();
+    }
+    if (event.target.id === 'character-image-input') {
+      handleImageFile(event.target.files[0]);
+    }
+    if (event.target.matches('[data-boss-file-input]')) {
+      handleBossGalleryFiles(event.target.dataset.bossFileInput, event.target.files);
+      event.target.value = '';
+    }
   });
-  stepContent.addEventListener('dragover', (event) => {
+
+  appRoot.addEventListener('input', (event) => {
+    const { name, value } = event.target;
+    if (!name || !(name in state.character)) return;
+    if (name === 'age') {
+      const cleanValue = value.replace(/[^\d]/g, '').slice(0, 5);
+      state.character.age = cleanValue;
+      event.target.value = cleanValue;
+    } else {
+      state.character[name] = value;
+    }
+    persist();
+    if (name === 'physicalDescription') {
+      const counter = event.target.closest('.codex-panel')?.querySelector('.char-counter');
+      if (counter) counter.textContent = `${value.length}/1500`;
+    }
+  });
+
+  appRoot.addEventListener('dragover', (event) => {
     if (event.target.closest('[data-drop-zone]')) event.preventDefault();
   });
-  stepContent.addEventListener('drop', (event) => {
+
+  appRoot.addEventListener('drop', (event) => {
     const zone = event.target.closest('[data-drop-zone]');
     if (!zone) return;
     event.preventDefault();
     handleImageFile(event.dataTransfer.files[0]);
   });
-  actionBar.addEventListener('click', handleAction);
 };
 
-const initialize = () => {
-  bindEvents();
-  renderStepNav();
-  renderStepContent();
+const initialize = async () => {
+  const saved = loadState();
+  if (saved) {
+    state = {
+      ...structuredClone(baseState),
+      ...saved,
+      acceptances: { ...defaultAcceptances(), ...(saved.acceptances ?? {}) },
+      character: { ...defaultCharacter(), ...(saved.character ?? {}) }
+    };
+    await hydrateImage(state);
+    if (state.character.image?.dataUrl && state.character.imageStatus === 'missing') {
+      state.character.imageStatus = 'valid';
+    }
+  }
+
+  try {
+    const records = await loadBossGalleryImages();
+    records.forEach((record) => {
+      if (!FANDOM.bosses.entries.some((boss) => boss.id === record.bossId)) return;
+      const gallery = bossGalleryImages.get(record.bossId) || [];
+      gallery.push({ ...record, url: URL.createObjectURL(record.blob) });
+      bossGalleryImages.set(record.bossId, gallery);
+    });
+  } catch {
+    setBanner('No se pudo abrir el almacenamiento local de las galerías.', 'danger');
+  }
+
+  if (location.hash) applyHash();
+  bindAppEvents();
+  window.addEventListener('hashchange', () => {
+    applyHash();
+    render();
+  });
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && historyReaderIndex !== null) {
+      historyReaderIndex = null;
+      render();
+    }
+    if (event.key === 'Escape' && bossGalleryViewer) {
+      bossGalleryViewer = null;
+      render();
+    }
+    if (bossGalleryViewer && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      const gallery = bossGalleryImages.get(bossGalleryViewer.bossId) || [];
+      if (gallery.length) {
+        event.preventDefault();
+        const offset = event.key === 'ArrowLeft' ? -1 : 1;
+        bossGalleryViewer.index = (bossGalleryViewer.index + offset + gallery.length) % gallery.length;
+        render();
+      }
+    }
+  });
+  render();
 };
 
 initialize();
