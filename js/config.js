@@ -42,7 +42,7 @@ export const SEX_OPTIONS = [
   { value: 'Prefiero no decir', description: 'Sin especificar.' }
 ];
 
-export const CHARACTER_CATALOG = {
+/*export const CHARACTER_CATALOG = {
   classes: [
     { value: 'Paladines', description: 'Defienden la fe, el honor y la línea entre la luz y la corrupción.' },
     { value: 'Monje', description: 'Equilibra disciplina corporal, meditación y fuerza interior.' },
@@ -53,7 +53,7 @@ export const CHARACTER_CATALOG = {
     { value: 'Magos', description: 'Controlan energía arcana con cálculo y paciencia.' },
     { value: 'Druidas', description: 'Se conectan con la naturaleza, el ciclo y la magia viva.' },
     { value: 'Pícaro', description: 'Actúa con rapidez, sigilo y una inteligencia despiadada.' }
-  ],
+  ],*/
   archetypes: [
     {
       value: 'Humanos',
@@ -166,7 +166,7 @@ export const CHARACTER_CATALOG = {
       ]
     },
     {
-      value: 'Dhampiros',
+      value: 'Vampiros',
       description: 'Identidad racial: Sangre vampírica, hambre, velocidad y supervivencia nocturna.',
       abilities: [
         ['Nivel 1 — Sangre Nocturna', 'Poseen adaptación natural a la oscuridad y perciben mejor durante la noche.'],
@@ -188,13 +188,13 @@ export const CHARACTER_CATALOG = {
       ]
     }
   ],
-  alignments: [
+  alignments [
     { value: 'Legal', description: 'Actúa bajo juramentos, obligaciones y honor.' },
     { value: 'Neutral', description: 'Decide según el equilibrio entre necesidad y riesgo.' },
     { value: 'Caótica', description: 'Se mueve por impulso, libertad y cambio constante.' },
     { value: 'Oscura', description: 'Acepta lo prohibido como camino inevitable.' }
   ]
-};
+;
 
 export const ACCEPTANCE_ITEMS = [
   { key: 'lore', label: 'He leído el lore de Maledicta.' },
