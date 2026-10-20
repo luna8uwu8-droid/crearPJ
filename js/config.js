@@ -16,8 +16,6 @@ export const HUB_SECTIONS = [
   { id: 'lore', label: 'Lore', icon: '◉' },
   { id: 'razas', label: 'Razas', icon: '☘', parent: 'fandom' },
   { id: 'historia', label: 'Historia', icon: '⌛', parent: 'fandom' },
-  { id: 'ciudades', label: 'Ciudades', icon: '⌂', parent: 'fandom' },
-  { id: 'dioses', label: 'Dioses', icon: '✧', parent: 'fandom' },
   { id: 'eventos', label: 'Eventos', icon: '⚡', parent: 'fandom' },
   { id: 'bosses-de-maledicta', label: 'Bosses de Maledicta', icon: '♜', parent: 'fandom' },
   { id: 'noticias', label: 'Noticias', icon: '▣' },
