@@ -43,7 +43,7 @@ export const ETHNICITIES = [
   },
   {
     value: 'Cirrus',
-    description: 'Cirrus es una raza o condición mística en la que un individuo alberga dos espíritus o mentes distintas que comparten un mismo cuerpo físico. Esta dualidad suele estar compuesta por un alma mortal nativa y un fragmento espiritual, que puede proceder de un ser de los sueños, un ancestro o una entidad elemental del aire. La coexistencia de ambas presencias define su naturaleza y hace honor a su nombre, relacionado con las nubes y el cielo.'
+    description: 'Las dos formas de un cirrus son únicas, cada una considera a la otra como una parte más de su ser. Para un cirrus, es tan natural compartir dos formas que les resulta extraño que los individuos de otras especies sean siempre la misma persona.'
   }
 ];
 
@@ -181,6 +181,18 @@ export const CHARACTER_CATALOG = {
     {
       value: 'Cirrus',
       description: 'Identidad racial: Dos almas, dualidad y conflicto interno.',
+      // Explicación extendida para la página de la raza (reemplaza a la descripción breve del registro).
+      loreSection: {
+        title: 'Compartir un cuerpo',
+        intro: 'Las dos formas de un cirrus son únicas, cada una considera a la otra como una parte más de su ser. Para un cirrus, es tan natural compartir dos formas que les resulta extraño que los individuos de otras especies sean siempre la misma persona.',
+        points: [
+          'Un cirrus siempre trata su otra forma como a una persona distinta, y es común oírlos decir cosas como: “¿Oh, Torrus lo hizo de nuevo?” o “A Arven le habría encantado verlo.”',
+          'Un cirrus es consciente de su poco tiempo en cada forma y aprovecha al máximo el tiempo antes de que la otra forma asuma el control.',
+          'Los cirrus recuerdan el día vivido por la otra forma como si hubieran presenciado las situaciones en tercera persona, como simples espectadores de la vida del otro. Por eso muchos de ellos prefieren hablar en voz alta con la otra forma para que esta los escuche. Si prefieren ser discretos, escriben una nota o algo similar.',
+          'Es bastante común que las dos formas tengan diferentes funciones y responsabilidades, entendiendo que cada una es, de hecho, un ser distinto. Generalmente, una forma de cirrus no se responsabiliza de las acciones de la otra, ya que se consideran seres únicos, y a veces no están de acuerdo con las decisiones del otro, aunque a menudo coinciden en algunas cosas que requieren que su cuerpo se comprometa diariamente, como aventurarse en grupo o pertenecer a un equipo.',
+          'Es común entre los cirrus tener una sensación de urgencia para todo, ya que saben que sus acciones deben limitarse a un solo día. Generalmente son respetuosos y sienten mucho amor hacia la otra forma, a pesar de las enormes diferencias, porque entienden que son codependientes.'
+        ]
+      },
       abilities: [
         ['Nivel 1 — Segundo Susurro', 'La segunda alma puede advertir de determinados peligros y proporcionar una percepción adicional en situaciones críticas.'],
         ['Nivel 2 — Dualidad', 'Pueden alternar entre sus dos personalidades espirituales, cada una con una tendencia o especialización diferente.'],

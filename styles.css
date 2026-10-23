@@ -2068,6 +2068,33 @@ button {
   margin-bottom: 14px;
 }
 
+.codex-lore-points {
+  max-width: 66ch;
+  margin: 0 auto 22px;
+  padding-left: 22px;
+  list-style: none;
+}
+
+.codex-lore-points li {
+  position: relative;
+  margin-bottom: 10px;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.codex-lore-points li::before {
+  content: '❧';
+  position: absolute;
+  left: -22px;
+  color: var(--rubric);
+}
+
+@media (max-width: 760px) {
+  .codex-lore-points li {
+    text-align: left;
+  }
+}
+
 .codex-abilities {
   display: grid;
   gap: 16px;

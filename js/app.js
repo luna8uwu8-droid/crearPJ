@@ -846,7 +846,15 @@ const renderRacePage = (entry) => {
         ${raceIdentity(entry) ? `
           <p class="codex-identity"><span>Identidad racial</span>${escapeHtml(raceIdentity(entry))}</p>
         ` : ''}
-        ${entry.lore ? `<div class="codex-lore"><p>${escapeHtml(entry.lore)}</p></div>` : ''}
+        ${entry.loreSection ? `
+          <h3 class="codex-heading">${escapeHtml(entry.loreSection.title)}</h3>
+          <div class="codex-lore">
+            <p>${escapeHtml(entry.loreSection.intro)}</p>
+            <ul class="codex-lore-points">
+              ${entry.loreSection.points.map((point) => `<li>${escapeHtml(point)}</li>`).join('')}
+            </ul>
+          </div>
+        ` : entry.lore ? `<div class="codex-lore"><p>${escapeHtml(entry.lore)}</p></div>` : ''}
         ${entry.abilities?.length ? `
           <h3 class="codex-heading">Dones del linaje</h3>
           <ol class="codex-abilities">
