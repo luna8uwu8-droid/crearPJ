@@ -1702,6 +1702,370 @@ button {
   grid-column: 1 / -1;
 }
 
+/* Razas: códice con aspecto de libro medieval */
+.codex-book {
+  --parchment: #f3e4c6;
+  --parchment-deep: #dcc196;
+  --ink: #2e1d14;
+  --ink-soft: #5e4330;
+  --rubric: #8a1f1f;
+  --gilt: #a8762f;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 34px;
+  padding: 14px;
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 220, 190, 0.08), transparent 40%),
+    linear-gradient(160deg, #4a1420, #24080f 70%);
+  box-shadow: inset 0 0 0 2px rgba(168, 118, 47, 0.45), inset 0 0 0 8px #2a0a12, inset 0 0 0 9px rgba(168, 118, 47, 0.3), 0 26px 50px rgba(5, 1, 5, 0.55);
+}
+
+.codex-book--single {
+  grid-template-columns: 1fr;
+  max-width: 860px;
+  margin-inline: auto;
+}
+
+.codex-page {
+  position: relative;
+  min-width: 0;
+  padding: clamp(26px, 5vw, 52px) clamp(20px, 5vw, 50px);
+  background:
+    radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(120, 78, 32, 0.28) 100%),
+    radial-gradient(circle at 20% 15%, rgba(255, 250, 235, 0.55), transparent 45%),
+    linear-gradient(180deg, var(--parchment), var(--parchment-deep));
+  color: var(--ink);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.12rem;
+  line-height: 1.6;
+}
+
+.codex-page::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(110, 60, 30, 0.35);
+  outline: 1px solid rgba(110, 60, 30, 0.2);
+  outline-offset: 4px;
+  pointer-events: none;
+}
+
+.codex-page--left {
+  border-radius: 6px 2px 2px 6px;
+  box-shadow: inset -26px 0 30px -18px rgba(70, 40, 15, 0.55);
+}
+
+.codex-page--right {
+  border-radius: 2px 6px 6px 2px;
+  box-shadow: inset 26px 0 30px -18px rgba(70, 40, 15, 0.55);
+}
+
+.codex-book--single .codex-page {
+  border-radius: 6px;
+}
+
+.codex-page-head {
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.codex-kicker {
+  display: block;
+  color: var(--rubric);
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.codex-title {
+  margin: 6px 0 0;
+  color: var(--ink);
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.5rem, 3.4vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.codex-title--race {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  color: var(--rubric);
+}
+
+.codex-alias {
+  margin: 0;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.codex-ornament {
+  display: block;
+  margin-top: 6px;
+  color: var(--gilt);
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.codex-group + .codex-group {
+  margin-top: 30px;
+}
+
+.codex-group-title,
+.codex-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 4px;
+  color: var(--rubric);
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.codex-group-title::after,
+.codex-heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(138, 31, 31, 0.55), transparent);
+}
+
+.codex-group-note {
+  margin: 0 0 12px;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.codex-toc {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.codex-toc-link {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 6px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  transition: background var(--transition), color var(--transition);
+}
+
+.codex-toc-link:hover,
+.codex-toc-link:focus-visible {
+  background: rgba(138, 31, 31, 0.1);
+  color: var(--rubric);
+  outline: none;
+}
+
+.codex-toc-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.codex-toc-name::first-letter {
+  color: var(--rubric);
+  font-size: 1.25em;
+}
+
+.codex-toc-leader {
+  flex: 1;
+  min-width: 20px;
+  border-bottom: 2px dotted rgba(94, 67, 48, 0.45);
+  transform: translateY(-4px);
+}
+
+.codex-toc-chapter {
+  color: var(--gilt);
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.codex-group--malditos .codex-group-title,
+.codex-group--malditos .codex-toc-name {
+  color: #5c0d14;
+}
+
+.codex-group--malditos .codex-toc-leader {
+  border-bottom-color: rgba(92, 13, 20, 0.45);
+}
+
+.codex-identity {
+  margin: 0 auto 18px;
+  max-width: 60ch;
+  color: var(--ink-soft);
+  font-size: 1.2rem;
+  font-style: italic;
+  text-align: center;
+}
+
+.codex-identity span {
+  display: block;
+  color: var(--rubric);
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-style: normal;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.codex-lore p {
+  max-width: 66ch;
+  margin: 0 auto 22px;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.codex-lore p::first-letter {
+  float: left;
+  margin: 6px 10px 0 0;
+  padding: 2px 8px;
+  border: 1px solid rgba(168, 118, 47, 0.6);
+  background: linear-gradient(160deg, #8a1f1f, #4f0d12);
+  color: #f6e3b8;
+  font-family: 'Cinzel', serif;
+  font-size: 3.1em;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.codex-heading {
+  margin-top: 26px;
+  margin-bottom: 14px;
+}
+
+.codex-abilities {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.codex-abilities li {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.codex-level {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(168, 118, 47, 0.7);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #a83232, #5a0f15);
+  box-shadow: 0 0 0 3px rgba(243, 228, 198, 0.9), 0 0 0 4px rgba(168, 118, 47, 0.45);
+  color: #f6e3b8;
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.codex-level-label {
+  display: block;
+  color: var(--rubric);
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.codex-abilities strong {
+  display: block;
+  color: var(--ink);
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+}
+
+.codex-abilities p {
+  margin: 2px 0 0;
+  color: var(--ink-soft);
+}
+
+.codex-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 34px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(110, 60, 30, 0.3);
+}
+
+.codex-pager-link {
+  display: grid;
+  gap: 2px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+}
+
+.codex-pager-link--next {
+  text-align: right;
+}
+
+.codex-pager-link span {
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.codex-pager-link strong {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+}
+
+.codex-pager-link:hover,
+.codex-pager-link:focus-visible {
+  background: rgba(138, 31, 31, 0.1);
+  color: var(--rubric);
+  outline: none;
+}
+
+.codex-back {
+  margin-bottom: 16px;
+}
+
+@media (max-width: 760px) {
+  .codex-book {
+    grid-template-columns: 1fr;
+    padding: 8px;
+  }
+
+  .codex-page--left,
+  .codex-page--right {
+    border-radius: 6px;
+    box-shadow: none;
+  }
+
+  .codex-page--left {
+    border-bottom: 1px dashed rgba(110, 60, 30, 0.35);
+  }
+
+  .codex-lore p {
+    text-align: left;
+  }
+}
+
 /* Noticias: proclamas del Staff */
 .news-stack {
   display: grid;

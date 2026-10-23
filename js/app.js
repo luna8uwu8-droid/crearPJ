@@ -2,6 +2,9 @@ import {
   CREATION_STEPS,
   HUB_SECTIONS,
   ETHNICITIES,
+  CHARACTER_CATALOG,
+  RACE_GROUPS,
+  raceSlug,
   SEX_OPTIONS,
   ACCEPTANCE_ITEMS,
   IMAGE_LIMITS,
@@ -204,6 +207,7 @@ const applyHash = () => {
   if (hubIds.includes(section) || section === 'fandom') {
     state.phase = 'hub';
     state.hubSection = section === 'fandom' ? 'fandom' : section;
+    if (section === 'razas' && sub && findRaceEntry(sub)) state.hubSection = `razas/${sub}`;
   }
 };
 
@@ -773,6 +777,116 @@ const renderCatalogSection = (data, extra = []) => `
   </div>
 `;
 
+const ROMAN_NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV'];
+const toRoman = (number) => ROMAN_NUMERALS[number - 1] || String(number);
+
+// Razas en el orden del libro, combinando el catálogo (habilidades) con las descripciones del registro.
+const RACE_ENTRIES = RACE_GROUPS.flatMap((group) => group.races.map(({ race, label }) => {
+  const archetype = CHARACTER_CATALOG.archetypes.find((item) => item.value === race) || { value: race, abilities: [] };
+  return {
+    ...archetype,
+    name: label || race,
+    slug: raceSlug(label || race),
+    group,
+    lore: ETHNICITIES.find((item) => item.value === race)?.description || ''
+  };
+})).map((entry, index) => ({ ...entry, chapter: index + 1 }));
+
+const findRaceEntry = (slug) => RACE_ENTRIES.find((entry) => entry.slug === slug);
+
+const raceIdentity = (entry) => (entry.description || '').replace(/^Identidad racial:\s*/, '');
+
+const renderRaceIndex = () => {
+  const renderGroup = (group) => `
+    <section class="codex-group codex-group--${escapeHtml(group.id)}">
+      <h3 class="codex-group-title">${escapeHtml(group.title)}</h3>
+      <p class="codex-group-note">${escapeHtml(group.description)}</p>
+      <ol class="codex-toc">
+        ${RACE_ENTRIES.filter((entry) => entry.group === group).map((entry) => `
+          <li>
+            <button class="codex-toc-link" type="button" data-route="hub/razas/${escapeHtml(entry.slug)}">
+              <span class="codex-toc-name">${escapeHtml(entry.name)}</span>
+              <span class="codex-toc-leader" aria-hidden="true"></span>
+              <span class="codex-toc-chapter">${toRoman(entry.chapter)}</span>
+            </button>
+          </li>
+        `).join('')}
+      </ol>
+    </section>
+  `;
+  const [firstGroup, ...otherGroups] = RACE_GROUPS;
+
+  return `
+    <div class="section-intro">
+      <p class="eyebrow">FANDOM</p>
+      <h2>Razas</h2>
+      <p class="section-subtitle">El códice de los pueblos de Maledicta. Elige una raza para abrir su capítulo.</p>
+    </div>
+    <div class="codex-book">
+      <div class="codex-page codex-page--left">
+        <header class="codex-page-head">
+          <span class="codex-kicker">Códice de Maledicta</span>
+          <h3 class="codex-title">Libro de las Razas</h3>
+          <span class="codex-ornament" aria-hidden="true">❦</span>
+        </header>
+        ${renderGroup(firstGroup)}
+      </div>
+      <div class="codex-page codex-page--right">
+        ${otherGroups.map(renderGroup).join('')}
+      </div>
+    </div>
+    ${renderCatalogSection(FANDOM.clases)}
+  `;
+};
+
+const renderRacePage = (entry) => {
+  const index = RACE_ENTRIES.indexOf(entry);
+  const previous = RACE_ENTRIES[index - 1];
+  const next = RACE_ENTRIES[index + 1];
+
+  return `
+    <nav class="codex-back">
+      <button class="secondary-btn" type="button" data-route="hub/razas">← Índice de razas</button>
+    </nav>
+    <article class="codex-book codex-book--single">
+      <div class="codex-page">
+        <header class="codex-page-head">
+          <span class="codex-kicker">Capítulo ${toRoman(entry.chapter)} · ${escapeHtml(entry.group.title)}</span>
+          <h2 class="codex-title codex-title--race">${escapeHtml(entry.name)}</h2>
+          ${entry.name !== entry.value ? `<p class="codex-alias">${escapeHtml(entry.value)}</p>` : ''}
+          <span class="codex-ornament" aria-hidden="true">❦</span>
+        </header>
+        ${raceIdentity(entry) ? `
+          <p class="codex-identity"><span>Identidad racial</span>${escapeHtml(raceIdentity(entry))}</p>
+        ` : ''}
+        ${entry.lore ? `<div class="codex-lore"><p>${escapeHtml(entry.lore)}</p></div>` : ''}
+        ${entry.abilities?.length ? `
+          <h3 class="codex-heading">Dones del linaje</h3>
+          <ol class="codex-abilities">
+            ${entry.abilities.map(([title, description], abilityIndex) => {
+              const [level, name] = title.split(/\s+—\s+/);
+              return `
+                <li>
+                  <span class="codex-level" aria-hidden="true">${toRoman(abilityIndex + 1)}</span>
+                  <div>
+                    <span class="codex-level-label">${escapeHtml(name ? level : `Nivel ${abilityIndex + 1}`)}</span>
+                    <strong>${escapeHtml(name || title)}</strong>
+                    <p>${escapeHtml(description)}</p>
+                  </div>
+                </li>
+              `;
+            }).join('')}
+          </ol>
+        ` : ''}
+        <footer class="codex-pager">
+          ${previous ? `<button class="codex-pager-link" type="button" data-route="hub/razas/${escapeHtml(previous.slug)}"><span>← Capítulo anterior</span><strong>${escapeHtml(previous.name)}</strong></button>` : '<span></span>'}
+          ${next ? `<button class="codex-pager-link codex-pager-link--next" type="button" data-route="hub/razas/${escapeHtml(next.slug)}"><span>Capítulo siguiente →</span><strong>${escapeHtml(next.name)}</strong></button>` : '<span></span>'}
+        </footer>
+      </div>
+    </article>
+  `;
+};
+
 const renderHistoryBody = (body) => body
   .split(/\r?\n\r?\n+/)
   .map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`)
@@ -1026,7 +1140,11 @@ const renderHubSection = () => {
   }
   if (id === 'mi-personaje') return renderMiPersonaje();
   if (id === 'fandom') return renderFandomHome();
-  if (id === 'razas') return `${renderCatalogSection(FANDOM.razas)}${renderCatalogSection(FANDOM.clases)}`;
+  if (id === 'razas') return renderRaceIndex();
+  if (id.startsWith('razas/')) {
+    const entry = findRaceEntry(id.slice('razas/'.length));
+    return entry ? renderRacePage(entry) : renderRaceIndex();
+  }
   if (id === 'historia') return renderHistorySection();
   if (id === 'ciudades') return renderCatalogSection(FANDOM.ciudades);
   if (id === 'dioses') return renderCatalogSection(FANDOM.dioses);
@@ -1049,7 +1167,7 @@ const renderHub = () => `
       </button>
       <nav class="hub-nav" aria-label="Centro de información">
         ${HUB_SECTIONS.filter((item) => !(item.requiresCharacter && !state.characterComplete && item.id === 'mi-personaje' && !state.character.name)).map((item) => `
-          <button class="hub-nav-item ${state.hubSection === item.id ? 'active' : ''}" type="button" data-route="hub/${item.id}">${escapeHtml(item.label)}</button>
+          <button class="hub-nav-item ${state.hubSection.split('/')[0] === item.id ? 'active' : ''}" type="button" data-route="hub/${item.id}">${escapeHtml(item.label)}</button>
         `).join('')}
       </nav>
     </header>
@@ -1313,6 +1431,7 @@ const bindAppEvents = () => {
       if (route.startsWith('hub/')) {
         const section = route.replace('hub/', '');
         goToPhase('hub', { hubSection: section });
+        if (section.startsWith('razas')) window.scrollTo({ top: 0 });
       }
       return;
     }

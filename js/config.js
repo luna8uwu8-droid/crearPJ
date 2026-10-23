@@ -221,6 +221,53 @@ export const CHARACTER_CATALOG = {
   ]
 };
 
+/**
+ * Orden jerárquico del libro de Razas (Fandom › Razas).
+ * `race` debe coincidir con un `value` de CHARACTER_CATALOG.archetypes; `label` cambia el nombre mostrado.
+ */
+export const RACE_GROUPS = [
+  {
+    id: 'pacto',
+    title: 'Razas del pacto',
+    description: 'Los pueblos con los que un humano puede firmar el pacto para acceder a sus habilidades, conocimientos y forma de vida.',
+    races: [
+      { race: 'Humanos' },
+      { race: 'Enanos' },
+      { race: 'Elfos' },
+      { race: 'Dracónidos' },
+      { race: 'Cambiapieles / Yokai' },
+      { race: 'Celestiales' }
+    ]
+  },
+  {
+    id: 'sub-razas',
+    title: 'Sub razas',
+    description: 'Razas con las que se puede iniciar directamente y subir de nivel con ellas.',
+    races: [
+      { race: 'Elementales' },
+      { race: 'Semi-Gigantes' },
+      { race: 'Serpentinos' },
+      { race: 'Cirrus' }
+    ]
+  },
+  {
+    id: 'malditos',
+    title: 'Malditos',
+    description: 'Linajes perseguidos durante siglos, marcados por la sangre y la maldición.',
+    races: [
+      { race: 'Vampiros' },
+      { race: 'Licántropos', label: 'Lycans' }
+    ]
+  }
+];
+
+export const raceSlug = (name) => name
+  .normalize('NFD')
+  .replace(/[̀-ͯ]/g, '')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-|-$/g, '');
+
 export const ACCEPTANCE_ITEMS = [
   { key: 'lore', label: 'He leído el lore de Maledicta.' },
   { key: 'rules', label: 'He leído las normativas del servidor.' },

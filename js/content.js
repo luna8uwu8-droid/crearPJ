@@ -879,7 +879,7 @@ Estas acciones podrán ejecutarse sin previo aviso cuando se considere necesario
 export const FANDOM = {
   razas: {
     title: 'Razas',
-    description: 'La raza disponible para los personajes jugadores de Maledicta.',
+    description: 'El códice de los pueblos de Maledicta: razas del pacto, sub razas y malditos.',
     entries: CHARACTER_CATALOG.archetypes
   },
   clases: {
