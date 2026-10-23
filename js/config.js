@@ -28,7 +28,23 @@ export const HUB_SECTIONS = [
 export const ETHNICITIES = [
   {
     value: 'Humanos',
-    description: 'La única raza disponible para el registro de personaje.'
+    description: 'La raza humana: adaptable, resistente y capaz de aprender de otras civilizaciones.'
+  },
+  {
+    value: 'Elementales',
+    description: 'Son criaturas nativas de los Planos Elementales de Fuego, Agua, Aire y Tierra, formadas por la energía pura y la materia viva de su entorno. Su naturaleza les permite prescindir de las necesidades biológicas habituales, por lo que no necesitan comer, beber, respirar ni dormir. Suelen desempeñar funciones de guardianes, protectores y custodios de lugares vinculados a su elemento.'
+  },
+  {
+    value: 'Semi-Gigantes',
+    description: 'Son seres fruto de la unión entre humanos y gigantes. Se distinguen por su gran tamaño, su fuerza física sobresaliente y un carácter directo y obstinado. Sus cualidades los convierten en excelentes guerreros, trabajadores y guardaespaldas, capaces de destacar en tareas que requieren resistencia, potencia física y determinación.'
+  },
+  {
+    value: 'Serpentinos',
+    description: 'Son criaturas humanoides con rasgos de serpiente, reconocidas por su astucia, su naturaleza carnívora y su larga historia de culto a deidades ofídicas. Sus costumbres, creencias y características físicas los distinguen de las demás razas, y su vínculo con antiguas tradiciones religiosas forma parte de su identidad cultural.'
+  },
+  {
+    value: 'Cirrus',
+    description: 'Cirrus es una raza o condición mística en la que un individuo alberga dos espíritus o mentes distintas que comparten un mismo cuerpo físico. Esta dualidad suele estar compuesta por un alma mortal nativa y un fragmento espiritual, que puede proceder de un ser de los sueños, un ancestro o una entidad elemental del aire. La coexistencia de ambas presencias define su naturaleza y hace honor a su nombre, relacionado con las nubes y el cielo.'
   }
 ];
 
@@ -216,6 +232,7 @@ export const defaultCharacter = () => ({
   height: '',
   distinctiveFeatures: '',
   physicalDescription: '',
+  personalityTrait: '',
   ethnicity: '',
   ethnicityDetail: '',
   imageStatus: 'missing',

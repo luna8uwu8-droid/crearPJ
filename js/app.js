@@ -289,8 +289,8 @@ const renderWelcome = () => `
   </section>
 `;
 
-const renderChoiceCards = (name, options, selected) => `
-  <div class="choice-grid">
+const renderChoiceCards = (name, options, selected, gridClass = '') => `
+  <div class="choice-grid ${gridClass}">
     ${options.map((option) => `
       <button
         type="button"
@@ -333,6 +333,7 @@ const renderDatos = () => `
 
 const renderApariencia = () => {
   const desc = state.character.physicalDescription || '';
+  const personality = state.character.personalityTrait || '';
   return `
     <div class="section-intro">
       <p class="eyebrow">02 — APARIENCIA FÍSICA</p>
@@ -356,6 +357,14 @@ const renderApariencia = () => {
       </div>
       <textarea class="textarea-shell" name="physicalDescription" maxlength="1500" placeholder="Describe su presencia, gesto, vestimenta habitual y lo que se percibe al verlo por primera vez.">${escapeHtml(desc)}</textarea>
     </div>
+    <div class="codex-panel block-gap">
+      <div class="codex-header">
+        <span class="field-label">Rasgo de personalidad <span class="field-hint">Opcional</span></span>
+        <span class="char-counter">${personality.length}/1500</span>
+      </div>
+      <p class="codex-help">Describe la personalidad de tu personaje, sus principales características, virtudes, defectos y manera de actuar.</p>
+      <textarea class="textarea-shell" name="personalityTrait" maxlength="1500" placeholder="Temperamento, comportamiento, virtudes, defectos y forma de relacionarse con los demás.">${escapeHtml(personality)}</textarea>
+    </div>
   `;
 };
 
@@ -365,9 +374,9 @@ const renderEtnia = () => {
     <div class="section-intro">
       <p class="eyebrow">03 — RAZA</p>
       <h2>Elige la raza del personaje</h2>
-      <p class="section-subtitle">El registro admite únicamente la raza humana.</p>
+      <p class="section-subtitle">Cada raza define la naturaleza, la herencia y el lugar del personaje en el mundo.</p>
     </div>
-    ${renderChoiceCards('ethnicity', ETHNICITIES, state.character.ethnicity)}
+    ${renderChoiceCards('ethnicity', ETHNICITIES, state.character.ethnicity, 'race-grid')}
     ${selected?.needsDetail ? `
       <label class="field-card block-gap">
         <span class="field-label">Especifica la etnia permitida <span class="field-hint">Requerido</span></span>
@@ -489,6 +498,10 @@ const characterSummary = () => {
           <h4>Apariencia</h4>
           <p class="history-text">${escapeHtml(c.distinctiveFeatures || '')}</p>
           <div class="history-text">${escapeHtml(c.physicalDescription || 'Todavía no hay descripción física.')}</div>
+        </div>
+        <div class="history-block">
+          <h4>Rasgo de personalidad</h4>
+          <div class="history-text">${escapeHtml(c.personalityTrait || 'Todavía no hay rasgo de personalidad.')}</div>
         </div>
         ${c.validationCode ? `<p class="code-chip">Código: ${escapeHtml(c.validationCode)}</p>` : ''}
       </div>
@@ -970,6 +983,7 @@ const fillPrintSheet = () => {
     <h2>Descripción física</h2>
     <p>${escapeHtml(c.distinctiveFeatures)}</p>
     <p>${escapeHtml(c.physicalDescription)}</p>
+    ${c.personalityTrait ? `<h2>Rasgo de personalidad</h2><p>${escapeHtml(c.personalityTrait)}</p>` : ''}
   `;
 };
 
@@ -1287,7 +1301,7 @@ const bindAppEvents = () => {
       state.character[name] = value;
     }
     persist();
-    if (name === 'physicalDescription') {
+    if (name === 'physicalDescription' || name === 'personalityTrait') {
       const counter = event.target.closest('.codex-panel')?.querySelector('.char-counter');
       if (counter) counter.textContent = `${value.length}/1500`;
     }

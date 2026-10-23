@@ -113,6 +113,7 @@ const migrateLegacyState = (legacy) => {
     height: '',
     distinctiveFeatures: '',
     physicalDescription: legacy.character?.story ?? '',
+    personalityTrait: '',
     ethnicity: '',
     ethnicityDetail: '',
     imageStatus: legacy.character?.image?.dataUrl ? 'valid' : 'missing',

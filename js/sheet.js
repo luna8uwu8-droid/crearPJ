@@ -157,7 +157,20 @@ export const downloadCharacterSheet = async (character, validationCode) => {
     ctx.fillText(line, descBox.x + 22, descBox.y + 36 + i * 26);
   });
 
-  const codeY = 1450;
+  const personalityY = 1450;
+  ctx.fillStyle = '#e6b4bd';
+  ctx.font = '600 20px Arial';
+  ctx.fillText('RASGO DE PERSONALIDAD', 100, personalityY);
+
+  const personalityBox = { x: 100, y: personalityY + 20, w: canvas.width - 200, h: 230 };
+  drawPanel(ctx, personalityBox.x, personalityBox.y, personalityBox.w, personalityBox.h);
+  ctx.fillStyle = '#fff4f0';
+  ctx.font = '20px Arial';
+  wrapText(ctx, character.personalityTrait || 'Sin rasgo de personalidad registrado.', personalityBox.w - 40).slice(0, 8).forEach((line, i) => {
+    ctx.fillText(line, personalityBox.x + 22, personalityBox.y + 36 + i * 26);
+  });
+
+  const codeY = 1730;
   ctx.fillStyle = '#e6b4bd';
   ctx.font = '600 20px Arial';
   ctx.fillText('CÓDIGO DE VALIDACIÓN', 100, codeY);
