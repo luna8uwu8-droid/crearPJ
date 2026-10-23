@@ -42,36 +42,837 @@ export const LORE_SECTIONS = [
   }
 ];
 
+/**
+ * Formato de `intro` y `body`: una línea en blanco separa bloques.
+ * `• ` viñeta · `## ` subtítulo · `### ` subtítulo menor · `> ` nota destacada · `/` comando.
+ */
 export const NORMATIVE_CATEGORIES = [
   {
-    id: 'convivencia',
-    title: 'Normas de convivencia',
-    items: [{ title: 'Contenido pendiente', body: CONTENT_PENDING }]
+    id: 'reglamento',
+    title: 'Reglamento oficial del servidor',
+    items: [
+      {
+        title: '01. Edad mínima',
+        body: `• Este es un servidor exclusivamente +18.
+• Para ingresar y participar en la comunidad, el usuario deberá tener 18 años cumplidos o más.
+• No está permitido mentir sobre la edad para acceder al servidor o participar de sus actividades.
+• Si se comprueba que un usuario es menor de edad, será expulsado inmediatamente del servidor.
+• Esta restricción se aplica tanto a la comunidad de Discord como a la participación dentro del servidor de juego.`
+      },
+      {
+        title: '02. Respeto y convivencia',
+        body: `• Está terminantemente prohibido el acoso, hostigamiento, persecución o intimidación hacia cualquier miembro de la comunidad.
+• Se considera acoso cualquier comportamiento reiterado o intencional destinado a incomodar, amenazar, humillar, perseguir o perjudicar a otro usuario.
+• Los insultos, provocaciones, amenazas, discriminación y faltas de respeto hacia otros usuarios no están permitidos.
+• Las diferencias personales deberán resolverse mediante el diálogo o, cuando corresponda, recurriendo al Staff.
+• No se permitirá utilizar discusiones dentro del rol como excusa para trasladar conflictos personales fuera del mismo.
+
+> El acoso será considerado una falta grave y podrá resultar en un baneo permanente, dependiendo de la gravedad de la situación.`
+      },
+      {
+        title: '03. Identidad y cuentas',
+        body: `## Suplantación de identidad
+
+• Está prohibido hacerse pasar por otro usuario, miembro del Staff, administrador o cualquier otra persona.
+• No se permite utilizar nombres, fotografías, identidades o cualquier elemento destinado a hacer creer a otros usuarios que se trata de otra persona.
+• La suplantación de un miembro del Staff será considerada una falta grave.
+
+## Cuentas de Steam
+
+• Cada jugador deberá utilizar una única cuenta de Steam para participar en el servidor.
+• Está prohibido ingresar utilizando varias cuentas de Steam con la intención de obtener ventajas, evadir sanciones, participar con diferentes identidades o alterar el funcionamiento normal de la comunidad.
+
+## Personajes secundarios
+
+• No están permitidos los personajes secundarios bajo ningún concepto.
+• Cada jugador deberá mantener una única identidad/personaje dentro del servidor.
+• No se podrá utilizar un personaje alternativo para obtener recursos, información, ventajas o beneficios que no podrían obtenerse con el personaje principal.`
+      },
+      {
+        title: '04. Uso del servidor y jugabilidad',
+        body: `## Exploits y Bug Abuse
+
+• Está prohibido aprovecharse deliberadamente de errores, bugs, glitches o comportamientos no previstos del juego o de los mods para obtener una ventaja.
+• Si un jugador descubre un bug que pueda afectar la economía, progresión, combate, construcción, comercio u otro sistema del servidor, deberá informarlo al Staff.
+• El hecho de que un bug sea conocido o no haya sido corregido todavía no significa que esté permitido utilizarlo.
+• Aprovecharse deliberadamente de un error para obtener beneficios podrá ser sancionado.
+
+## Roleplay con menores
+
+• Está completamente prohibido realizar roleplay interpretando niños, niñas o bebés.
+• Esto incluye tanto personajes infantiles como cualquier representación destinada a interpretar a un menor de edad.
+• La prohibición se aplica independientemente de la historia, situación o contexto del roleplay.`
+      },
+      {
+        title: '05. Privacidad e información personal',
+        body: `• Está prohibido divulgar, publicar o compartir información personal de cualquier usuario sin su consentimiento.
+• Esto incluye, entre otros casos, nombres reales, direcciones, números telefónicos, fotografías privadas, información de contacto u otros datos personales.
+• No está permitido publicar información obtenida mediante conversaciones privadas con la intención de exponer, perjudicar o avergonzar a otro usuario.
+
+## Conversaciones privadas
+
+• Está prohibido compartir capturas de pantalla, grabaciones, audios o cualquier otro registro de conversaciones privadas sin autorización.
+• Se exceptúan aquellas situaciones en las que el Staff solicite expresamente dichas pruebas para investigar una denuncia o resolver un conflicto.
+• También podrán existir excepciones en situaciones particulares en las que resulte necesario aportar pruebas para proteger a un usuario o a la comunidad.
+
+> La privacidad de los miembros debe ser respetada tanto dentro como fuera del servidor.`
+      },
+      {
+        title: '06. Administración y Staff',
+        body: `• El Staff tiene la responsabilidad de mantener el orden, aplicar las normas y garantizar el correcto funcionamiento de la comunidad.
+• La administración podrá intervenir cuando considere que una situación afecta negativamente a la convivencia o al funcionamiento del servidor.
+• La administración no se hace responsable de las acciones, acuerdos, conflictos o infracciones cometidas voluntariamente por los usuarios durante el desarrollo del servidor.
+• Las decisiones administrativas podrán basarse en las pruebas disponibles, incluyendo registros, capturas, vídeos, logs u otros medios de verificación.
+
+## Modificación del reglamento
+
+• La administración se reserva el derecho de modificar, actualizar, ampliar o eliminar normas cuando sea necesario.
+• Los cambios podrán realizarse para adaptar el reglamento a nuevas situaciones, sistemas, modificaciones del servidor o necesidades de la comunidad.
+• Las modificaciones publicadas pasarán a formar parte del reglamento vigente.`
+      },
+      {
+        title: '07. Aceptación del reglamento',
+        body: `• El ingreso y permanencia en el servidor implica que el usuario acepta estas normas y se compromete a cumplirlas.
+• No conocer una norma, no haberla leído o desconocer su existencia no constituye una justificación para incumplirla.
+• Las sanciones podrán variar dependiendo de la gravedad de la infracción, reincidencia, intención y consecuencias generadas.
+
+> El objetivo de estas normas no es limitar la experiencia, sino garantizar una comunidad segura, justa y disfrutable para todos.
+
+> RESPETA EL SERVIDOR. RESPETA A LOS JUGADORES. RESPETA EL ROL.`
+      }
+    ]
   },
   {
-    id: 'roleplay',
-    title: 'Reglas de Roleplay',
-    items: [{ title: 'Contenido pendiente', body: CONTENT_PENDING }]
+    id: 'dados',
+    title: 'Sistema de dados',
+    intro: `## Guía básica para usar los dados de Redux
+
+Esta pequeña guia tiene como objetivo exclarecer los puntos del uso de dados en Redux. Este sistema de dados bebe en parte de D&D dragones y mazmorras pero adaptado al Conan Exiles.`,
+    items: [
+      {
+        title: 'Tiradas de Habilidad',
+        body: `Las usas cuando intentas hacer algo, como persuadir a un guardia, saltar un foso o buscar un objeto oculto. El (d20) se suma a tu modificador de característica (ej. Fuerza o Destreza) y, si eres experto, a tu bonificador de competencia. El total debe igualar o superar la Clase de Dificultad (CD) fijada por el Dungeon Master (DM).
+
+## Tiradas de Ataque
+
+Determinan si golpeas a un enemigo con un arma o un conjuro. Se tira (d20) + modificador de característica + bonificador de competencia. El total debe igualar o superar la Clase de Armadura (CA) de tu objetivo.
+
+## Tiradas en Ventaja y Desventaja
+
+Si las circunstancias te favorecen o te perjudican, el "Narrador/a" puede pedirte que tires con Ventaja o Desventaja:
+
+• Ventaja: Lanzas dos dados de 20 caras y te quedas con el resultado más alto.
+• Desventaja: Lanzas dos dados de 20 caras y te quedas con el resultado más bajo.`
+      },
+      {
+        title: 'Tiradas de Salvación',
+        body: `Es una tirada reactiva que haces para resistir o esquivar un peligro repentino.
+
+Existen seis tipos de salvaciones, y cada una se relaciona con cómo intentas protegerte:
+
+• Fuerza: Resistir empujones, derribos o efectos que te aprisionan.
+• Destreza: Esquivar efectos de área, como una Bola de fuego o una trampa de pinchos.
+• Constitución: Resistir venenos, enfermedades, el frío extremo o mantener la concentración en un hechizo tras recibir daño.
+• Inteligencia: Superar ilusiones complejas o ver a través de engaños mágicos.
+• Sabiduría: Resistir efectos que controlan o asustan tu mente (como el conjuro Dominar persona).
+• Carisma: Resistir posesiones o efectos que alteran tu propia identidad o esencia.
+
+## Tiradas de Éxito y Fallo (Pifia) Crítico
+
+Al lanzar el dado de 20 caras, hay dos resultados extremos que tienen efectos especiales automáticos, independientemente de tus modificadores:
+
+• 20 Natural (Crítico): Siempre es un éxito rotundo. En combate, un 20 natural asegura que impactas e infliges el doble de daño.
+• 1 Fallo critico (Pifia): Siempre es un fallo automático. En combate, significa que fallas miserablemente y pueden ocurrir consecuencias negativas.`
+      }
+    ]
   },
   {
-    id: 'fairplay',
-    title: 'Fair Play',
-    items: [{ title: 'Contenido pendiente', body: CONTENT_PENDING }]
+    id: 'pvp',
+    title: 'Normativa de combate PVP (Motor y Redux)',
+    intro: 'El servidor prioriza el sistema de combate Redux como modalidad principal de resolución de conflictos. Sin embargo, cuando ambas partes estén de acuerdo, podrán utilizar el sistema de combate a Motor, siempre que se respeten las normas establecidas en este reglamento y se pacten previamente las consecuencias del enfrentamiento.',
+    items: [
+      {
+        title: 'Principios generales',
+        body: `## Acuerdo entre las partes
+
+Todo enfrentamiento PVP deberá ser acordado previamente entre los participantes.
+
+Antes de iniciar un combate deberán definirse claramente:
+
+• Las consecuencias del enfrentamiento.
+• El posible desenlace narrativo.
+• La participación o no del sistema Find RP.
+• Las limitaciones especiales que puedan aplicarse.
+
+Ningún combate podrá comenzar sin que ambas partes comprendan y acepten las condiciones establecidas.`
+      },
+      {
+        title: 'Uso del Find RP',
+        body: `Cuando alguno de los participantes disponga de Find RP, ambas partes deberán acordar previamente si dicho sistema permanecerá activo o será deshabilitado para el encuentro.
+
+Esta medida busca evitar:
+
+• Ventajas injustas.
+• Metagaming.
+• Favorecimientos externos.
+• Intervenciones indebidas de amigos o miembros del mismo clan.`
+      },
+      {
+        title: 'Burbuja de Combate',
+        body: `Una vez iniciado un enfrentamiento y aceptadas sus condiciones, se establecerá una Burbuja de Combate.
+
+Mientras esta permanezca activa:
+
+• Ningún jugador ajeno podrá intervenir.
+• No podrán incorporarse nuevos participantes.
+• No podrán realizarse acciones externas que alteren el resultado del conflicto.
+
+La burbuja finalizará únicamente cuando el combate y sus consecuencias narrativas hayan concluido.`
+      },
+      {
+        title: 'PVP a Motor',
+        body: `El combate a Motor es una modalidad opcional que solo podrá utilizarse cuando ambas partes acepten expresamente resolver el conflicto mediante mecánicas directas del juego.
+
+## Uso de magia
+
+• Se permite el uso de magia durante el combate.
+• Las limitaciones mágicas deberán acordarse antes de comenzar.
+• Está prohibido utilizar magia curativa.
+• Está prohibido utilizar pociones de curación.`
+      },
+      {
+        title: 'Armas y equipamiento',
+        body: `• Se permite el uso de antídotos.
+• Cada jugador podrá portar un máximo de dos armas.
+• Se permite el uso de escudo.
+• Todas las armas utilizadas deberán permanecer visibles durante el enfrentamiento.`
+      },
+      {
+        title: 'Desarrollo del combate',
+        body: `• El combate deberá desarrollarse respetando los acuerdos previos establecidos entre las partes.
+• Los participantes deberán aceptar las consecuencias pactadas antes del inicio.
+• No podrán modificarse las condiciones una vez iniciado el enfrentamiento.`
+      },
+      {
+        title: 'Intervenciones externas',
+        body: `Mientras exista una Burbuja de Combate activa:
+
+• Ningún jugador externo podrá intervenir.
+• Bastará con que una de las partes rechace una intervención para impedirla.
+
+## Excepción
+
+Si un grupo atacante inicia un enfrentamiento en clara superioridad numérica (2 contra 1, 3 contra 1 o superior) sin utilizar Find RP, los jugadores que se encuentren casualmente en la zona podrán intervenir exclusivamente en favor del defensor.`
+      },
+      {
+        title: 'Objetos prohibidos',
+        body: 'Queda terminantemente prohibido utilizar armas, objetos o consumibles incluidos en la lista oficial de elementos baneados por la administración.'
+      },
+      {
+        title: 'PVP Redux',
+        body: `El sistema Redux constituye la modalidad principal de combate del servidor.
+
+Todos los encuentros realizados mediante Redux deberán respetar las siguientes disposiciones.`
+      },
+      {
+        title: 'Desigualdad numérica',
+        body: `Cuando exista una diferencia significativa de participantes entre ambos bandos:
+
+• El jugador que llegue posteriormente en apoyo del grupo con inferioridad numérica podrá incorporarse al combate.
+• Su incorporación se realizará después de la última rotación correspondiente.
+• Esta excepción prevalece sobre la Burbuja de Combate.
+
+Antes de iniciar el conflicto deberán pactarse:
+
+• Consecuencias.
+• Condiciones especiales.
+• Participación del sistema Find RP.`
+      },
+      {
+        title: 'Potenciadores y consumibles',
+        body: `Todos los potenciadores deberán utilizarse antes del inicio del combate.
+
+Esto incluye:
+
+• Comidas.
+• Bebidas.
+• Pociones de mejora.
+• Bonificaciones temporales.
+
+Durante el combate:
+
+• Solo se permitirá el uso de una única poción de curación por participante.`
+      },
+      {
+        title: 'Burbuja de Combate',
+        body: `Una vez iniciado el combate:
+
+• Ningún jugador externo podrá intervenir.
+• No podrán incorporarse nuevos participantes.
+• No podrán realizarse acciones externas que alteren el resultado.
+
+## Excepción
+
+Si el atacante inicia un conflicto en clara superioridad numérica sin utilizar Find RP, los jugadores que pasen casualmente por la zona podrán intervenir únicamente en favor del defensor.`
+      },
+      {
+        title: 'Participantes válidos',
+        body: `Solo podrán participar en un combate Redux:
+
+• Los personajes presentes durante el desarrollo del rol previo.
+• Los personajes que hayan manifestado su intención de participar antes del inicio del combate.
+
+Una vez iniciado el enfrentamiento:
+
+• No podrán incorporarse nuevos participantes.
+• Únicamente se aplicarán las excepciones contempladas en esta normativa.
+
+Se permite comunicación OOC exclusivamente para determinar qué participantes formarán parte del enfrentamiento antes de su inicio.`
+      },
+      {
+        title: 'Lista de objetos prohibidos',
+        body: `Los siguientes elementos no podrán utilizarse en ningún enfrentamiento PVP:
+
+### a) Cuchilla del Borracho
+
+• Prohibida en PVP.
+• Permitida únicamente en actividades PVE.
+
+### b) Sopa de Aloe
+
+• Prohibida en cualquier modalidad de combate PVP.
+
+### c) Té de Aloe
+
+• Prohibido en cualquier modalidad de combate PVP.`
+      },
+      {
+        title: 'Disposición final',
+        body: 'El objetivo de esta normativa es garantizar enfrentamientos equilibrados, transparentes y centrados en la experiencia narrativa del Roleplay. Cualquier vacío legal, conducta abusiva o situación no contemplada expresamente será evaluada por la administración, quien tendrá la última palabra sobre su resolución.'
+      }
+    ]
   },
   {
-    id: 'pvp-pve',
-    title: 'PVP / PVE',
-    items: [{ title: 'Contenido pendiente', body: CONTENT_PENDING }]
+    id: 'rol',
+    title: 'Normativa de rol e interacción',
+    intro: 'Estas normas regulan el comportamiento y las interacciones dentro del entorno de Roleplay. Todo jugador deberá conocerlas y respetarlas para garantizar una experiencia inmersiva, coherente y justa para toda la comunidad.',
+    items: [
+      {
+        title: 'Conceptos fundamentales',
+        body: `## In Character (IC)
+
+Todo aquello que pertenece al personaje y ocurre dentro del rol.
+
+Incluye:
+
+• Pensamientos, acciones y conocimientos del personaje.
+• Relaciones, conflictos y decisiones tomadas dentro del entorno de juego.
+• Todo lo que sucede durante la interpretación del personaje.`
+      },
+      {
+        title: 'Out of Character (OOC)',
+        body: `Todo aquello ajeno al personaje y al entorno de rol.
+
+Incluye:
+
+• Conversaciones entre jugadores.
+• Problemas técnicos.
+• Consultas administrativas.
+• Información conocida por el jugador pero no por su personaje.
+
+La información OOC nunca debe utilizarse para beneficiar o perjudicar acciones IC.`
+      },
+      {
+        title: 'Metagaming (MG)',
+        body: `Se considera Metagaming utilizar información obtenida fuera del rol para tomar decisiones dentro del rol.
+
+Ejemplos:
+
+• Utilizar información obtenida por Discord, streams o chats privados para localizar personajes.
+• Compartir ubicaciones, planes o información IC mediante canales OOC.
+• Actuar sobre información que tu personaje jamás pudo conocer de forma legítima.`
+      },
+      {
+        title: 'Powergaming (PG)',
+        body: `Se considera Powergaming realizar acciones imposibles, exageradas o abusivas que rompan la lógica del entorno de rol.
+
+Ejemplos:
+
+• Realizar acciones físicamente imposibles.
+• Obligar a otros personajes a aceptar resultados sin posibilidad de reacción.
+• Aprovechar limitaciones del juego para obtener ventajas irreales.`
+      },
+      {
+        title: 'Death Match (DM)',
+        body: `Consiste en atacar o matar a otro personaje sin justificación narrativa, motivo IC o rol previo.
+
+Todo enfrentamiento hostil debe contar con una construcción narrativa previa que justifique la situación.`
+      },
+      {
+        title: 'Evasión de Rol',
+        body: `Se considera evasión de rol cualquier intento deliberado de evitar las consecuencias de una interacción.
+
+Ejemplos:
+
+• Desconectarse durante un rol.
+• Ignorar acciones dirigidas hacia tu personaje.
+• Negarse a responder interacciones válidas.
+• Buscar excusas mecánicas para evitar el desarrollo del rol.`
+      },
+      {
+        title: 'Fair Play',
+        body: `Todos los jugadores deberán actuar con honestidad, madurez y espíritu deportivo.
+
+Se espera que cada participante priorice la calidad narrativa y la diversión colectiva por encima del beneficio personal.`
+      },
+      {
+        title: 'Character Kill (CK)',
+        body: `El Character Kill representa la muerte definitiva de un personaje.
+
+Cuando un CK es aplicado:
+
+• El personaje deja de existir dentro del servidor.
+• Se pierden relaciones, historia, influencia y desarrollo narrativo.
+• Las pertenencias, propiedades y recursos podrán verse afectados según determine la administración.
+
+El CK constituye una medida excepcional y requiere supervisión administrativa.`
+      },
+      {
+        title: 'Player Kill Temporal (PKT)',
+        body: `El PKT representa una consecuencia narrativa menos severa que un CK.
+
+Puede implicar:
+
+• Pérdida parcial de memoria.
+• Desconocimiento de determinados acontecimientos.
+• Consecuencias narrativas previamente pactadas.
+• Sustitución narrativa del personaje por otro individuo similar cuando la historia así lo requiera.
+
+Las condiciones deberán ser acordadas entre las partes involucradas.`
+      },
+      {
+        title: 'Sistema de PVP y roles hostiles',
+        body: `Todo enfrentamiento hostil deberá contar con una justificación narrativa previa.
+
+Se considera inicio válido de un conflicto:
+
+• Ataques intencionados contra personajes o seguidores.
+• Ataques realizados por seguidores.
+• Invasión de propiedades privadas, bases o asentamientos.
+• Robo a personajes o clanes.
+• Daños intencionados a bienes de terceros.
+• Cualquier acción hostil que afecte directamente a otro jugador.
+
+Para iniciar un conflicto deberán utilizarse los comandos:
+
+/PVP INTENT
+
+Y posteriormente:
+
+/PVP START
+
+La parte afectada deberá responder mediante rol.
+
+A partir de ese momento podrán producirse dos desenlaces:
+
+• Respuesta al ataque.
+• Intento de huida mediante las mecánicas correspondientes.`
+      },
+      {
+        title: 'Normas de rol',
+        body: `## Rol previo obligatorio
+
+Queda prohibido iniciar cualquier enfrentamiento PVP sin un desarrollo narrativo previo.
+
+Las consecuencias y posibles desenlaces deberán estar claramente establecidos antes del conflicto.`
+      },
+      {
+        title: 'Prohibición de evasión de rol',
+        body: `Toda acción genera consecuencias.
+
+Los jugadores deberán responder las interacciones dirigidas hacia sus personajes.
+
+Ignorar deliberadamente una situación de rol será considerado evasión.`
+      },
+      {
+        title: 'ERP (Rol Erótico)',
+        body: `Está terminantemente prohibido realizar ERP en:
+
+• Ciudades.
+• Asentamientos.
+• Zonas públicas.
+• Puntos de interés.
+
+Los personajes sorprendidos realizando este tipo de actividades podrán enfrentar consecuencias tanto IC como OOC.`
+      },
+      {
+        title: 'Finalización de roles',
+        body: `Todo rol iniciado deberá llegar a una conclusión.
+
+Si surge un desacuerdo entre jugadores, deberá resolverse de manera OOC, respetando las normas del servidor y manteniendo una actitud cordial.`
+      },
+      {
+        title: 'Respeto a roles ajenos',
+        body: `Queda prohibido intervenir deliberadamente en roles ajenos con la intención de perjudicar, interrumpir o alterar su desarrollo.
+
+Se deberá respetar la escena en curso.
+
+Especialmente se recomienda no intervenir en ERP ajenos.`
+      },
+      {
+        title: 'Razas fantásticas',
+        body: `Las habilidades raciales deberán mantenerse dentro de parámetros coherentes y acordes a:
+
+• El lore del servidor.
+• La ficha aprobada.
+• Las limitaciones establecidas por la administración.
+
+Ninguna raza posee capacidades ilimitadas.`
+      },
+      {
+        title: 'Conflictos y discusiones',
+        body: `Queda prohibido resolver disputas mediante el chat global del juego.
+
+Toda situación deberá trasladarse a:
+
+• Canales OOC.
+• Tickets administrativos.
+• Mediación del Staff.
+
+El incumplimiento podrá derivar en advertencias o sanciones.`
+      },
+      {
+        title: 'Valoración de la vida',
+        body: `Todo personaje debe valorar su propia vida y la de las personas que considera importantes.
+
+Si decides iniciar conflictos, amenazas o acciones agresivas, deberás aceptar las consecuencias derivadas de ellas.`
+      },
+      {
+        title: 'Uso obligatorio del /DO',
+        body: `Toda acción agresiva, invasiva o que afecte directamente a otro personaje deberá anunciarse mediante un /DO.
+
+Ejemplo:
+
+/do Intentaría propinarle un fuerte golpe en el rostro, ¿podría hacerlo?
+
+Respuesta:
+
+/do No, sujetaría su brazo antes de que alcance a golpearme.
+
+o
+
+/do Sí, el impacto sería fuerte y visible.`
+      },
+      {
+        title: 'Respuesta obligatoria a los /DO',
+        body: `Todo /DO deberá recibir una respuesta.
+
+Ignorar o evitar responder un /DO válido podrá ser considerado evasión de rol.`
+      },
+      {
+        title: 'Personajes menores de edad',
+        body: `Está completamente prohibido:
+
+• Interpretar personajes menores de edad.
+• Hacer referencias sexuales relacionadas con menores.
+• Desarrollar cualquier narrativa romántica o erótica relacionada con menores.
+
+Todos los personajes deberán tener una edad mínima de 18 años.`
+      },
+      {
+        title: 'Ambientación del servidor',
+        body: `El servidor está enfocado en un entorno de Fantasía Medieval.
+
+Por ello:
+
+• Los diálogos.
+• Las acciones.
+• Las costumbres.
+• La narrativa.
+
+Deberán mantener coherencia con la ambientación establecida.`
+      },
+      {
+        title: 'Violaciones y abuso sexual',
+        body: `Queda terminantemente prohibido cualquier rol relacionado con:
+
+• Violaciones.
+• Abuso sexual.
+• Coacción sexual.
+• Roles forzados de índole sexual.
+
+La tolerancia ante estas situaciones es cero.`
+      },
+      {
+        title: 'Dones y habilidades',
+        body: `No está permitido utilizar:
+
+• Poderes inexistentes en el lore.
+• Habilidades no aprobadas.
+• Capacidades ajenas a la raza o clase del personaje.
+
+Toda habilidad deberá estar respaldada por la normativa vigente.`
+      },
+      {
+        title: 'Normativa de Character Kill (CK)',
+        body: `El CK constituye una de las consecuencias más graves dentro del servidor.
+
+Para su aplicación:
+
+• Deberá existir una justificación narrativa sólida.
+• Deberá ser consecuencia directa de una cadena de roles significativa.
+• Será revisado y evaluado por la administración.
+
+La administración se reserva el derecho de:
+
+• Aprobarlo.
+• Rechazarlo.
+• Modificar sus condiciones.
+• Aplicar medidas alternativas.
+
+## Enfrentamientos con riesgo de CK
+
+Cuando exista autorización administrativa:
+
+• Tanto atacantes como defensores asumirán el riesgo de CK.
+• Si existe superioridad numérica contra el defensor, los atacantes deberán combatir de forma individual.
+• No se permitirá el abuso de curaciones o mecánicas destinadas a generar ventajas injustas.
+• Una vez derrotado un atacante podrá intervenir el siguiente, salvo que el defensor haya sido derrotado previamente.`
+      },
+      {
+        title: 'Normativa de PKT',
+        body: `El PKT podrá utilizarse cuando las partes involucradas deseen evitar la muerte definitiva de un personaje.
+
+Podrá aplicarse en:
+
+• Narrativas de desarrollo.
+• Conflictos amistosos.
+• Roles consensuados.
+• Determinados conflictos hostiles.
+
+Las consecuencias deberán ser previamente acordadas entre las partes y respetadas por todos los participantes.`
+      },
+      {
+        body: '> El objetivo de esta normativa es garantizar una experiencia de rol inmersiva, coherente y justa para toda la comunidad. La interpretación responsable y el respeto mutuo siempre tendrán prioridad sobre cualquier beneficio individual.'
+      }
+    ]
   },
   {
     id: 'construccion',
-    title: 'Construcción',
-    items: [{ title: 'Contenido pendiente', body: CONTENT_PENDING }]
-  },
-  {
-    id: 'sanciones',
-    title: 'Sanciones',
-    items: [{ title: 'Contenido pendiente', body: CONTENT_PENDING }]
+    title: 'Normativa de construcción, thralls, mascotas y monturas',
+    intro: 'Estas normas tienen como finalidad garantizar el correcto funcionamiento del servidor, mantener un rendimiento óptimo y asegurar una convivencia justa entre todos los jugadores.',
+    items: [
+      {
+        title: 'Construcción y decoración',
+        body: `## Límites de construcción
+
+Con el objetivo de preservar la estabilidad y fluidez del servidor, todas las construcciones deberán respetar los límites establecidos por la administración.
+
+El servidor dispone de una amplia variedad de casas prefabricadas que cuentan como elementos decorativos y pueden modificarse en:
+
+• Tamaño.
+• Dimensiones.
+• Estilo arquitectónico.
+• Colores.
+
+Se recomienda encarecidamente utilizar estas estructuras para optimizar el rendimiento general del servidor.
+
+## Límites permitidos por grupo
+
+### 1 Jugador
+
+• 300 piezas de construcción.
+• 300 piezas decorativas.
+
+### 2 a 3 Jugadores
+
+• 400 piezas de construcción.
+• 400 piezas decorativas.
+
+### 4 Jugadores
+
+• 450 piezas de construcción.
+• 450 piezas decorativas.
+
+### 5 o más Jugadores
+
+• 550 piezas de construcción.
+• 550 piezas decorativas.
+
+## Consideraciones importantes
+
+• La administración podrá solicitar modificaciones si una construcción afecta el rendimiento del servidor.
+• Las edificaciones excesivamente grandes, innecesarias o diseñadas para evadir estos límites podrán ser retiradas parcial o totalmente.
+• Los intentos de dividir estructuras para superar los límites establecidos podrán ser considerados una infracción.`
+      },
+      {
+        title: 'Uso del terreno',
+        body: `## Distancia entre construcciones
+
+Dentro del servidor no existe el concepto de propiedad territorial absoluta.
+
+Los jugadores podrán construir libremente siempre que respeten las distancias mínimas establecidas.
+
+## Distancia obligatoria
+
+Toda construcción deberá encontrarse a una distancia mínima de:
+
+> 45 cimientos
+
+Respecto a:
+
+• Bases de otros jugadores.
+• Asentamientos de clanes.
+• Construcciones oficiales.
+• Estructuras creadas por la administración.
+
+## Reserva de terrenos
+
+Está terminantemente prohibido:
+
+• Apartar terrenos mediante cimientos.
+• Reservar espacios utilizando colocables.
+• Bloquear zonas con estructuras sin uso real.
+• Impedir la expansión de otros jugadores mediante construcciones destinadas únicamente a ocupar espacio.
+
+Las construcciones utilizadas para reservar territorio podrán ser eliminadas por la administración.`
+      },
+      {
+        title: 'Propiedades y zonas privadas',
+        body: `## Invasión de propiedades
+
+Toda base, vivienda o asentamiento constituye una propiedad privada dentro del entorno de rol.
+
+Ingresar sin autorización a:
+
+• Bases de jugadores.
+• Sedes de facciones.
+• Asentamientos raciales.
+• Instalaciones privadas.
+
+Podrá ser considerado un acto hostil.
+
+## Consecuencias
+
+Los propietarios o responsables del lugar podrán responder mediante rol y aplicar consecuencias narrativas.
+
+Estas consecuencias podrán incluir:
+
+• Expulsión de la propiedad.
+• Captura temporal.
+• Heridas narrativas.
+• PK acordado entre las partes.
+
+Las lesiones podrán variar desde consecuencias leves hasta heridas graves según el contexto del rol desarrollado.`
+      },
+      {
+        title: 'Thralls, monturas y mascotas',
+        body: `## Límites permitidos
+
+Con el fin de reducir la carga del servidor y mantener el equilibrio de juego, cada jugador podrá disponer de:
+
+• 01 Thrall de combate.
+• 01 Montura.
+• 01 Mascota.
+
+## Sustitución permitida
+
+La mascota podrá sustituirse por un segundo Thrall si el jugador así lo desea.
+
+Ejemplo:
+
+• 02 Thralls y 01 Montura.
+
+o
+
+• 01 Thrall, 01 Mascota y 01 Montura.
+
+## Thralls de trabajo
+
+Se permite la utilización de Thralls destinados a estaciones de trabajo.
+
+Condiciones:
+
+• Solo un Thrall por mesa.
+• Solo una mesa por especialidad.
+• Solo una estación de procesamiento por categoría.
+
+## Universal Crafting y Universal Processing
+
+El servidor dispone de los sistemas:
+
+• Universal Crafting.
+• Universal Processing.
+
+Estos sistemas permiten:
+
+• Integrar múltiples estaciones en un único objeto.
+• Reducir significativamente el espacio utilizado.
+• Optimizar el rendimiento del servidor.
+• Disminuir los costes de procesamiento de recursos.
+
+Si tienes dudas sobre su funcionamiento, el Staff podrá ayudarte dentro del juego.`
+      },
+      {
+        title: 'Robos y seguridad',
+        body: `## Responsabilidad sobre pertenencias
+
+Cada jugador es responsable de proteger adecuadamente su hogar, base y pertenencias.
+
+La administración no se responsabiliza por pérdidas ocasionadas por descuidos de construcción o seguridad.
+
+## Robo permitido
+
+El robo de objetos estará permitido únicamente cuando exista un acceso evidente y legítimo.
+
+Ejemplos:
+
+• Puertas abiertas.
+• Entradas sin protección.
+• Accesos sin cerrar.
+• Huecos estructurales que permitan el ingreso sin explotar errores del juego.
+
+## Robo no permitido
+
+No estará permitido:
+
+• Utilizar exploits.
+• Atravesar estructuras mediante bugs.
+• Aprovechar errores del mapa.
+• Acceder mediante métodos ilegítimos.
+
+Cualquier acción de este tipo será considerada una infracción.`
+      },
+      {
+        title: 'Zonas prohibidas de construcción',
+        body: `## Ciudad Capital de Telith
+
+Queda terminantemente prohibido construir en las zonas cercanas a la ciudad capital de Telith.
+
+Esta restricción existe para preservar:
+
+• El desarrollo narrativo de la ciudad.
+• La estética del entorno.
+• El acceso libre a los jugadores.
+• Los eventos organizados por la administración.
+
+## Medidas administrativas
+
+Toda construcción realizada dentro de las zonas restringidas podrá ser:
+
+• Eliminada.
+• Modificada.
+• Desmantelada.
+
+Por parte de la administración.
+
+Estas acciones podrán ejecutarse sin previo aviso cuando se considere necesario.`
+      },
+      {
+        title: 'Disposición final',
+        body: 'Las normas de construcción buscan mantener un equilibrio entre la libertad creativa de los jugadores y el correcto funcionamiento del servidor. Cualquier situación no contemplada expresamente en esta normativa será evaluada por la administración, quien tendrá la decisión final sobre su aplicación e interpretación.'
+      }
+    ]
   }
 ];
 

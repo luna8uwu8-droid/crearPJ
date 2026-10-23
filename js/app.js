@@ -440,17 +440,41 @@ const renderLore = () => `
   </div>
 `;
 
+// Convierte el formato de texto de NORMATIVE_CATEGORIES (ver content.js) en HTML.
+const renderRuleText = (text = '') => text
+  .trim()
+  .split(/\n\s*\n/)
+  .map((block) => {
+    const lines = block.split('\n').map((line) => line.trim()).filter(Boolean);
+    if (lines.every((line) => line.startsWith('• '))) {
+      return `<ul class="rule-list">${lines.map((line) => `<li>${escapeHtml(line.slice(2))}</li>`).join('')}</ul>`;
+    }
+    const content = lines.join('\n');
+    if (content.startsWith('### ')) return `<h5 class="rule-minor">${escapeHtml(content.slice(4))}</h5>`;
+    if (content.startsWith('## ')) return `<h4 class="rule-subtitle">${escapeHtml(content.slice(3))}</h4>`;
+    if (content.startsWith('> ')) return `<p class="rule-note">${escapeHtml(content.slice(2))}</p>`;
+    if (content.startsWith('/')) return `<p class="rule-command"><code>${escapeHtml(content)}</code></p>`;
+    return `<p>${escapeHtml(content)}</p>`;
+  })
+  .join('');
+
 const renderNormativas = () => `
   <div class="section-intro">
     <p class="eyebrow">06 — NORMATIVAS</p>
     <h2>Las leyes que sostienen el servidor</h2>
-    <p class="section-subtitle">Consulta por categoría. El texto oficial se mostrará aquí cuando el Staff lo publique.</p>
+    <p class="section-subtitle">Consulta el reglamento por categoría. Despliega cada una para leer sus normas.</p>
   </div>
   <div class="chapter-stack">
     ${NORMATIVE_CATEGORIES.map((category) => `
-      <details class="lore-chapter">
+      <details class="lore-chapter rule-chapter">
         <summary><strong>${escapeHtml(category.title)}</strong></summary>
-        ${category.items.map((item) => `<div class="rule-block"><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.body)}</p></div>`).join('')}
+        ${category.intro ? `<div class="rule-intro">${renderRuleText(category.intro)}</div>` : ''}
+        ${category.items.map((item) => `
+          <div class="rule-block">
+            ${item.title ? `<h3>${escapeHtml(item.title)}</h3>` : ''}
+            ${renderRuleText(item.body)}
+          </div>
+        `).join('')}
       </details>
     `).join('')}
   </div>
