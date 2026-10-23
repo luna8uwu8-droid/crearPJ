@@ -1460,6 +1460,91 @@ button {
   padding-bottom: 18px;
 }
 
+.rule-intro {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rule-block {
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(245, 214, 216, 0.08);
+}
+
+.rule-block:last-child {
+  border-bottom: 0;
+  padding-bottom: 4px;
+}
+
+.rule-block h3 {
+  margin: 0 0 10px;
+  color: var(--accent-strong);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+}
+
+.rule-subtitle,
+.rule-minor {
+  margin: 16px 0 6px;
+  color: var(--text);
+}
+
+.rule-subtitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.rule-minor {
+  color: var(--soft);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rule-block p,
+.rule-intro p {
+  margin: 8px 0;
+  white-space: pre-line;
+}
+
+.rule-list {
+  margin: 8px 0;
+  padding-left: 20px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.rule-list li + li {
+  margin-top: 4px;
+}
+
+.rule-list li::marker {
+  color: var(--accent-strong);
+}
+
+.rule-block .rule-note {
+  margin: 14px 0 4px;
+  padding: 12px 14px;
+  border-left: 2px solid rgba(239, 169, 173, 0.6);
+  border-radius: 0 12px 12px 0;
+  background: rgba(169, 31, 62, 0.12);
+  color: var(--text);
+}
+
+.rule-command code {
+  display: inline-block;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(13, 5, 11, 0.72);
+  color: var(--accent-strong);
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+  font-size: 0.88rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 .accept-panel {
   display: grid;
   gap: 12px;
