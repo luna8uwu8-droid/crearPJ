@@ -835,7 +835,6 @@ const renderRaceIndex = () => {
         ${otherGroups.map(renderGroup).join('')}
       </div>
     </div>
-    ${renderCatalogSection(FANDOM.clases)}
   `;
 };
 
@@ -1133,7 +1132,7 @@ const renderHubSection = () => {
       </div>
       <div class="hub-card-grid">
         ${state.characterComplete ? `<button class="hub-link-card featured" type="button" data-route="hub/mi-personaje"><strong>Mi personaje</strong><span>Revisa, descarga o imprime tu ficha.</span></button>` : `<button class="hub-link-card featured" type="button" data-route="crear"><strong>Crear personaje</strong><span>Continúa el rito de ingreso.</span></button>`}
-          <button class="hub-link-card" type="button" data-route="hub/fandom"><strong>Fandom</strong><span>Razas, clases e historia publicada.</span></button>
+          <button class="hub-link-card" type="button" data-route="hub/fandom"><strong>Fandom</strong><span>Razas, historia y bestiario publicados.</span></button>
         <button class="hub-link-card" type="button" data-route="hub/guias"><strong>Guías</strong><span>Primeros pasos para jugadores nuevos.</span></button>
       </div>
     `;
