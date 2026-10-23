@@ -3108,7 +3108,57 @@ Pero todavía nadie sabía exactamente de qué.`
   }
 };
 
-export const NEWS = [];
+export const DISCORD_INVITE_URL = 'https://discord.gg/nTkMBccSZC';
+
+/**
+ * Noticias, de la más reciente a la más antigua. `date` en formato AAAA-MM-DD.
+ * Cada sección puede tener `body` (párrafos separados por línea en blanco) y `races`.
+ * `tone` define el color del emblema de cada raza (ver .news-emblem--* en styles.css).
+ */
+export const NEWS = [
+  {
+    id: 'fase-beta',
+    date: '2026-10-23',
+    kicker: 'Anuncio oficial',
+    title: 'La tierra de las oportunidades',
+    greeting: '¡Escuchad, viajeros y soñadores!',
+    summary: 'Maledicta, la tierra donde los límites se desvanecen y las oportunidades florecen, abre sus puertas a una nueva era. Un lugar donde el esfuerzo, la valentía y la ambición pueden forjar tu propia historia.',
+    highlight: { title: 'Fase Beta', subtitle: 'Abrirá el 20 de noviembre' },
+    sections: [
+      {
+        body: 'Desde el momento en que se publique este mensaje, podrás abrir ticket de creación de personaje y realizar todas las consultas que necesites.'
+      },
+      {
+        title: 'Todos comienzan como humanos',
+        body: 'Cada aventurero dará sus primeros pasos como humano, y luego podrá elegir firmar un pacto con una de las 5 razas disponibles, para acceder a sus habilidades, conocimientos y una nueva forma de vida.'
+      },
+      {
+        title: 'Razas del pacto',
+        races: [
+          { name: 'Enanos', tone: 'bronze', icon: 'hammer' },
+          { name: 'Elfos', tone: 'emerald', icon: 'leaf' },
+          { name: 'Dracónidos', tone: 'crimson', icon: 'flame' },
+          { name: 'Cambiapieles / Yokai', tone: 'blood', icon: 'mask' },
+          { name: 'Celestiales', tone: 'azure', icon: 'star' }
+        ]
+      },
+      {
+        body: 'Si no deseas comenzar como humano, también tendrás la opción de elegir una de las siguientes 4 razas, que iniciarán directamente y podrás subir de nivel con ellas.'
+      },
+      {
+        title: 'Sub razas disponibles',
+        races: [
+          { name: 'Elementales', tone: 'azure', icon: 'waves' },
+          { name: 'Semi-Gigantes', tone: 'bronze', icon: 'mountain' },
+          { name: 'Serpentinos', tone: 'emerald', icon: 'serpent' },
+          { name: 'Cirrus', tone: 'violet', icon: 'cloud' }
+        ]
+      }
+    ],
+    closing: 'Existen 2 razas malditas, pero no queremos comunicarlas por ahora...',
+    signature: 'Ya lo sabrán...'
+  }
+];
 
 export const OTHER_GAMES = [
   {

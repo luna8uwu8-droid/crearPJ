@@ -1702,6 +1702,278 @@ button {
   grid-column: 1 / -1;
 }
 
+/* Noticias: proclamas del Staff */
+.news-stack {
+  display: grid;
+  gap: 22px;
+}
+
+.news-proclamation {
+  position: relative;
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 48px) clamp(18px, 5vw, 56px);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(231, 189, 131, 0.12), transparent 55%),
+    radial-gradient(circle at 50% 100%, rgba(169, 31, 62, 0.18), transparent 60%),
+    linear-gradient(160deg, rgba(48, 21, 35, 0.92), rgba(16, 7, 13, 0.96));
+  box-shadow: inset 0 0 0 6px rgba(16, 7, 13, 0.55), inset 0 0 0 7px rgba(231, 189, 131, 0.16), 0 24px 48px rgba(7, 1, 6, 0.32);
+  text-align: center;
+}
+
+.news-proclamation-head h3 {
+  margin: 4px 0 0;
+  color: var(--accent-strong);
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.25rem, 3.6vw, 1.9rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.news-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 14px;
+  margin-bottom: 18px;
+  color: var(--soft);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.news-kicker {
+  color: var(--gold);
+}
+
+.news-wordmark {
+  margin: 0;
+  background: linear-gradient(180deg, #ffe9df 0%, var(--gold) 55%, #9c5a2c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(2rem, 8vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+  filter: drop-shadow(0 0 18px rgba(169, 31, 62, 0.45));
+}
+
+.news-divider,
+.news-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.news-divider {
+  justify-content: center;
+  margin: 14px auto 6px;
+  max-width: 320px;
+  color: var(--gold);
+  font-size: 0.7rem;
+}
+
+.news-divider::before,
+.news-divider::after,
+.news-section-title::before,
+.news-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(231, 189, 131, 0.55), transparent);
+}
+
+.news-greeting {
+  margin: 18px 0 6px;
+  color: var(--accent-strong);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.news-lead,
+.news-section p,
+.news-closing p {
+  max-width: 640px;
+  margin: 8px auto;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.news-highlight {
+  display: grid;
+  gap: 2px;
+  margin: 26px auto;
+  padding: 16px 20px;
+  max-width: 560px;
+  border-top: 1px solid rgba(231, 189, 131, 0.4);
+  border-bottom: 1px solid rgba(231, 189, 131, 0.4);
+  background: linear-gradient(90deg, transparent, rgba(169, 31, 62, 0.55) 18%, rgba(169, 31, 62, 0.55) 82%, transparent);
+}
+
+.news-highlight strong {
+  color: var(--accent-strong);
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.6rem, 5vw, 2.3rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.news-highlight span {
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.85rem, 2.6vw, 1.05rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.news-section {
+  margin-top: 22px;
+}
+
+.news-section-title {
+  margin: 0 0 10px;
+  color: var(--accent-strong);
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.9rem, 2.6vw, 1.1rem);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.news-section-title span {
+  flex: 0 1 auto;
+}
+
+.news-emblems {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px 14px;
+  margin: 18px 0 4px;
+  padding: 0;
+  list-style: none;
+}
+
+.news-emblem {
+  --emblem: var(--gold);
+  --emblem-deep: #5b3a24;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 104px;
+}
+
+.news-emblem--bronze { --emblem: #e7bd83; --emblem-deep: #6b4220; }
+.news-emblem--emerald { --emblem: #8fd3a6; --emblem-deep: #1f4a33; }
+.news-emblem--crimson { --emblem: #ff8a8a; --emblem-deep: #6e1424; }
+.news-emblem--blood { --emblem: #ff6b6b; --emblem-deep: #4a0a14; }
+.news-emblem--azure { --emblem: #9cc4f0; --emblem-deep: #1d3556; }
+.news-emblem--violet { --emblem: #d2b0e0; --emblem-deep: #3d2450; }
+
+.news-emblem-seal {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 2px solid rgba(231, 189, 131, 0.55);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--emblem) 35%, transparent), var(--emblem-deep) 70%);
+  box-shadow: 0 0 0 4px rgba(16, 7, 13, 0.7), 0 0 0 5px rgba(231, 189, 131, 0.22), 0 0 22px color-mix(in srgb, var(--emblem) 30%, transparent);
+  color: var(--emblem);
+}
+
+.news-emblem-seal svg {
+  width: 32px;
+  height: 32px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.news-emblem-name {
+  color: var(--text);
+  font-family: 'Cinzel', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.news-closing {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(231, 189, 131, 0.2);
+}
+
+.news-closing .news-signature {
+  color: var(--accent-strong);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-style: italic;
+  font-weight: 700;
+}
+
+.news-seal {
+  display: block;
+  width: 84px;
+  height: 84px;
+  margin: 12px auto 0;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+}
+
+.news-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+/* Botón de invitación a Discord */
+.discord-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 60px;
+  padding: 6px 22px 6px 8px;
+  border: 1px solid rgba(231, 189, 131, 0.5);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #3a2a8a 0%, #5865f2 45%, #a91f3e 100%);
+  box-shadow: 0 10px 26px rgba(88, 101, 242, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+}
+
+.discord-btn:hover,
+.discord-btn:focus-visible {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 14px 32px rgba(88, 101, 242, 0.4), 0 0 0 3px rgba(231, 189, 131, 0.35);
+  outline: none;
+}
+
+.discord-barbarian {
+  flex: 0 0 auto;
+  width: 50px;
+  height: 50px;
+  padding: 2px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #2b1b22 0%, #10070d 100%);
+  box-shadow: 0 0 0 2px rgba(231, 189, 131, 0.55);
+}
+
 .ability-list {
   display: grid;
   gap: 12px;

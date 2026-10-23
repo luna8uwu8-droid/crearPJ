@@ -15,6 +15,7 @@ import {
   NORMATIVE_CATEGORIES,
   FANDOM,
   NEWS,
+  DISCORD_INVITE_URL,
   GUIDES,
   FAQ,
   OTHER_GAMES,
@@ -828,23 +829,111 @@ const renderHistorySection = () => {
   `;
 };
 
+// Bárbaro de Discord: el logo de Discord con casco astado, melena y espada de Conan.
+const discordBarbarianIcon = () => `
+  <svg class="discord-barbarian" viewBox="0 0 96 96" aria-hidden="true" focusable="false">
+    <g transform="rotate(45 48 48)">
+      <path d="M45 6 L48 0 L51 6 V66 H45 Z" fill="#d9dde3" />
+      <rect x="33" y="64" width="30" height="5" rx="2" fill="#c8964f" />
+      <rect x="45.5" y="69" width="5" height="14" fill="#5b3a24" />
+      <circle cx="48" cy="86" r="4" fill="#c8964f" />
+    </g>
+    <path d="M23 42 C12 56 12 76 19 88 L24 80 L27 88 L32 74 L28 58 Z M73 42 C84 56 84 76 77 88 L72 80 L69 88 L64 74 L68 58 Z" fill="#3b2418" />
+    <ellipse cx="48" cy="62" rx="22" ry="15" fill="#1d1216" />
+    <g transform="translate(18 36) scale(0.472)">
+      <path fill="#5865f2" d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z" />
+    </g>
+    <path d="M27 44 C30 28 66 28 69 44 Z" fill="#b07a3c" />
+    <rect x="25" y="42" width="46" height="6" rx="3" fill="#8a5a2b" />
+    <rect x="46" y="44" width="4" height="13" rx="2" fill="#8a5a2b" />
+    <path d="M28 43 C17 41 10 31 12 18 C17 29 24 33 33 36 Z M68 43 C79 41 86 31 84 18 C79 29 72 33 63 36 Z" fill="#efe1c6" />
+  </svg>
+`;
+
+const renderDiscordButton = () => `
+  <a class="discord-btn" href="${escapeHtml(DISCORD_INVITE_URL)}" target="_blank" rel="noopener noreferrer">
+    ${discordBarbarianIcon()}
+    <span>Ven a Discord</span>
+  </a>
+`;
+
+const RACE_ICON_PATHS = {
+  hammer: 'M14 4l6 6-3 3-6-6z M12.5 8.5L4 17l3 3 8.5-8.5',
+  leaf: 'M5 19C5 10 11 5 20 4c-1 9-6 15-15 15z M5 19l8-8',
+  flame: 'M12 3c1 4 5 6 5 11a5 5 0 0 1-10 0c0-3 2-4 2-7 1 1 2 2 3 4 1-3 0-5 0-8z',
+  mask: 'M4 4l4 5h8l4-5-1 9-7 7-7-7z M9 12.5h1.5 M13.5 12.5H15',
+  star: 'M12 2.5l2.4 6.9h7.1l-5.7 4.3 2.2 7-6-4.3-6 4.3 2.2-7-5.7-4.3h7.1z',
+  waves: 'M3 8c3-3 6 3 9 0s6 3 9 0 M3 13c3-3 6 3 9 0s6 3 9 0 M3 18c3-3 6 3 9 0s6 3 9 0',
+  mountain: 'M2 20l7-13 4 7 3-4 6 10z',
+  serpent: 'M5 20c-3 0-3-4 0-4h11c3 0 3-5 0-5H8c-3 0-3-5 0-5h9 M17 6l2.5-2 M17 6l2.5 2',
+  cloud: 'M7 18a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.6-1.2A4.6 4.6 0 0 1 17 18z'
+};
+
+const renderRaceEmblems = (races) => `
+  <ul class="news-emblems">
+    ${races.map((race) => `
+      <li class="news-emblem news-emblem--${escapeHtml(race.tone)}">
+        <span class="news-emblem-seal">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${RACE_ICON_PATHS[race.icon] || RACE_ICON_PATHS.star}" /></svg>
+        </span>
+        <span class="news-emblem-name">${escapeHtml(race.name)}</span>
+      </li>
+    `).join('')}
+  </ul>
+`;
+
+const formatNewsDate = (value) => {
+  const date = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('es-ES', { dateStyle: 'long', timeZone: 'UTC' }).format(date);
+};
+
+const renderNewsItem = (item) => `
+  <article class="news-proclamation" id="noticia-${escapeHtml(item.id)}">
+    <header class="news-proclamation-head">
+      <div class="news-meta">
+        <span class="news-kicker">${escapeHtml(item.kicker || 'Noticia')}</span>
+        <time datetime="${escapeHtml(item.date)}">${escapeHtml(formatNewsDate(item.date))}</time>
+      </div>
+      <p class="news-wordmark">MALEDICTA</p>
+      <h3>${escapeHtml(item.title)}</h3>
+      <span class="news-divider" aria-hidden="true"><span>◆</span></span>
+    </header>
+    ${item.greeting ? `<p class="news-greeting">${escapeHtml(item.greeting)}</p>` : ''}
+    ${item.summary ? `<p class="news-lead">${escapeHtml(item.summary)}</p>` : ''}
+    ${item.highlight ? `
+      <div class="news-highlight">
+        <strong>${escapeHtml(item.highlight.title)}</strong>
+        <span>${escapeHtml(item.highlight.subtitle)}</span>
+      </div>
+    ` : ''}
+    ${(item.sections || []).map((section) => `
+      <section class="news-section">
+        ${section.title ? `<h4 class="news-section-title"><span>${escapeHtml(section.title)}</span></h4>` : ''}
+        ${section.body ? section.body.split(/\n\s*\n/).map((paragraph) => `<p>${escapeHtml(paragraph.trim())}</p>`).join('') : ''}
+        ${section.races ? renderRaceEmblems(section.races) : ''}
+      </section>
+    `).join('')}
+    ${item.closing || item.signature ? `
+      <footer class="news-closing">
+        ${item.closing ? `<p>${escapeHtml(item.closing)}</p>` : ''}
+        ${item.signature ? `<p class="news-signature">${escapeHtml(item.signature)}</p>` : ''}
+        <img class="news-seal" src="./assets/maledicta-logo.webp" alt="" />
+      </footer>
+    ` : ''}
+    <div class="news-cta">${renderDiscordButton()}</div>
+  </article>
+`;
+
 const renderNews = () => `
   <div class="section-intro">
     <p class="eyebrow">NOTICIAS</p>
     <h2>Voces del servidor</h2>
-    <p class="section-subtitle">Cuando el Staff publique avisos, aparecerán aquí como cartas fechadas.</p>
+    <p class="section-subtitle">Los avisos oficiales del Staff, como cartas fechadas.</p>
   </div>
   ${NEWS.length ? `
-    <div class="news-grid">
-      ${NEWS.map((item) => `
-        <article class="news-card">
-          ${item.image ? `<img src="${escapeHtml(item.image)}" alt="" />` : ''}
-          <time>${escapeHtml(item.date || '')}</time>
-          <h3>${escapeHtml(item.title)}</h3>
-          <p>${escapeHtml(item.summary)}</p>
-          <details><summary>Leer completo</summary><p>${escapeHtml(item.body)}</p></details>
-        </article>
-      `).join('')}
+    <div class="news-stack">
+      ${NEWS.map(renderNewsItem).join('')}
     </div>
   ` : pendingCard('Sin noticias publicadas', 'Esta sección está lista para recibir titulares, fechas, imágenes y cuerpo de cada aviso.')}
 `;
