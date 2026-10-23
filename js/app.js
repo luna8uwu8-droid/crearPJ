@@ -1021,18 +1021,21 @@ const renderNewsItem = (item) => `
     ${(item.sections || []).map((section) => `
       <section class="news-section">
         ${section.title ? `<h4 class="news-section-title"><span>${escapeHtml(section.title)}</span></h4>` : ''}
+        ${section.image ? `
+          <figure class="news-figure">
+            <img src="./${escapeHtml(section.image.src)}" alt="${escapeHtml(section.image.alt || '')}" loading="lazy" />
+          </figure>
+        ` : ''}
         ${section.body ? section.body.split(/\n\s*\n/).map((paragraph) => `<p>${escapeHtml(paragraph.trim())}</p>`).join('') : ''}
         ${section.races ? renderRaceEmblems(section.races) : ''}
       </section>
     `).join('')}
-    ${item.closing || item.signature ? `
-      <footer class="news-closing">
-        ${item.closing ? `<p>${escapeHtml(item.closing)}</p>` : ''}
-        ${item.signature ? `<p class="news-signature">${escapeHtml(item.signature)}</p>` : ''}
-        <img class="news-seal" src="./assets/maledicta-logo.webp" alt="" />
-      </footer>
-    ` : ''}
     <div class="news-cta">${renderDiscordButton()}</div>
+    <footer class="news-closing">
+      ${item.closing ? `<p>${escapeHtml(item.closing)}</p>` : ''}
+      ${item.signature ? `<p class="news-signature">${escapeHtml(item.signature)}</p>` : ''}
+      <img class="news-seal" src="./assets/maledicta-logo.webp" alt="Logo de Maledicta" />
+    </footer>
   </article>
 `;
 

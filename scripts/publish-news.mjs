@@ -4,7 +4,10 @@
  *   npm run publish-news              envía las noticias nuevas (de la más antigua a la más reciente)
  *   npm run publish-news -- --dry-run muestra lo que se enviaría, sin enviar nada
  *   npm run publish-news -- --id fase-beta   envía (o reenvía) solo esa noticia
- *   npm run publish-news -- --everyone       agrega una mención a @everyone (combinable con lo anterior)
+ *
+ * Regla obligatoria: toda noticia menciona a @everyone, oculto dentro de un spoiler.
+ * Las imágenes de la noticia y el logo de cierre se adjuntan al mensaje, así se ven
+ * aunque la web todavía no esté publicada con esos archivos.
  *
  * La URL del webhook es secreta: se lee de la variable de entorno DISCORD_NEWS_WEBHOOK
  * o del archivo .env de la carpeta superior a crearPJ/ (fuera de la carpeta pública).
@@ -12,7 +15,7 @@
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { NEWS } from '../js/content.js';
 
 const siteRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -23,7 +26,9 @@ const sentFile = join(privateRoot, '.news-sent.json');
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const onlyId = args.includes('--id') ? args[args.indexOf('--id') + 1] : null;
-const mentionEveryone = args.includes('--everyone');
+
+const LOGO_PATH = 'assets/maledicta-logo.webp';
+const IMAGE_TYPES = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif' };
 
 const readEnvValue = (key) => {
   if (process.env[key]) return process.env[key];
@@ -42,7 +47,18 @@ const siteUrl = domain ? `https://${domain}` : null;
 const clip = (text, max) => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 const EMPTY_NAME = '​';
 
-const buildEmbed = (item) => {
+// Archivos locales que viajan adjuntos al mensaje; los embeds los citan como attachment://nombre.
+const collectAttachments = (item) => {
+  const sectionImage = (item.sections || []).find((section) => section.image)?.image;
+  const files = [];
+  if (sectionImage) files.push({ role: 'image', path: sectionImage.src });
+  files.push({ role: 'logo', path: LOGO_PATH });
+  return files
+    .filter((file) => existsSync(join(siteRoot, file.path)))
+    .map((file) => ({ ...file, name: basename(file.path) }));
+};
+
+const buildEmbed = (item, attachments) => {
   const description = [
     item.greeting ? `**${item.greeting}**` : '',
     item.summary || '',
@@ -60,14 +76,7 @@ const buildEmbed = (item) => {
     };
   });
 
-  if (item.closing || item.signature) {
-    fields.push({
-      name: EMPTY_NAME,
-      value: clip([item.closing, item.signature ? `*${item.signature}*` : ''].filter(Boolean).join('\n'), 1024),
-      inline: false
-    });
-  }
-
+  const image = attachments.find((file) => file.role === 'image');
   return {
     title: clip(item.title.toUpperCase(), 256),
     url: siteUrl ? `${siteUrl}/#noticias` : undefined,
@@ -75,27 +84,48 @@ const buildEmbed = (item) => {
     color: 0xa91f3e,
     fields: fields.slice(0, 25),
     author: { name: clip(item.kicker || 'Noticia', 256) },
-    thumbnail: siteUrl ? { url: `${siteUrl}/assets/maledicta-logo.webp` } : undefined,
-    footer: { text: 'Maledicta · Noticias oficiales' },
+    image: image ? { url: `attachment://${image.name}` } : undefined,
     timestamp: new Date(`${item.date}T12:00:00Z`).toISOString()
   };
 };
 
-const buildPayload = (item) => ({
+// Cierre: firma de la noticia y el logo de Maledicta al final del mensaje.
+const buildClosingEmbed = (item, attachments) => {
+  const logo = attachments.find((file) => file.role === 'logo');
+  const text = [item.closing, item.signature ? `**${item.signature}**` : ''].filter(Boolean).join('\n\n');
+  return {
+    description: text ? clip(text, 4096) : undefined,
+    color: 0xa91f3e,
+    image: logo ? { url: `attachment://${logo.name}` } : undefined,
+    footer: { text: 'Maledicta · Noticias oficiales' }
+  };
+};
+
+const buildPayload = (item, attachments) => ({
   username: 'Maledicta',
-  avatar_url: siteUrl ? `${siteUrl}/assets/maledicta-logo.webp` : undefined,
-  // Solo se menciona a @everyone si se pide con --everyone; nunca roles ni usuarios.
-  content: mentionEveryone ? '@everyone' : undefined,
-  allowed_mentions: { parse: mentionEveryone ? ['everyone'] : [] },
-  embeds: [buildEmbed(item)]
+  avatar_url: siteUrl ? `${siteUrl}/${LOGO_PATH}` : undefined,
+  // Regla obligatoria: @everyone siempre, oculto en un spoiler. Nunca roles ni usuarios.
+  content: '||@everyone||',
+  allowed_mentions: { parse: ['everyone'] },
+  embeds: [buildEmbed(item, attachments), buildClosingEmbed(item, attachments)],
+  attachments: attachments.map((file, index) => ({ id: index, filename: file.name }))
 });
 
-const sendToDiscord = async (webhook, payload) => {
+const buildBody = (payload, attachments) => {
+  const form = new FormData();
+  form.append('payload_json', JSON.stringify(payload));
+  attachments.forEach((file, index) => {
+    const type = IMAGE_TYPES[file.name.slice(file.name.lastIndexOf('.')).toLowerCase()] || 'application/octet-stream';
+    form.append(`files[${index}]`, new Blob([readFileSync(join(siteRoot, file.path))], { type }), file.name);
+  });
+  return form;
+};
+
+const sendToDiscord = async (webhook, payload, attachments) => {
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     const response = await fetch(`${webhook}?wait=true`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: buildBody(payload, attachments)
     });
     if (response.ok) return response.json();
     if (response.status === 429) {
@@ -121,7 +151,11 @@ const main = async () => {
   }
 
   if (dryRun) {
-    pending.forEach((item) => console.log(JSON.stringify(buildPayload(item), null, 2)));
+    pending.forEach((item) => {
+      const attachments = collectAttachments(item);
+      console.log(JSON.stringify(buildPayload(item, attachments), null, 2));
+      console.log(`Adjuntos: ${attachments.map((file) => file.path).join(', ') || 'ninguno'}`);
+    });
     console.log(`\n[simulación] Se enviarían ${pending.length} noticia(s). No se envió nada.`);
     return;
   }
@@ -132,7 +166,8 @@ const main = async () => {
   }
 
   for (const item of pending) {
-    const message = await sendToDiscord(webhook, buildPayload(item));
+    const attachments = collectAttachments(item);
+    const message = await sendToDiscord(webhook, buildPayload(item, attachments), attachments);
     sent[item.id] = { sentAt: new Date().toISOString(), messageId: message.id };
     writeSent(sent);
     console.log(`Enviada: "${item.title}" (${item.id})`);

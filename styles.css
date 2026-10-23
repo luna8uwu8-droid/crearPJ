@@ -2505,6 +2505,18 @@ button {
   text-transform: uppercase;
 }
 
+.news-figure {
+  margin: 6px auto 14px;
+  max-width: 300px;
+}
+
+.news-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 14px 22px rgba(5, 1, 5, 0.55)) drop-shadow(0 0 26px rgba(169, 31, 62, 0.25));
+}
+
 .news-closing {
   margin-top: 28px;
   padding-top: 18px;

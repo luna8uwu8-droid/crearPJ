@@ -3112,10 +3112,37 @@ export const DISCORD_INVITE_URL = 'https://discord.gg/nTkMBccSZC';
 
 /**
  * Noticias, de la más reciente a la más antigua. `date` en formato AAAA-MM-DD.
- * Cada sección puede tener `body` (párrafos separados por línea en blanco) y `races`.
- * `tone` define el color del emblema de cada raza (ver .news-emblem--* en styles.css).
+ * Cada sección puede tener `body` (párrafos separados por línea en blanco), `races` e `image`
+ * ({ src, alt }, ruta dentro de crearPJ/). `tone` define el color del emblema de cada raza
+ * (ver .news-emblem--* en styles.css). El cierre siempre termina con el logo de Maledicta.
  */
 export const NEWS = [
+  {
+    id: 'crece-gracias-a-su-comunidad',
+    date: '2026-10-23',
+    kicker: 'Mensaje a la comunidad',
+    title: 'Maledicta crece gracias a su comunidad',
+    greeting: '¡Buenas, gente!',
+    summary: 'Maledicta es un mundo que construimos entre todos, y cada persona que forma parte de esta comunidad ayuda a darle vida. Cada historia, cada aventura, cada evento y cada momento compartido hacen que este proyecto siga creciendo y tenga cada vez más para ofrecer.',
+    highlight: { title: 'Apoyá a Maledicta', subtitle: 'Aportes voluntarios · Boosts de Discord' },
+    sections: [
+      {
+        title: 'Aportes voluntarios',
+        image: { src: 'assets/news/apoyo-comunidad.webp', alt: 'Un bárbaro sentado sobre un tronco sostiene un casco vacío, con su espada apoyada a un lado.' },
+        body: 'Quienes tengan ganas y posibilidades de aportar económicamente al servidor, pueden hacerlo de manera voluntaria. Cada contribución nos ayuda a seguir mejorando la experiencia, incorporar novedades, ampliar el contenido y continuar construyendo el mundo que imaginamos para Maledicta.'
+      },
+      {
+        title: 'Boosts de Discord',
+        body: 'También queremos destacar la importancia de los Boosts de Discord. Son una gran forma de apoyar a la comunidad, mejorar nuestro espacio y darle más presencia al servidor para que siga creciendo junto a todos ustedes.'
+      },
+      {
+        body: `Cada aporte, grande o pequeño, suma a este proyecto. Lo más importante es que cada uno pueda colaborar desde sus posibilidades y con las ganas de ver a Maledicta convertirse en un lugar cada vez más grande, activo y lleno de historias.
+
+Gracias por ser parte de esta aventura, por el tiempo que le dedican, por compartir sus ideas y por ayudarnos a construir algo que podamos disfrutar durante mucho tiempo.`
+      }
+    ],
+    signature: '¡Sigamos haciendo crecer Maledicta juntos!'
+  },
   {
     id: 'fase-beta',
     date: '2026-10-23',
