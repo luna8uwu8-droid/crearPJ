@@ -2898,13 +2898,148 @@ body.history-reading {
   margin-bottom: 0;
 }
 
-.other-game-launch {
+.game-card-list {
   display: grid;
-  place-items: center;
-  width: 100%;
-  min-height: min(72vh, 760px);
+  gap: 22px;
+}
+
+.game-card {
+  display: grid;
+  grid-template-columns: minmax(260px, 2fr) 3fr;
   overflow: hidden;
-  background: radial-gradient(ellipse at center, rgba(169, 31, 62, 0.15), transparent 58%), #09070a;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(150deg, rgba(39, 18, 28, 0.96), rgba(16, 8, 14, 0.96));
+  box-shadow: 0 18px 42px rgba(5, 1, 5, 0.3);
+}
+
+.game-card-cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: clamp(28px, 5vw, 44px) 24px;
+  border-right: 1px solid var(--border);
+  background:
+    radial-gradient(ellipse at 50% 35%, rgba(169, 31, 62, 0.22), transparent 62%),
+    radial-gradient(circle at 50% 120%, rgba(231, 189, 131, 0.1), transparent 55%),
+    #09070a;
+  text-align: center;
+}
+
+.game-card-genre {
+  padding: 4px 12px;
+  border: 1px solid rgba(231, 189, 131, 0.4);
+  border-radius: 999px;
+  color: var(--gold);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.game-card-cover h3 {
+  margin: 0;
+  color: var(--accent-strong);
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  text-shadow: 0 0 22px rgba(169, 31, 62, 0.45);
+}
+
+.game-card-hook {
+  max-width: 30ch;
+  margin: 0;
+  color: var(--muted);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-style: italic;
+}
+
+.game-card-platform {
+  color: var(--soft);
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.game-card-info {
+  padding: clamp(22px, 4vw, 36px);
+}
+
+.game-card-info h4 {
+  margin: 0 0 8px;
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.game-card-info h4:not(:first-child) {
+  margin-top: 20px;
+}
+
+.game-card-info p {
+  margin: 0 0 10px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.game-card-features {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.game-card-features li + li {
+  margin-top: 4px;
+}
+
+.game-card-features li::marker {
+  color: var(--gold);
+}
+
+.game-card-info .game-card-note {
+  margin-top: 18px;
+  padding: 10px 14px;
+  border-left: 2px solid rgba(231, 189, 131, 0.6);
+  border-radius: 0 10px 10px 0;
+  background: rgba(169, 31, 62, 0.14);
+  color: var(--text);
+}
+
+.game-card-info .game-card-thanks {
+  margin: 18px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  color: var(--soft);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.game-card-thanks span {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-style: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 760px) {
+  .game-card {
+    grid-template-columns: 1fr;
+  }
+
+  .game-card-cover {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
 }
 
 .other-game-play {
@@ -3243,10 +3378,6 @@ body.history-reading {
 }
 
 @media (max-width: 700px) {
-  .other-game-launch {
-    min-height: 70vh;
-  }
-
   .boss-card-heading {
     align-items: flex-start;
   }

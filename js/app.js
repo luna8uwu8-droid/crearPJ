@@ -1087,13 +1087,39 @@ const renderOtherGames = () => `
     </header>
     <p class="news-lead">${escapeHtml(OTHER_GAMES_INTRO.body)}</p>
   </article>
-  <section class="other-game-launch" aria-label="${escapeHtml(OTHER_GAMES[0].title)}">
-    <a class="other-game-play" href="${escapeHtml(OTHER_GAMES[0].url)}" target="_blank" rel="noopener noreferrer" aria-label="Jugar ${escapeHtml(OTHER_GAMES[0].title)}" title="Jugar">
-      <span aria-hidden="true">▶</span>
-      <span>Jugar</span>
-    </a>
-  </section>
+  <div class="game-card-list">
+    ${OTHER_GAMES.map(renderGameCard).join('')}
+  </div>
 `;
+
+function renderGameCard(game) {
+  return `
+    <article class="game-card" id="juego-${escapeHtml(game.id)}">
+      <div class="game-card-cover">
+        ${game.genre ? `<span class="game-card-genre">${escapeHtml(game.genre)}</span>` : ''}
+        <h3>${escapeHtml(game.title)}</h3>
+        ${game.hook ? `<p class="game-card-hook">${escapeHtml(game.hook)}</p>` : ''}
+        <a class="other-game-play" href="${escapeHtml(game.url)}" target="_blank" rel="noopener noreferrer" aria-label="Jugar ${escapeHtml(game.title)}">
+          <span aria-hidden="true">▶</span>
+          <span>Jugar</span>
+        </a>
+        ${game.platform ? `<span class="game-card-platform">${escapeHtml(game.platform)}</span>` : ''}
+      </div>
+      <div class="game-card-info">
+        ${(game.synopsis || []).length ? `
+          <h4>Sinopsis</h4>
+          ${game.synopsis.map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}
+        ` : ''}
+        ${(game.features || []).length ? `
+          <h4>Cómo se juega</h4>
+          <ul class="game-card-features">${game.features.map((feature) => `<li>${escapeHtml(feature)}</li>`).join('')}</ul>
+        ` : ''}
+        ${game.note ? `<p class="game-card-note">${escapeHtml(game.note)}</p>` : ''}
+        ${game.thanks ? `<p class="game-card-thanks"><span>Agradecimientos</span>${escapeHtml(game.thanks)}</p>` : ''}
+      </div>
+    </article>
+  `;
+}
 
 const renderMiPersonaje = () => {
   if (!state.characterComplete && !state.character.name) {

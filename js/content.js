@@ -3166,11 +3166,30 @@ export const OTHER_GAMES_INTRO = {
   body: 'Esta es la sección de juegos creados por Luna88 Games. Espero que puedas disfrutar de sus creaciones y no te olvides de apoyarla para que siga aprendiendo a desarrollar y crear más contenido.'
 };
 
+/**
+ * Juegos de Luna88 Games. Cada uno se muestra como una ficha en «Otros juegos».
+ * Los textos están tomados del propio juego (pantallas de preparación, introducción y créditos).
+ */
 export const OTHER_GAMES = [
   {
-    id: 'silencio-entre-nosotros',
-    title: 'Silencio entre nosotros',
-    url: 'https://html-classic.itch.zone/html/19757883/index.html?v=1791982589'
+    id: 'el-lugar-donde-termina-la-luz',
+    title: 'El Lugar Donde Termina la Luz',
+    url: 'https://html-classic.itch.zone/html/19757883/index.html?v=1791982589',
+    genre: 'Supervivencia narrativa · Terror sensorial',
+    platform: 'Navegador · itch.io',
+    hook: 'Respirá despacio. Algo acaba de respirar con vos.',
+    synopsis: [
+      'Despertaste en un lugar que tu memoria todavía se resiste a reconocer. Tus brazos permanecen sujetos y el aire tiene un sabor metálico, húmedo, parecido al de una habitación cerrada durante años.',
+      'Tu visión ha quedado reducida a cero. A partir de este momento, vas a depender del oído, el tacto, la memoria espacial y tu capacidad para reconocer patrones. El lugar tiene una historia, y tu cuerpo conserva fragmentos de ella.'
+    ],
+    features: [
+      'Elegí el nombre de quien despierta y cómo se reparten su hambre y su sed.',
+      'Sobreviví día a día controlando el hambre, la sed, el pánico y la integridad de tu cuerpo.',
+      'Tomá decisiones junto a Lucas, Valentina, Martín y Sofía… y una voz que parece conocer tu nombre.',
+      'Guardá la partida y retomala cuando quieras.'
+    ],
+    note: 'Jugalo con sonido: cada ruido, distancia y silencio puede ser una pista.',
+    thanks: 'A Ivan, gracias por ayudarme con el diseño de este juego y por inspirarme a explorar mis habilidades, desarrollar mis ideas y llevar mi creatividad más lejos.'
   }
 ];
 
