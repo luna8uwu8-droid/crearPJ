@@ -12,11 +12,10 @@ export const CREATION_STEPS = [
 export const HUB_SECTIONS = [
   { id: 'inicio', label: 'Inicio', icon: '◈' },
   { id: 'mi-personaje', label: 'Mi Personaje', icon: '✦', requiresCharacter: true },
-  { id: 'fandom', label: 'Fandom', icon: '☽' },
-  { id: 'razas', label: 'Razas', icon: '☘', parent: 'fandom' },
-  { id: 'historia', label: 'Historia', icon: '⌛', parent: 'fandom' },
-  { id: 'eventos', label: 'Eventos', icon: '⚡', parent: 'fandom' },
-  { id: 'bosses-de-maledicta', label: 'Bosses de Maledicta', icon: '♜', parent: 'fandom' },
+  { id: 'razas', label: 'Razas', icon: '☘' },
+  { id: 'historia', label: 'Historia', icon: '⌛' },
+  { id: 'eventos', label: 'Eventos', icon: '⚡' },
+  { id: 'bosses-de-maledicta', label: 'Bosses de Maledicta', icon: '♜' },
   { id: 'noticias', label: 'Noticias', icon: '▣' },
   { id: 'guias', label: 'Guías', icon: '❖' },
   { id: 'otros-juegos', label: 'Otros juegos', icon: '▷' },
@@ -222,7 +221,7 @@ export const CHARACTER_CATALOG = {
 };
 
 /**
- * Orden jerárquico del libro de Razas (Fandom › Razas).
+ * Orden jerárquico del libro de Razas (pestaña Razas).
  * `race` debe coincidir con un `value` de CHARACTER_CATALOG.archetypes; `label` cambia el nombre mostrado.
  */
 export const RACE_GROUPS = [

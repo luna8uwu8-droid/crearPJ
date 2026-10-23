@@ -204,9 +204,10 @@ const applyHash = () => {
   }
 
   const hubIds = HUB_SECTIONS.map((item) => item.id);
+  // 'fandom' ya no existe: los enlaces viejos llevan a Inicio.
   if (hubIds.includes(section) || section === 'fandom') {
     state.phase = 'hub';
-    state.hubSection = section === 'fandom' ? 'fandom' : section;
+    state.hubSection = section === 'fandom' ? 'inicio' : section;
     if (section === 'razas' && sub && findRaceEntry(sub)) state.hubSection = `razas/${sub}`;
   }
 };
@@ -289,7 +290,7 @@ const renderWelcome = () => `
     <p class="welcome-note">${escapeHtml(WELCOME.discordNote)}</p>
     <div class="welcome-actions">
       <button class="action-btn" type="button" data-route="crear">${state.creationStep > 0 || state.character.name ? 'Continuar registro' : 'Crear personaje'}</button>
-      <button class="ghost-btn" type="button" data-route="hub/fandom">Centro de información</button>
+      <button class="ghost-btn" type="button" data-route="hub/inicio">Centro de información</button>
     </div>
   </section>
 `;
@@ -607,7 +608,7 @@ const renderWizard = () => {
             </button>
           `).join('')}
         </nav>
-        <button class="ghost-btn nav-side-link" type="button" data-route="hub/fandom">Centro de información</button>
+        <button class="ghost-btn nav-side-link" type="button" data-route="hub/inicio">Centro de información</button>
       </aside>
       <main class="main-panel">
         ${bannerHtml()}
@@ -656,32 +657,9 @@ const pendingCard = (title, description) => `
   </article>
 `;
 
-const renderFandomHome = () => `
-  <div class="section-intro">
-    <p class="eyebrow">FANDOM OFICIAL</p>
-    <h2>El archivo de Maledicta</h2>
-    <p class="section-subtitle">Solo se muestra lo que ya existe en esta web. El resto espera publicación del Staff.</p>
-  </div>
-  <div class="hub-card-grid">
-    ${[
-      ['razas', FANDOM.razas],
-      ['historia', FANDOM.historia],
-      ['ciudades', FANDOM.ciudades],
-      ['dioses', FANDOM.dioses],
-      ['eventos', FANDOM.eventos],
-      ['bosses-de-maledicta', FANDOM.bosses]
-    ].map(([id, data]) => `
-      <button class="hub-link-card" type="button" data-route="hub/${id}">
-        <strong>${escapeHtml(data.title)}</strong>
-        <span>${escapeHtml(data.description)}</span>
-      </button>
-    `).join('')}
-  </div>
-`;
-
 const renderBossesSection = () => `
   <div class="section-intro">
-    <p class="eyebrow">FANDOM · BESTIARIO</p>
+    <p class="eyebrow">BESTIARIO</p>
     <h2>${escapeHtml(FANDOM.bosses.title)}</h2>
     <p class="section-subtitle">${escapeHtml(FANDOM.bosses.description)}</p>
   </div>
@@ -754,7 +732,7 @@ const renderBossGalleryViewer = () => {
 
 const renderCatalogSection = (data, extra = []) => `
   <div class="section-intro">
-    <p class="eyebrow">FANDOM</p>
+    <p class="eyebrow">ARCHIVO</p>
     <h2>${escapeHtml(data.title)}</h2>
     <p class="section-subtitle">${escapeHtml(data.description)}</p>
   </div>
@@ -827,7 +805,7 @@ const renderRaceIndex = () => {
 
   return `
     <div class="section-intro">
-      <p class="eyebrow">FANDOM</p>
+      <p class="eyebrow">CÓDICE</p>
       <h2>Razas</h2>
       <p class="section-subtitle">El códice de los pueblos de Maledicta. Elige una raza para abrir su capítulo.</p>
     </div>
@@ -935,7 +913,7 @@ const renderHistorySection = () => {
 
   return `
     <div class="section-intro">
-      <p class="eyebrow">FANDOM · ARCHIVO HISTÓRICO</p>
+      <p class="eyebrow">ARCHIVO HISTÓRICO</p>
       <h2>${escapeHtml(FANDOM.historia.title)}</h2>
       <p class="section-subtitle">${escapeHtml(FANDOM.historia.description)} Elige un tomo para abrirlo como un libro.</p>
     </div>
@@ -1131,31 +1109,27 @@ const renderMiPersonaje = () => {
   `;
 };
 
+const renderHubHome = () => `
+  <div class="section-intro">
+    <h2>Bienvenido de nuevo a Maledicta</h2>
+    <p class="section-subtitle">${escapeHtml(WELCOME.intro)}</p>
+  </div>
+  <div class="hub-card-grid">
+    ${state.characterComplete ? `<button class="hub-link-card featured" type="button" data-route="hub/mi-personaje"><strong>Mi personaje</strong><span>Revisa, descarga o imprime tu ficha.</span></button>` : `<button class="hub-link-card featured" type="button" data-route="crear"><strong>Crear personaje</strong><span>Continúa el rito de ingreso.</span></button>`}
+    <button class="hub-link-card" type="button" data-route="hub/guias"><strong>Guías</strong><span>Primeros pasos para jugadores nuevos.</span></button>
+  </div>
+`;
+
 const renderHubSection = () => {
   const id = state.hubSection;
-  if (id === 'inicio') {
-    return `
-      <div class="section-intro">
-        <h2>Bienvenido de nuevo a Maledicta</h2>
-        <p class="section-subtitle">${escapeHtml(WELCOME.intro)}</p>
-      </div>
-      <div class="hub-card-grid">
-        ${state.characterComplete ? `<button class="hub-link-card featured" type="button" data-route="hub/mi-personaje"><strong>Mi personaje</strong><span>Revisa, descarga o imprime tu ficha.</span></button>` : `<button class="hub-link-card featured" type="button" data-route="crear"><strong>Crear personaje</strong><span>Continúa el rito de ingreso.</span></button>`}
-          <button class="hub-link-card" type="button" data-route="hub/fandom"><strong>Fandom</strong><span>Razas, historia y bestiario publicados.</span></button>
-        <button class="hub-link-card" type="button" data-route="hub/guias"><strong>Guías</strong><span>Primeros pasos para jugadores nuevos.</span></button>
-      </div>
-    `;
-  }
+  if (id === 'inicio') return renderHubHome();
   if (id === 'mi-personaje') return renderMiPersonaje();
-  if (id === 'fandom') return renderFandomHome();
   if (id === 'razas') return renderRaceIndex();
   if (id.startsWith('razas/')) {
     const entry = findRaceEntry(id.slice('razas/'.length));
     return entry ? renderRacePage(entry) : renderRaceIndex();
   }
   if (id === 'historia') return renderHistorySection();
-  if (id === 'ciudades') return renderCatalogSection(FANDOM.ciudades);
-  if (id === 'dioses') return renderCatalogSection(FANDOM.dioses);
   if (id === 'eventos') return `${renderCatalogSection(FANDOM.eventos)}${renderCatalogSection(FANDOM.actualizaciones)}`;
   if (id === 'bosses-de-maledicta') return renderBossesSection();
   if (id === 'noticias') return renderNews();
@@ -1163,7 +1137,7 @@ const renderHubSection = () => {
   if (id === 'otros-juegos') return renderOtherGames();
   if (id === 'faq') return renderFaq();
   if (id === 'normativas') return renderNormativas();
-  return renderFandomHome();
+  return renderHubHome();
 };
 
 const renderHub = () => `
@@ -1648,6 +1622,8 @@ const initialize = async () => {
     setBanner('No se pudo abrir el almacenamiento local de las galerías.', 'danger');
   }
 
+  // Secciones eliminadas (p. ej. Fandom) guardadas en el navegador vuelven a Inicio.
+  if (!HUB_SECTIONS.some((item) => item.id === state.hubSection.split('/')[0])) state.hubSection = 'inicio';
   if (location.hash) applyHash();
   // Insignia fija de Discord: vive fuera de #app para mantenerse en todas las pantallas.
   document.body.insertAdjacentHTML('beforeend', `

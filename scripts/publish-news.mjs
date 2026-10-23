@@ -4,6 +4,7 @@
  *   npm run publish-news              envía las noticias nuevas (de la más antigua a la más reciente)
  *   npm run publish-news -- --dry-run muestra lo que se enviaría, sin enviar nada
  *   npm run publish-news -- --id fase-beta   envía (o reenvía) solo esa noticia
+ *   npm run publish-news -- --everyone       agrega una mención a @everyone (combinable con lo anterior)
  *
  * La URL del webhook es secreta: se lee de la variable de entorno DISCORD_NEWS_WEBHOOK
  * o del archivo .env de la carpeta superior a crearPJ/ (fuera de la carpeta pública).
@@ -22,6 +23,7 @@ const sentFile = join(privateRoot, '.news-sent.json');
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
 const onlyId = args.includes('--id') ? args[args.indexOf('--id') + 1] : null;
+const mentionEveryone = args.includes('--everyone');
 
 const readEnvValue = (key) => {
   if (process.env[key]) return process.env[key];
@@ -82,8 +84,9 @@ const buildEmbed = (item) => {
 const buildPayload = (item) => ({
   username: 'Maledicta',
   avatar_url: siteUrl ? `${siteUrl}/assets/maledicta-logo.webp` : undefined,
-  // Nunca mencionar @everyone, roles ni usuarios por texto copiado en la noticia.
-  allowed_mentions: { parse: [] },
+  // Solo se menciona a @everyone si se pide con --everyone; nunca roles ni usuarios.
+  content: mentionEveryone ? '@everyone' : undefined,
+  allowed_mentions: { parse: mentionEveryone ? ['everyone'] : [] },
   embeds: [buildEmbed(item)]
 });
 
