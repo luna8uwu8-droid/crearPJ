@@ -75,7 +75,7 @@ const server = createServer(async (request, response) => {
   try {
     const stat = await fs.stat(filePath);
     if (!stat.isFile()) throw new Error('not-file');
-    const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg' };
+    const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
     response.writeHead(200, { 'content-type': `${types[extname(filePath)] || 'application/octet-stream'}; charset=utf-8` });
     createReadStream(filePath).pipe(response);
   } catch { sendJson(response, 404, { error: 'No encontrado.' }); }

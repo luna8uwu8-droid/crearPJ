@@ -132,6 +132,16 @@ button {
   height: 100%;
   border-radius: inherit;
   object-fit: cover;
+  mix-blend-mode: screen;
+}
+
+.welcome-brand .brand-mark {
+  width: clamp(150px, 32vw, 220px);
+  height: clamp(150px, 32vw, 220px);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
 }
 
 .brand-mark img[hidden] {

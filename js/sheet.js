@@ -62,7 +62,7 @@ export const downloadCharacterSheet = async (character, validationCode) => {
   }
 
   const logo = new Image();
-  logo.src = './assets/maledicta-logo.png';
+  logo.src = './assets/maledicta-logo.webp';
   await new Promise((resolve) => {
     logo.onload = resolve;
     logo.onerror = resolve;

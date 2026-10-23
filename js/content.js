@@ -5,7 +5,6 @@ export const CONTENT_PENDING =
   'El contenido oficial de esta sección será publicado por el Staff de Maledicta.';
 
 export const WELCOME = {
-  tagline: 'Constelación de lo prohibido',
   title: 'MALEDICTA',
   intro:
     'Maledicta es un mundo de fantasía. Esta puerta oficial te permite forjar la identidad de tu personaje antes de cruzar al servidor: cada decisión deja una huella sobre el destino que le espera a esa alma.',

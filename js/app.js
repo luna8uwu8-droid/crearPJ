@@ -153,7 +153,7 @@ const allRequiredComplete = () => {
 
 const brandMark = () => `
   <div class="brand-mark">
-    <img src="./assets/maledicta-logo.png" alt="" hidden onload="this.hidden = false; this.nextElementSibling.hidden = true;" onerror="this.hidden = true; this.nextElementSibling.hidden = false;" />
+    <img src="./assets/maledicta-logo.webp" alt="" hidden onload="this.hidden = false; this.nextElementSibling.hidden = true;" onerror="this.hidden = true; this.nextElementSibling.hidden = false;" />
     <span>M</span>
   </div>
 `;
@@ -267,7 +267,6 @@ const renderWelcome = () => `
     <div class="welcome-orb" aria-hidden="true"></div>
     <header class="welcome-brand">
       ${brandMark()}
-      <p class="eyebrow">${escapeHtml(WELCOME.tagline)}</p>
       <h1>${escapeHtml(WELCOME.title)}</h1>
     </header>
     <p class="welcome-intro">${escapeHtml(WELCOME.intro)}</p>
@@ -546,7 +545,6 @@ const renderWizard = () => {
         <div class="brand-block">
           ${brandMark()}
           <div class="brand-copy">
-            <p class="eyebrow">${escapeHtml(WELCOME.tagline)}</p>
             <h1>MALEDICTA</h1>
           </div>
         </div>
@@ -902,7 +900,6 @@ const renderHubSection = () => {
   if (id === 'inicio') {
     return `
       <div class="section-intro">
-        <p class="eyebrow">${escapeHtml(WELCOME.tagline)}</p>
         <h2>Bienvenido de nuevo a Maledicta</h2>
         <p class="section-subtitle">${escapeHtml(WELCOME.intro)}</p>
       </div>
@@ -936,10 +933,7 @@ const renderHub = () => `
     <header class="hub-top">
       <button class="brand-inline" type="button" data-route="hub/inicio">
         ${brandMark()}
-        <span>
-          <span class="eyebrow">${escapeHtml(WELCOME.tagline)}</span>
-          <strong>MALEDICTA</strong>
-        </span>
+        <strong>MALEDICTA</strong>
       </button>
       <nav class="hub-nav" aria-label="Centro de información">
         ${HUB_SECTIONS.filter((item) => !(item.requiresCharacter && !state.characterComplete && item.id === 'mi-personaje' && !state.character.name)).map((item) => `
@@ -966,7 +960,6 @@ const fillPrintSheet = () => {
   }
   printRoot.hidden = false;
   printRoot.innerHTML = `
-    <p class="print-kicker">Constelación de lo prohibido</p>
     <h1>MALEDICTA</h1>
     <p class="print-sub">Registro de personaje</p>
     <p class="print-code">${escapeHtml(c.validationCode || 'SIN CÓDIGO')}</p>
