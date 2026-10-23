@@ -79,7 +79,7 @@ const buildEmbed = (item, attachments) => {
   const image = attachments.find((file) => file.role === 'image');
   return {
     title: clip(item.title.toUpperCase(), 256),
-    url: siteUrl ? `${siteUrl}/#noticias` : undefined,
+    url: siteUrl ? `${siteUrl}/#noticias/${item.id}` : undefined,
     description: clip(description, 4096),
     color: 0xa91f3e,
     fields: fields.slice(0, 25),

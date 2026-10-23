@@ -207,6 +207,7 @@ const applyHash = () => {
     state.phase = 'hub';
     state.hubSection = section === 'fandom' ? 'inicio' : section;
     if (section === 'razas' && sub && findRaceEntry(sub)) state.hubSection = `razas/${sub}`;
+    if (section === 'noticias' && sub && findNews(sub)) state.hubSection = `noticias/${sub}`;
   }
 };
 
@@ -1039,18 +1040,71 @@ const renderNewsItem = (item) => `
   </article>
 `;
 
-const renderNews = () => `
-  <div class="section-intro">
-    <p class="eyebrow">NOTICIAS</p>
-    <h2>Voces del servidor</h2>
-    <p class="section-subtitle">Los avisos oficiales del Staff, como cartas fechadas.</p>
-  </div>
-  ${NEWS.length ? `
-    <div class="news-stack">
-      ${NEWS.map(renderNewsItem).join('')}
+// De la más reciente a la más antigua; con la misma fecha manda el orden de NEWS en content.js.
+const sortedNews = () => [...NEWS].sort((a, b) => b.date.localeCompare(a.date));
+const findNews = (id) => NEWS.find((item) => item.id === id);
+const newsCover = (item) => (item.sections || []).find((section) => section.image)?.image;
+
+// Tarjeta del índice: resume la noticia y abre su página propia.
+const renderNewsEntry = (item, featured = false) => {
+  const cover = newsCover(item);
+  return `
+    <button class="news-entry ${featured ? 'news-entry--featured' : ''}" type="button" data-route="hub/noticias/${escapeHtml(item.id)}" aria-label="Leer noticia: ${escapeHtml(item.title)}">
+      <span class="news-entry-media ${cover ? '' : 'news-entry-media--seal'}" aria-hidden="true">
+        <img src="./${escapeHtml(cover ? cover.src : 'assets/maledicta-logo.webp')}" alt="" loading="lazy" />
+      </span>
+      <span class="news-entry-body">
+        <span class="news-entry-meta">
+          ${featured ? '<span class="news-preview-badge">Más reciente</span>' : ''}
+          <span class="news-entry-kicker">${escapeHtml(item.kicker || 'Noticia')}</span>
+          <time datetime="${escapeHtml(item.date)}">${escapeHtml(formatNewsDate(item.date))}</time>
+        </span>
+        <strong class="news-entry-title">${escapeHtml(item.title)}</strong>
+        ${item.highlight ? `<span class="news-entry-highlight">${escapeHtml(item.highlight.title)} · ${escapeHtml(item.highlight.subtitle)}</span>` : ''}
+        ${item.summary ? `<span class="news-entry-summary">${escapeHtml(item.summary)}</span>` : ''}
+        <span class="news-entry-cta">Leer noticia <span aria-hidden="true">→</span></span>
+      </span>
+    </button>
+  `;
+};
+
+const renderNews = () => {
+  const [latest, ...older] = sortedNews();
+  return `
+    <div class="section-intro">
+      <p class="eyebrow">NOTICIAS</p>
+      <h2>Voces del servidor</h2>
+      <p class="section-subtitle">Los avisos oficiales del Staff, como cartas fechadas. Elegí una para leerla completa.</p>
     </div>
-  ` : pendingCard('Sin noticias publicadas', 'Esta sección está lista para recibir titulares, fechas, imágenes y cuerpo de cada aviso.')}
-`;
+    ${latest ? `
+      ${renderNewsEntry(latest, true)}
+      ${older.length ? `
+        <h3 class="news-archive-title"><span>Noticias anteriores</span><small>${older.length}</small></h3>
+        <div class="news-archive">
+          ${older.map((item) => renderNewsEntry(item)).join('')}
+        </div>
+      ` : ''}
+    ` : pendingCard('Sin noticias publicadas', 'Esta sección está lista para recibir titulares, fechas, imágenes y cuerpo de cada aviso.')}
+  `;
+};
+
+// Página de una noticia, con regreso al índice y paso a la más nueva / más antigua.
+const renderNewsArticle = (item) => {
+  const list = sortedNews();
+  const index = list.indexOf(item);
+  const newer = list[index - 1];
+  const older = list[index + 1];
+  return `
+    <nav class="codex-back">
+      <button class="secondary-btn" type="button" data-route="hub/noticias">← Todas las noticias</button>
+    </nav>
+    ${renderNewsItem(item)}
+    <nav class="news-pager" aria-label="Otras noticias">
+      ${older ? `<button class="news-pager-link" type="button" data-route="hub/noticias/${escapeHtml(older.id)}"><span>← Noticia anterior</span><strong>${escapeHtml(older.title)}</strong></button>` : '<span></span>'}
+      ${newer ? `<button class="news-pager-link news-pager-link--next" type="button" data-route="hub/noticias/${escapeHtml(newer.id)}"><span>Más reciente →</span><strong>${escapeHtml(newer.title)}</strong></button>` : '<span></span>'}
+    </nav>
+  `;
+};
 
 const renderGuides = () => `
   <div class="section-intro">
@@ -1161,10 +1215,10 @@ const renderMiPersonaje = () => {
   `;
 };
 
-const latestNews = () => [...NEWS].sort((a, b) => b.date.localeCompare(a.date))[0];
+const latestNews = () => sortedNews()[0];
 
 const renderNewsPreview = (item) => `
-  <button class="news-preview" type="button" data-route="hub/noticias" aria-label="Ver noticias: ${escapeHtml(item.title)}">
+  <button class="news-preview" type="button" data-route="hub/noticias/${escapeHtml(item.id)}" aria-label="Leer la última noticia: ${escapeHtml(item.title)}">
     <span class="news-preview-meta">
       <span class="news-preview-badge">Última noticia</span>
       <time datetime="${escapeHtml(item.date)}">${escapeHtml(formatNewsDate(item.date))}</time>
@@ -1172,7 +1226,7 @@ const renderNewsPreview = (item) => `
     <strong class="news-preview-title">${escapeHtml(item.title)}</strong>
     ${item.highlight ? `<span class="news-preview-highlight">${escapeHtml(item.highlight.title)} · ${escapeHtml(item.highlight.subtitle)}</span>` : ''}
     ${item.summary ? `<span class="news-preview-summary">${escapeHtml(item.summary)}</span>` : ''}
-    <span class="news-preview-cta">Leer noticias <span aria-hidden="true">→</span></span>
+    <span class="news-preview-cta">Leer noticia <span aria-hidden="true">→</span></span>
   </button>
 `;
 
@@ -1201,6 +1255,10 @@ const renderHubSection = () => {
   if (id === 'eventos') return `${renderCatalogSection(FANDOM.eventos)}${renderCatalogSection(FANDOM.actualizaciones)}`;
   if (id === 'jefes-del-mapa') return renderBossesSection();
   if (id === 'noticias') return renderNews();
+  if (id.startsWith('noticias/')) {
+    const item = findNews(id.slice('noticias/'.length));
+    return item ? renderNewsArticle(item) : renderNews();
+  }
   if (id === 'guias') return renderGuides();
   if (id === 'otros-juegos') return renderOtherGames();
   if (id === 'faq') return renderFaq();
@@ -1409,7 +1467,7 @@ const bindAppEvents = () => {
       if (route.startsWith('hub/')) {
         const section = route.replace('hub/', '');
         goToPhase('hub', { hubSection: section });
-        if (section.startsWith('razas') || section === 'noticias') window.scrollTo({ top: 0 });
+        if (section.startsWith('razas') || section.startsWith('noticias')) window.scrollTo({ top: 0 });
       }
       return;
     }
