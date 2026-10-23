@@ -2884,6 +2884,20 @@ body.history-reading {
   gap: 22px;
 }
 
+.other-games-intro {
+  margin-bottom: 22px;
+}
+
+.other-games-intro .news-kicker {
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.other-games-intro .news-lead {
+  margin-bottom: 0;
+}
+
 .other-game-launch {
   display: grid;
   place-items: center;

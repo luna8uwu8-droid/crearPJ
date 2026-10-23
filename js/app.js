@@ -22,6 +22,7 @@ import {
   GUIDES,
   FAQ,
   OTHER_GAMES,
+  OTHER_GAMES_INTRO,
   STAFF_DELIVERY,
   CONTENT_PENDING
 } from './content.js';
@@ -1074,6 +1075,18 @@ const renderFaq = () => `
 `;
 
 const renderOtherGames = () => `
+  <div class="section-intro">
+    <p class="eyebrow">MÁS ALLÁ DE MALEDICTA</p>
+    <h2>Otros juegos</h2>
+  </div>
+  <article class="news-proclamation other-games-intro">
+    <header class="news-proclamation-head">
+      <span class="news-kicker">${escapeHtml(OTHER_GAMES_INTRO.kicker)}</span>
+      <h3>${escapeHtml(OTHER_GAMES_INTRO.title)}</h3>
+      <span class="news-divider" aria-hidden="true"><span>◆</span></span>
+    </header>
+    <p class="news-lead">${escapeHtml(OTHER_GAMES_INTRO.body)}</p>
+  </article>
   <section class="other-game-launch" aria-label="${escapeHtml(OTHER_GAMES[0].title)}">
     <a class="other-game-play" href="${escapeHtml(OTHER_GAMES[0].url)}" target="_blank" rel="noopener noreferrer" aria-label="Jugar ${escapeHtml(OTHER_GAMES[0].title)}" title="Jugar">
       <span aria-hidden="true">▶</span>

@@ -3160,6 +3160,12 @@ export const NEWS = [
   }
 ];
 
+export const OTHER_GAMES_INTRO = {
+  kicker: 'Fuera del universo Maledicta',
+  title: 'Luna88 Games',
+  body: 'Esta es la sección de juegos creados por Luna88 Games. Espero que puedas disfrutar de sus creaciones y no te olvides de apoyarla para que siga aprendiendo a desarrollar y crear más contenido.'
+};
+
 export const OTHER_GAMES = [
   {
     id: 'silencio-entre-nosotros',

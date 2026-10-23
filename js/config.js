@@ -18,9 +18,10 @@ export const HUB_SECTIONS = [
   { id: 'bosses-de-maledicta', label: 'Bosses de Maledicta', icon: '♜' },
   { id: 'noticias', label: 'Noticias', icon: '▣' },
   { id: 'guias', label: 'Guías', icon: '❖' },
-  { id: 'otros-juegos', label: 'Otros juegos', icon: '▷' },
   { id: 'faq', label: 'FAQ', icon: '?' },
-  { id: 'normativas', label: 'Normas', icon: '⚖' }
+  { id: 'normativas', label: 'Normas', icon: '⚖' },
+  // Ajeno al universo Maledicta: siempre al final.
+  { id: 'otros-juegos', label: 'Otros juegos', icon: '▷' }
 ];
 
 export const ETHNICITIES = [
