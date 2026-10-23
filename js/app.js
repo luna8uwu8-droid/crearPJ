@@ -1303,9 +1303,53 @@ const handleImageFile = async (file) => {
   render();
 };
 
+// crypto.randomUUID solo existe en contextos seguros (https / localhost).
+const createId = () => (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+  ? crypto.randomUUID()
+  : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
+
+const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result);
+  reader.onerror = () => reject(reader.error);
+  reader.readAsDataURL(file);
+});
+
+const loadImageElement = (file) => new Promise((resolve) => {
+  const url = URL.createObjectURL(file);
+  const probe = new Image();
+  probe.onload = () => { URL.revokeObjectURL(url); resolve(probe); };
+  probe.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+  probe.src = url;
+});
+
+// Las imágenes se guardan como texto (data URL) y no como Blob: varios navegadores
+// fallan al guardar Blobs en IndexedDB. Las muy grandes se reducen para no agotar la cuota.
+const GALLERY_MAX_SIDE = 2048;
+const prepareGalleryDataUrl = async (file, imageElement) => {
+  const largestSide = Math.max(imageElement.naturalWidth, imageElement.naturalHeight);
+  if (file.type === 'image/gif' || (largestSide <= GALLERY_MAX_SIDE && file.size <= 2.5 * 1024 * 1024)) {
+    return readFileAsDataUrl(file);
+  }
+  const scale = Math.min(1, GALLERY_MAX_SIDE / largestSide);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(imageElement.naturalWidth * scale);
+  canvas.height = Math.round(imageElement.naturalHeight * scale);
+  canvas.getContext('2d').drawImage(imageElement, 0, 0, canvas.width, canvas.height);
+  const webp = canvas.toDataURL('image/webp', 0.9);
+  if (webp.startsWith('data:image/webp')) return webp;
+  return canvas.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.9);
+};
+
+const describeStorageError = (error) => {
+  if (error?.name === 'QuotaExceededError') return 'el almacenamiento del navegador está lleno';
+  return 'este navegador no permite guardar datos de la web (modo incógnito o datos de sitios bloqueados)';
+};
+
 const handleBossGalleryFiles = async (bossId, files) => {
   const selectedFiles = [...files];
   let savedCount = 0;
+  let sessionOnlyReason = '';
   const problems = [];
 
   for (const file of selectedFiles) {
@@ -1317,42 +1361,47 @@ const handleBossGalleryFiles = async (bossId, files) => {
       problems.push(`${file.name}: supera los 10 MB`);
       continue;
     }
-    const isReadable = await new Promise((resolve) => {
-      const url = URL.createObjectURL(file);
-      const probe = new Image();
-      probe.onload = () => { URL.revokeObjectURL(url); resolve(true); };
-      probe.onerror = () => { URL.revokeObjectURL(url); resolve(false); };
-      probe.src = url;
-    });
-    if (!isReadable) {
+    const imageElement = await loadImageElement(file);
+    if (!imageElement) {
       problems.push(`${file.name}: el archivo está dañado o no es una imagen`);
       continue;
     }
+
+    let dataUrl;
     try {
-      const image = {
-        id: crypto.randomUUID(),
-        bossId,
-        name: file.name,
-        blob: file,
-        addedAt: new Date().toISOString()
-      };
+      dataUrl = await prepareGalleryDataUrl(file, imageElement);
+    } catch (error) {
+      console.warn('No se pudo leer la imagen del boss:', error);
+      problems.push(`${file.name}: no se pudo leer el archivo`);
+      continue;
+    }
+
+    const image = {
+      id: createId(),
+      bossId,
+      name: file.name,
+      dataUrl,
+      addedAt: new Date().toISOString()
+    };
+    let unsaved = false;
+    try {
       await saveBossGalleryImage(image);
-      const gallery = bossGalleryImages.get(bossId) || [];
-      gallery.push({ ...image, url: URL.createObjectURL(file) });
-      bossGalleryImages.set(bossId, gallery);
       savedCount += 1;
     } catch (error) {
       console.warn('No se pudo guardar la imagen del boss:', error);
-      problems.push(`${file.name}: no se pudo guardar en el almacenamiento del navegador`);
+      unsaved = true;
+      sessionOnlyReason = describeStorageError(error);
     }
+    const gallery = bossGalleryImages.get(bossId) || [];
+    gallery.push({ ...image, url: dataUrl, unsaved });
+    bossGalleryImages.set(bossId, gallery);
   }
 
-  setBanner(
-    problems.length
-      ? `${savedCount} imagen(es) guardada(s). No se cargaron: ${problems.join(' · ')}.`
-      : `${savedCount} imagen(es) guardada(s) en la galería.`,
-    problems.length ? 'danger' : 'ok'
-  );
+  const messages = [];
+  if (savedCount) messages.push(`${savedCount} imagen(es) guardada(s) en la galería.`);
+  if (sessionOnlyReason) messages.push(`Algunas imágenes se muestran solo durante esta visita porque ${sessionOnlyReason}.`);
+  if (problems.length) messages.push(`No se cargaron: ${problems.join(' · ')}.`);
+  setBanner(messages.join(' '), sessionOnlyReason || problems.length ? 'danger' : 'ok');
   render();
 };
 
@@ -1386,8 +1435,8 @@ const bindAppEvents = () => {
         const index = gallery.findIndex((image) => image.id === galleryButton.dataset.imageId);
         if (index >= 0) {
           try {
-            await deleteBossGalleryImage(gallery[index].id);
-            URL.revokeObjectURL(gallery[index].url);
+            if (!gallery[index].unsaved) await deleteBossGalleryImage(gallery[index].id);
+            if (gallery[index].url.startsWith('blob:')) URL.revokeObjectURL(gallery[index].url);
             gallery.splice(index, 1);
             bossGalleryImages.set(bossId, gallery);
             if (bossGalleryViewer?.bossId === bossId) {
@@ -1580,7 +1629,10 @@ const initialize = async () => {
     records.forEach((record) => {
       if (!FANDOM.bosses.entries.some((boss) => boss.id === record.bossId)) return;
       const gallery = bossGalleryImages.get(record.bossId) || [];
-      gallery.push({ ...record, url: URL.createObjectURL(record.blob) });
+      // Registros antiguos guardaban el archivo como Blob; los nuevos, como data URL.
+      const url = record.dataUrl || (record.blob ? URL.createObjectURL(record.blob) : null);
+      if (!url) return;
+      gallery.push({ ...record, url });
       bossGalleryImages.set(record.bossId, gallery);
     });
   } catch {
