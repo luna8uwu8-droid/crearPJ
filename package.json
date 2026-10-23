@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "publish-news": "node scripts/publish-news.mjs"
   },
   "dependencies": {
     "busboy": "^1.6.0"
