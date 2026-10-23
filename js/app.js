@@ -1109,11 +1109,27 @@ const renderMiPersonaje = () => {
   `;
 };
 
+const latestNews = () => [...NEWS].sort((a, b) => b.date.localeCompare(a.date))[0];
+
+const renderNewsPreview = (item) => `
+  <button class="news-preview" type="button" data-route="hub/noticias" aria-label="Ver noticias: ${escapeHtml(item.title)}">
+    <span class="news-preview-meta">
+      <span class="news-preview-badge">Última noticia</span>
+      <time datetime="${escapeHtml(item.date)}">${escapeHtml(formatNewsDate(item.date))}</time>
+    </span>
+    <strong class="news-preview-title">${escapeHtml(item.title)}</strong>
+    ${item.highlight ? `<span class="news-preview-highlight">${escapeHtml(item.highlight.title)} · ${escapeHtml(item.highlight.subtitle)}</span>` : ''}
+    ${item.summary ? `<span class="news-preview-summary">${escapeHtml(item.summary)}</span>` : ''}
+    <span class="news-preview-cta">Leer noticias <span aria-hidden="true">→</span></span>
+  </button>
+`;
+
 const renderHubHome = () => `
   <div class="section-intro">
     <h2>Bienvenido de nuevo a Maledicta</h2>
     <p class="section-subtitle">${escapeHtml(WELCOME.intro)}</p>
   </div>
+  ${NEWS.length ? renderNewsPreview(latestNews()) : ''}
   <div class="hub-card-grid">
     ${state.characterComplete ? `<button class="hub-link-card featured" type="button" data-route="hub/mi-personaje"><strong>Mi personaje</strong><span>Revisa, descarga o imprime tu ficha.</span></button>` : `<button class="hub-link-card featured" type="button" data-route="crear"><strong>Crear personaje</strong><span>Continúa el rito de ingreso.</span></button>`}
     <button class="hub-link-card" type="button" data-route="hub/guias"><strong>Guías</strong><span>Primeros pasos para jugadores nuevos.</span></button>
@@ -1462,7 +1478,7 @@ const bindAppEvents = () => {
       if (route.startsWith('hub/')) {
         const section = route.replace('hub/', '');
         goToPhase('hub', { hubSection: section });
-        if (section.startsWith('razas')) window.scrollTo({ top: 0 });
+        if (section.startsWith('razas') || section === 'noticias') window.scrollTo({ top: 0 });
       }
       return;
     }

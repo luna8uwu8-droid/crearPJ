@@ -2187,6 +2187,93 @@ button {
   }
 }
 
+/* Inicio: vista previa de la última noticia */
+.news-preview {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 14px;
+  padding: 22px 24px;
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(231, 189, 131, 0.14), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(169, 31, 62, 0.22), transparent 55%),
+    linear-gradient(150deg, rgba(48, 21, 35, 0.92), rgba(16, 7, 13, 0.95));
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.news-preview:hover,
+.news-preview:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(231, 189, 131, 0.6);
+  box-shadow: 0 16px 34px rgba(7, 1, 6, 0.4), 0 0 0 3px rgba(231, 189, 131, 0.12);
+  outline: none;
+}
+
+.news-preview-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  color: var(--soft);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.news-preview-badge {
+  padding: 3px 10px;
+  border: 1px solid rgba(231, 189, 131, 0.45);
+  border-radius: 999px;
+  background: rgba(169, 31, 62, 0.35);
+  color: var(--gold);
+}
+
+.news-preview-title {
+  color: var(--accent-strong);
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.15rem, 3vw, 1.55rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.news-preview-highlight {
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.news-preview-summary {
+  display: -webkit-box;
+  max-width: 80ch;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.news-preview-cta {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.news-preview-cta span {
+  display: inline-block;
+  transition: transform var(--transition);
+}
+
+.news-preview:hover .news-preview-cta span {
+  transform: translateX(4px);
+}
+
 /* Noticias: proclamas del Staff */
 .news-stack {
   display: grid;
