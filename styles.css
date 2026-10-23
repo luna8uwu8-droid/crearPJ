@@ -1363,7 +1363,29 @@ button {
 }
 
 .race-grid {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.race-step-block + .race-step-block {
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.race-step-title {
+  margin: 0 0 6px;
+  color: var(--accent-strong);
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.race-step-text {
+  max-width: 70ch;
+  margin: 0 0 16px;
+  color: var(--muted);
+  line-height: 1.7;
 }
 
 .race-grid .choice-card span {
@@ -1700,6 +1722,105 @@ button {
 
 .entry-card.pending {
   grid-column: 1 / -1;
+}
+
+/* Insignia fija de Discord (arriba a la derecha en todas las pantallas) */
+.discord-badge {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.discord-badge-sign {
+  position: relative;
+  margin-right: -12px;
+  padding: 7px 22px 8px 14px;
+  border: 2px solid #b8894a;
+  border-radius: 4px 0 0 4px;
+  background:
+    repeating-linear-gradient(100deg, rgba(255, 255, 255, 0.03) 0 3px, transparent 3px 9px),
+    linear-gradient(180deg, #6a4422, #3a230f);
+  box-shadow: inset 0 1px 0 rgba(255, 228, 180, 0.35), inset 0 -2px 0 rgba(0, 0, 0, 0.35), 0 8px 18px rgba(5, 1, 5, 0.55);
+  color: #f6dfae;
+  font-family: 'Metamorphous', 'Cinzel', serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 0 #1c0f05, 0 0 10px rgba(231, 189, 131, 0.35);
+  white-space: nowrap;
+  transition: transform var(--transition), color var(--transition);
+}
+
+.discord-badge-logo {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  filter: drop-shadow(0 6px 14px rgba(5, 1, 5, 0.65));
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.discord-badge:hover .discord-badge-logo,
+.discord-badge:focus-visible .discord-badge-logo {
+  transform: rotate(-6deg) scale(1.08);
+  filter: drop-shadow(0 6px 14px rgba(5, 1, 5, 0.65)) drop-shadow(0 0 14px rgba(88, 101, 242, 0.55));
+}
+
+.discord-badge:hover .discord-badge-sign,
+.discord-badge:focus-visible .discord-badge-sign {
+  color: #fff3d6;
+  transform: translateX(-3px);
+}
+
+.discord-badge:focus-visible {
+  outline: none;
+}
+
+@media (max-width: 760px) {
+  .discord-badge {
+    top: 6px;
+    right: 6px;
+    flex-direction: column-reverse;
+  }
+
+  .discord-badge-sign {
+    margin: -8px 0 0;
+    padding: 3px 5px 4px;
+    border-width: 1px;
+    border-radius: 4px;
+    font-size: 0.56rem;
+    letter-spacing: 0.02em;
+  }
+
+  .discord-badge-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .discord-badge:hover .discord-badge-sign,
+  .discord-badge:focus-visible .discord-badge-sign {
+    transform: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .brand-inline strong,
+  .brand-copy h1 {
+    font-size: 1.1rem;
+    letter-spacing: 0.1em;
+  }
+
+  .welcome-brand {
+    padding-top: 44px;
+  }
+}
+
+@media print {
+  .discord-badge {
+    display: none;
+  }
 }
 
 /* Razas: códice con aspecto de libro medieval */

@@ -381,7 +381,16 @@ const renderEtnia = () => {
       <h2>Elige la raza del personaje</h2>
       <p class="section-subtitle">Cada raza define la naturaleza, la herencia y el lugar del personaje en el mundo.</p>
     </div>
-    ${renderChoiceCards('ethnicity', ETHNICITIES, state.character.ethnicity, 'race-grid')}
+    <section class="race-step-block">
+      <h3 class="race-step-title">Todos comienzan como humanos</h3>
+      <p class="race-step-text">Cada aventurero dará sus primeros pasos como humano, y luego podrá elegir firmar un pacto con una de las 5 razas disponibles, para acceder a sus habilidades, conocimientos y una nueva forma de vida.</p>
+      ${renderChoiceCards('ethnicity', ETHNICITIES.filter((item) => item.value === 'Humanos'), state.character.ethnicity, 'race-grid')}
+    </section>
+    <section class="race-step-block">
+      <h3 class="race-step-title">Sub razas</h3>
+      <p class="race-step-text">Pero si no quieres comenzar como humano, puedes elegir una de las 4 subrazas.</p>
+      ${renderChoiceCards('ethnicity', ETHNICITIES.filter((item) => item.value !== 'Humanos'), state.character.ethnicity, 'race-grid')}
+    </section>
     ${selected?.needsDetail ? `
       <label class="field-card block-gap">
         <span class="field-label">Especifica la etnia permitida <span class="field-hint">Requerido</span></span>
@@ -1640,6 +1649,13 @@ const initialize = async () => {
   }
 
   if (location.hash) applyHash();
+  // Insignia fija de Discord: vive fuera de #app para mantenerse en todas las pantallas.
+  document.body.insertAdjacentHTML('beforeend', `
+    <a class="discord-badge" href="${escapeHtml(DISCORD_INVITE_URL)}" target="_blank" rel="noopener noreferrer" aria-label="Únete a Discord">
+      <span class="discord-badge-sign">Únete a Discord</span>
+      <img class="discord-badge-logo" src="./assets/discord-barbarian.webp" alt="" width="256" height="256" />
+    </a>
+  `);
   bindAppEvents();
   window.addEventListener('hashchange', () => {
     applyHash();
