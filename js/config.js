@@ -13,7 +13,6 @@ export const HUB_SECTIONS = [
   { id: 'inicio', label: 'Inicio', icon: '◈' },
   { id: 'mi-personaje', label: 'Mi Personaje', icon: '✦', requiresCharacter: true },
   { id: 'fandom', label: 'Fandom', icon: '☽' },
-  { id: 'lore', label: 'Lore', icon: '◉' },
   { id: 'razas', label: 'Razas', icon: '☘', parent: 'fandom' },
   { id: 'historia', label: 'Historia', icon: '⌛', parent: 'fandom' },
   { id: 'eventos', label: 'Eventos', icon: '⚡', parent: 'fandom' },

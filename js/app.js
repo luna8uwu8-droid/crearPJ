@@ -1020,14 +1020,12 @@ const renderHubSection = () => {
       <div class="hub-card-grid">
         ${state.characterComplete ? `<button class="hub-link-card featured" type="button" data-route="hub/mi-personaje"><strong>Mi personaje</strong><span>Revisa, descarga o imprime tu ficha.</span></button>` : `<button class="hub-link-card featured" type="button" data-route="crear"><strong>Crear personaje</strong><span>Continúa el rito de ingreso.</span></button>`}
           <button class="hub-link-card" type="button" data-route="hub/fandom"><strong>Fandom</strong><span>Razas, clases e historia publicada.</span></button>
-        <button class="hub-link-card" type="button" data-route="hub/lore"><strong>Lore</strong><span>El archivo de origen y el pacto, cuando exista.</span></button>
         <button class="hub-link-card" type="button" data-route="hub/guias"><strong>Guías</strong><span>Primeros pasos para jugadores nuevos.</span></button>
       </div>
     `;
   }
   if (id === 'mi-personaje') return renderMiPersonaje();
   if (id === 'fandom') return renderFandomHome();
-  if (id === 'lore') return renderLore();
   if (id === 'razas') return `${renderCatalogSection(FANDOM.razas)}${renderCatalogSection(FANDOM.clases)}`;
   if (id === 'historia') return renderHistorySection();
   if (id === 'ciudades') return renderCatalogSection(FANDOM.ciudades);
