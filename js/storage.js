@@ -1,10 +1,11 @@
 const STORAGE_KEY = 'maledicta-character-builder-v2';
 const IMAGE_DB = 'maledicta-images';
 const IMAGE_STORE = 'character-image';
-const BOSS_GALLERY_STORE = 'boss-gallery';
+// Galería que antes permitía a los usuarios subir imágenes de los jefes; ya no se usa.
+const OBSOLETE_STORES = ['boss-gallery'];
 
-// Abre la base sin versión fija: si algún almacén falta (bases creadas por versiones
-// anteriores de la web), sube la versión para que onupgradeneeded lo cree.
+// Abre la base sin versión fija. Si falta el almacén de la imagen del personaje o quedan
+// almacenes obsoletos de versiones anteriores, sube la versión para corregirlo.
 const openImageDb = (version) => new Promise((resolve, reject) => {
   const request = indexedDB.open(IMAGE_DB, version);
   request.onupgradeneeded = () => {
@@ -12,15 +13,15 @@ const openImageDb = (version) => new Promise((resolve, reject) => {
     if (!db.objectStoreNames.contains(IMAGE_STORE)) {
       db.createObjectStore(IMAGE_STORE);
     }
-    if (!db.objectStoreNames.contains(BOSS_GALLERY_STORE)) {
-      const store = db.createObjectStore(BOSS_GALLERY_STORE, { keyPath: 'id' });
-      store.createIndex('bossId', 'bossId', { unique: false });
-    }
+    OBSOLETE_STORES
+      .filter((name) => db.objectStoreNames.contains(name))
+      .forEach((name) => db.deleteObjectStore(name));
   };
   request.onsuccess = () => {
     const db = request.result;
-    const missingStore = [IMAGE_STORE, BOSS_GALLERY_STORE].some((name) => !db.objectStoreNames.contains(name));
-    if (missingStore) {
+    const needsUpgrade = !db.objectStoreNames.contains(IMAGE_STORE)
+      || OBSOLETE_STORES.some((name) => db.objectStoreNames.contains(name));
+    if (needsUpgrade) {
       const nextVersion = db.version + 1;
       db.close();
       openImageDb(nextVersion).then(resolve, reject);
@@ -79,40 +80,6 @@ export const clearImageBlob = async () => {
   } catch (error) {
     console.warn('No se pudo limpiar la imagen:', error);
   }
-};
-
-export const loadBossGalleryImages = async () => {
-  const db = await openImageDb();
-  const records = await new Promise((resolve, reject) => {
-    const tx = db.transaction(BOSS_GALLERY_STORE, 'readonly');
-    const request = tx.objectStore(BOSS_GALLERY_STORE).getAll();
-    request.onsuccess = () => resolve(request.result ?? []);
-    request.onerror = () => reject(request.error);
-  });
-  db.close();
-  return records;
-};
-
-export const saveBossGalleryImage = async (record) => {
-  const db = await openImageDb();
-  await new Promise((resolve, reject) => {
-    const tx = db.transaction(BOSS_GALLERY_STORE, 'readwrite');
-    tx.objectStore(BOSS_GALLERY_STORE).put(record);
-    tx.oncomplete = resolve;
-    tx.onerror = () => reject(tx.error);
-  });
-  db.close();
-};
-
-export const deleteBossGalleryImage = async (id) => {
-  const db = await openImageDb();
-  await new Promise((resolve, reject) => {
-    const tx = db.transaction(BOSS_GALLERY_STORE, 'readwrite');
-    tx.objectStore(BOSS_GALLERY_STORE).delete(id);
-    tx.oncomplete = resolve;
-    tx.onerror = () => reject(tx.error);
-  });
-  db.close();
 };
 
 const migrateLegacyState = (legacy) => {

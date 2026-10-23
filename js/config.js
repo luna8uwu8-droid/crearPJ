@@ -15,7 +15,7 @@ export const HUB_SECTIONS = [
   { id: 'razas', label: 'Razas', icon: '☘' },
   { id: 'historia', label: 'Historia', icon: '⌛' },
   { id: 'eventos', label: 'Eventos', icon: '⚡' },
-  { id: 'bosses-de-maledicta', label: 'Bosses de Maledicta', icon: '♜' },
+  { id: 'jefes-del-mapa', label: 'Jefes del mapa', icon: '♜' },
   { id: 'noticias', label: 'Noticias', icon: '▣' },
   { id: 'guias', label: 'Guías', icon: '❖' },
   { id: 'faq', label: 'FAQ', icon: '?' },
@@ -51,11 +51,6 @@ export const IMAGE_LIMITS = {
   maxBytes: 10 * 1024 * 1024,
   minSize: 512,
   types: ['image/png', 'image/jpeg']
-};
-
-export const BOSS_GALLERY_LIMITS = {
-  maxBytes: 10 * 1024 * 1024,
-  types: ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
 };
 
 export const SEX_OPTIONS = [

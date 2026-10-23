@@ -8,7 +8,6 @@ import {
   SEX_OPTIONS,
   ACCEPTANCE_ITEMS,
   IMAGE_LIMITS,
-  BOSS_GALLERY_LIMITS,
   defaultCharacter,
   defaultAcceptances
 } from './config.js';
@@ -30,10 +29,7 @@ import {
   loadState,
   saveState,
   clearState,
-  hydrateImage,
-  loadBossGalleryImages,
-  saveBossGalleryImage,
-  deleteBossGalleryImage
+  hydrateImage
 } from './storage.js';
 import { downloadCharacterSheet, generateValidationCode, printCharacterSheet } from './sheet.js';
 
@@ -57,7 +53,6 @@ const baseState = {
 let state = { ...structuredClone(baseState) };
 let historyReaderIndex = null;
 let bossGalleryViewer = null;
-const bossGalleryImages = new Map();
 
 const escapeHtml = (value = '') => String(value)
   .replace(/&/g, '&amp;')
@@ -181,7 +176,9 @@ const syncHash = () => {
 
 const applyHash = () => {
   const raw = (location.hash || '#bienvenida').replace('#', '');
-  const [section, sub] = raw.split('/');
+  const [rawSection, sub] = raw.split('/');
+  // Nombres viejos de secciones renombradas.
+  const section = rawSection === 'bosses-de-maledicta' ? 'jefes-del-mapa' : rawSection;
 
   if (section === 'bienvenida' || section === 'inicio' && state.phase === 'welcome') {
     if (!state.characterComplete) state.phase = 'welcome';
@@ -658,6 +655,14 @@ const pendingCard = (title, description) => `
   </article>
 `;
 
+const findBoss = (id) => FANDOM.bosses.entries.find((entry) => entry.id === id);
+
+// Imágenes oficiales de cada jefe (ver la convención de nombres en content.js).
+const bossImages = (boss) => (boss ? [
+  { url: `./assets/bosses/${boss.id}-jefe.webp`, caption: 'El jefe' },
+  { url: `./assets/bosses/${boss.id}-mapa.webp`, caption: 'Ubicación en el mapa' }
+] : []);
+
 const renderBossesSection = () => `
   <div class="section-intro">
     <p class="eyebrow">BESTIARIO</p>
@@ -666,7 +671,7 @@ const renderBossesSection = () => `
   </div>
   <div class="boss-card-list">
     ${FANDOM.bosses.entries.map((boss) => {
-      const images = bossGalleryImages.get(boss.id) || [];
+      const images = bossImages(boss);
       return `
         <article class="boss-card" id="boss-${escapeHtml(boss.id)}">
           <header class="boss-card-heading">
@@ -684,25 +689,20 @@ const renderBossesSection = () => `
               <div><dt>Ubicación</dt><dd>${escapeHtml(boss.location)}</dd></div>
             </dl>
           </div>
-          <section class="boss-gallery" aria-label="Galería de ${escapeHtml(boss.name)}">
+          <section class="boss-gallery" aria-label="Imágenes de ${escapeHtml(boss.name)}">
             <div class="boss-gallery-heading">
-              <div><h4>Galería</h4><span>${images.length} ${images.length === 1 ? 'imagen' : 'imágenes'}</span></div>
-              <label class="secondary-btn" for="boss-images-${escapeHtml(boss.id)}" role="button" tabindex="0" data-boss-upload-label>＋ Agregar imágenes</label>
-              <input class="visually-hidden" id="boss-images-${escapeHtml(boss.id)}" type="file" accept="${BOSS_GALLERY_LIMITS.types.join(',')}" multiple data-boss-file-input="${escapeHtml(boss.id)}" />
+              <div><h4>Galería</h4><span>Tocá una imagen para ampliarla</span></div>
             </div>
-            ${images.length ? `
-              <div class="boss-gallery-grid">
-                ${images.map((image, index) => `
-                  <div class="boss-gallery-item">
-                    <button class="boss-gallery-image" type="button" data-boss-gallery-action="open" data-boss-id="${escapeHtml(boss.id)}" data-image-index="${index}" aria-label="Ampliar imagen ${index + 1} de ${escapeHtml(boss.name)}">
-                      <img src="${image.url}" alt="${escapeHtml(image.name)}" />
-                    </button>
-                    <button class="boss-gallery-delete" type="button" data-boss-gallery-action="delete" data-boss-id="${escapeHtml(boss.id)}" data-image-id="${escapeHtml(image.id)}" aria-label="Eliminar ${escapeHtml(image.name)}" title="Eliminar imagen">×</button>
-                    <span class="boss-gallery-filename">${escapeHtml(image.name)}</span>
-                  </div>
-                `).join('')}
-              </div>
-            ` : '<div class="boss-gallery-empty"><span aria-hidden="true">✧</span><strong>Aún no hay imágenes</strong><small>Las imágenes de este jefe aparecerán aquí.</small></div>'}
+            <div class="boss-gallery-grid">
+              ${images.map((image, index) => `
+                <figure class="boss-gallery-item">
+                  <button class="boss-gallery-image" type="button" data-boss-gallery-action="open" data-boss-id="${escapeHtml(boss.id)}" data-image-index="${index}" aria-label="Ampliar: ${escapeHtml(image.caption)} — ${escapeHtml(boss.name)}">
+                    <img src="${image.url}" alt="${escapeHtml(image.caption)} — ${escapeHtml(boss.name)}" loading="lazy" />
+                  </button>
+                  <figcaption class="boss-gallery-caption">${escapeHtml(image.caption)}</figcaption>
+                </figure>
+              `).join('')}
+            </div>
           </section>
         </article>
       `;
@@ -712,8 +712,8 @@ const renderBossesSection = () => `
 
 const renderBossGalleryViewer = () => {
   if (!bossGalleryViewer) return '';
-  const boss = FANDOM.bosses.entries.find((entry) => entry.id === bossGalleryViewer.bossId);
-  const images = bossGalleryImages.get(bossGalleryViewer.bossId) || [];
+  const boss = findBoss(bossGalleryViewer.bossId);
+  const images = bossImages(boss);
   const image = images[bossGalleryViewer.index];
   if (!boss || !image) return '';
   return `
@@ -722,10 +722,10 @@ const renderBossGalleryViewer = () => {
         <header><span>${escapeHtml(boss.name)} · ${bossGalleryViewer.index + 1} / ${images.length}</span><button class="reader-control" type="button" data-boss-gallery-action="close" aria-label="Cerrar galería">×</button></header>
         <div class="boss-lightbox-stage">
           <button class="boss-lightbox-nav" type="button" data-boss-gallery-action="previous" aria-label="Imagen anterior">‹</button>
-          <img src="${image.url}" alt="${escapeHtml(image.name)}" />
+          <img src="${image.url}" alt="${escapeHtml(image.caption)} — ${escapeHtml(boss.name)}" />
           <button class="boss-lightbox-nav" type="button" data-boss-gallery-action="next" aria-label="Imagen siguiente">›</button>
         </div>
-        <p>${escapeHtml(image.name)}</p>
+        <p>${escapeHtml(image.caption)}</p>
       </div>
     </section>
   `;
@@ -1199,7 +1199,7 @@ const renderHubSection = () => {
   }
   if (id === 'historia') return renderHistorySection();
   if (id === 'eventos') return `${renderCatalogSection(FANDOM.eventos)}${renderCatalogSection(FANDOM.actualizaciones)}`;
-  if (id === 'bosses-de-maledicta') return renderBossesSection();
+  if (id === 'jefes-del-mapa') return renderBossesSection();
   if (id === 'noticias') return renderNews();
   if (id === 'guias') return renderGuides();
   if (id === 'otros-juegos') return renderOtherGames();
@@ -1228,7 +1228,7 @@ const renderHub = () => `
     </main>
   </div>
   ${state.hubSection === 'historia' && historyReaderIndex !== null ? renderHistoryReader() : ''}
-  ${state.hubSection === 'bosses-de-maledicta' ? renderBossGalleryViewer() : ''}
+  ${state.hubSection === 'jefes-del-mapa' ? renderBossGalleryViewer() : ''}
 `;
 
 const fillPrintSheet = () => {
@@ -1262,6 +1262,7 @@ const fillPrintSheet = () => {
 
 const render = () => {
   document.body.classList.toggle('history-reading', historyReaderIndex !== null);
+  document.body.classList.toggle('lightbox-open', Boolean(bossGalleryViewer) && state.hubSection === 'jefes-del-mapa');
   if (state.phase === 'welcome') appRoot.innerHTML = renderWelcome();
   else if (state.phase === 'creating') appRoot.innerHTML = renderWizard();
   else if (state.phase === 'entrega') appRoot.innerHTML = renderEntrega();
@@ -1354,108 +1355,6 @@ const handleImageFile = async (file) => {
   render();
 };
 
-// crypto.randomUUID solo existe en contextos seguros (https / localhost).
-const createId = () => (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-  ? crypto.randomUUID()
-  : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`);
-
-const readFileAsDataUrl = (file) => new Promise((resolve, reject) => {
-  const reader = new FileReader();
-  reader.onload = () => resolve(reader.result);
-  reader.onerror = () => reject(reader.error);
-  reader.readAsDataURL(file);
-});
-
-const loadImageElement = (file) => new Promise((resolve) => {
-  const url = URL.createObjectURL(file);
-  const probe = new Image();
-  probe.onload = () => { URL.revokeObjectURL(url); resolve(probe); };
-  probe.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
-  probe.src = url;
-});
-
-// Las imágenes se guardan como texto (data URL) y no como Blob: varios navegadores
-// fallan al guardar Blobs en IndexedDB. Las muy grandes se reducen para no agotar la cuota.
-const GALLERY_MAX_SIDE = 2048;
-const prepareGalleryDataUrl = async (file, imageElement) => {
-  const largestSide = Math.max(imageElement.naturalWidth, imageElement.naturalHeight);
-  if (file.type === 'image/gif' || (largestSide <= GALLERY_MAX_SIDE && file.size <= 2.5 * 1024 * 1024)) {
-    return readFileAsDataUrl(file);
-  }
-  const scale = Math.min(1, GALLERY_MAX_SIDE / largestSide);
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(imageElement.naturalWidth * scale);
-  canvas.height = Math.round(imageElement.naturalHeight * scale);
-  canvas.getContext('2d').drawImage(imageElement, 0, 0, canvas.width, canvas.height);
-  const webp = canvas.toDataURL('image/webp', 0.9);
-  if (webp.startsWith('data:image/webp')) return webp;
-  return canvas.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.9);
-};
-
-const describeStorageError = (error) => {
-  if (error?.name === 'QuotaExceededError') return 'el almacenamiento del navegador está lleno';
-  return 'este navegador no permite guardar datos de la web (modo incógnito o datos de sitios bloqueados)';
-};
-
-const handleBossGalleryFiles = async (bossId, files) => {
-  const selectedFiles = [...files];
-  let savedCount = 0;
-  let sessionOnlyReason = '';
-  const problems = [];
-
-  for (const file of selectedFiles) {
-    if (!BOSS_GALLERY_LIMITS.types.includes(file.type)) {
-      problems.push(`${file.name}: formato no permitido (usa PNG, JPG, WEBP o GIF)`);
-      continue;
-    }
-    if (file.size > BOSS_GALLERY_LIMITS.maxBytes) {
-      problems.push(`${file.name}: supera los 10 MB`);
-      continue;
-    }
-    const imageElement = await loadImageElement(file);
-    if (!imageElement) {
-      problems.push(`${file.name}: el archivo está dañado o no es una imagen`);
-      continue;
-    }
-
-    let dataUrl;
-    try {
-      dataUrl = await prepareGalleryDataUrl(file, imageElement);
-    } catch (error) {
-      console.warn('No se pudo leer la imagen del boss:', error);
-      problems.push(`${file.name}: no se pudo leer el archivo`);
-      continue;
-    }
-
-    const image = {
-      id: createId(),
-      bossId,
-      name: file.name,
-      dataUrl,
-      addedAt: new Date().toISOString()
-    };
-    let unsaved = false;
-    try {
-      await saveBossGalleryImage(image);
-      savedCount += 1;
-    } catch (error) {
-      console.warn('No se pudo guardar la imagen del boss:', error);
-      unsaved = true;
-      sessionOnlyReason = describeStorageError(error);
-    }
-    const gallery = bossGalleryImages.get(bossId) || [];
-    gallery.push({ ...image, url: dataUrl, unsaved });
-    bossGalleryImages.set(bossId, gallery);
-  }
-
-  const messages = [];
-  if (savedCount) messages.push(`${savedCount} imagen(es) guardada(s) en la galería.`);
-  if (sessionOnlyReason) messages.push(`Algunas imágenes se muestran solo durante esta visita porque ${sessionOnlyReason}.`);
-  if (problems.length) messages.push(`No se cargaron: ${problems.join(' · ')}.`);
-  setBanner(messages.join(' '), sessionOnlyReason || problems.length ? 'danger' : 'ok');
-  render();
-};
-
 const bindAppEvents = () => {
   appRoot.addEventListener('click', async (event) => {
     const historyButton = event.target.closest('[data-history-action]');
@@ -1481,28 +1380,8 @@ const bindAppEvents = () => {
       if (action === 'open') {
         bossGalleryViewer = { bossId, index: Number(galleryButton.dataset.imageIndex) };
       }
-      if (action === 'delete') {
-        const gallery = bossGalleryImages.get(bossId) || [];
-        const index = gallery.findIndex((image) => image.id === galleryButton.dataset.imageId);
-        if (index >= 0) {
-          try {
-            if (!gallery[index].unsaved) await deleteBossGalleryImage(gallery[index].id);
-            if (gallery[index].url.startsWith('blob:')) URL.revokeObjectURL(gallery[index].url);
-            gallery.splice(index, 1);
-            bossGalleryImages.set(bossId, gallery);
-            if (bossGalleryViewer?.bossId === bossId) {
-              if (!gallery.length) bossGalleryViewer = null;
-              else if (bossGalleryViewer.index >= gallery.length) bossGalleryViewer.index = gallery.length - 1;
-              else if (index < bossGalleryViewer.index) bossGalleryViewer.index -= 1;
-            }
-            setBanner('Imagen eliminada de la galería.', 'ok');
-          } catch {
-            setBanner('No se pudo eliminar la imagen de su almacenamiento.', 'danger');
-          }
-        }
-      }
       if (action === 'previous' || action === 'next') {
-        const gallery = bossGalleryImages.get(bossId) || [];
+        const gallery = bossImages(findBoss(bossId));
         if (gallery.length) {
           const offset = action === 'previous' ? -1 : 1;
           bossGalleryViewer.index = (bossGalleryViewer.index + offset + gallery.length) % gallery.length;
@@ -1617,10 +1496,6 @@ const bindAppEvents = () => {
     if (event.target.id === 'character-image-input') {
       handleImageFile(event.target.files[0]);
     }
-    if (event.target.matches('[data-boss-file-input]')) {
-      handleBossGalleryFiles(event.target.dataset.bossFileInput, event.target.files);
-      event.target.value = '';
-    }
   });
 
   appRoot.addEventListener('input', (event) => {
@@ -1637,14 +1512,6 @@ const bindAppEvents = () => {
     if (name === 'physicalDescription' || name === 'personalityTrait') {
       const counter = event.target.closest('.codex-panel')?.querySelector('.char-counter');
       if (counter) counter.textContent = `${value.length}/1500`;
-    }
-  });
-
-  appRoot.addEventListener('keydown', (event) => {
-    const uploadLabel = event.target.closest('[data-boss-upload-label]');
-    if (uploadLabel && (event.key === 'Enter' || event.key === ' ')) {
-      event.preventDefault();
-      uploadLabel.click();
     }
   });
 
@@ -1675,22 +1542,8 @@ const initialize = async () => {
     }
   }
 
-  try {
-    const records = await loadBossGalleryImages();
-    records.forEach((record) => {
-      if (!FANDOM.bosses.entries.some((boss) => boss.id === record.bossId)) return;
-      const gallery = bossGalleryImages.get(record.bossId) || [];
-      // Registros antiguos guardaban el archivo como Blob; los nuevos, como data URL.
-      const url = record.dataUrl || (record.blob ? URL.createObjectURL(record.blob) : null);
-      if (!url) return;
-      gallery.push({ ...record, url });
-      bossGalleryImages.set(record.bossId, gallery);
-    });
-  } catch {
-    setBanner('No se pudo abrir el almacenamiento local de las galerías.', 'danger');
-  }
-
-  // Secciones eliminadas (p. ej. Fandom) guardadas en el navegador vuelven a Inicio.
+  // Secciones renombradas o eliminadas (p. ej. Fandom) guardadas en el navegador.
+  if (state.hubSection === 'bosses-de-maledicta') state.hubSection = 'jefes-del-mapa';
   if (!HUB_SECTIONS.some((item) => item.id === state.hubSection.split('/')[0])) state.hubSection = 'inicio';
   if (location.hash) applyHash();
   // Insignia fija de Discord: vive fuera de #app para mantenerse en todas las pantallas.
@@ -1715,7 +1568,7 @@ const initialize = async () => {
       render();
     }
     if (bossGalleryViewer && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-      const gallery = bossGalleryImages.get(bossGalleryViewer.bossId) || [];
+      const gallery = bossImages(findBoss(bossGalleryViewer.bossId));
       if (gallery.length) {
         event.preventDefault();
         const offset = event.key === 'ArrowLeft' ? -1 : 1;

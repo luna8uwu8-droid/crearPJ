@@ -1805,6 +1805,13 @@ button {
   }
 }
 
+/* Los visores a pantalla completa viven dentro de #app (su propio contexto de apilamiento),
+   así que la insignia se oculta mientras están abiertos. */
+body.history-reading .discord-badge,
+body.lightbox-open .discord-badge {
+  display: none;
+}
+
 @media (max-width: 400px) {
   .brand-inline strong,
   .brand-copy h1 {
@@ -3255,36 +3262,28 @@ body.history-reading {
   gap: 2px;
 }
 
-.boss-gallery-heading > div span,
-.boss-gallery-empty small {
+.boss-gallery-heading > div span {
   color: var(--soft);
   font-size: 0.78rem;
 }
 
-.boss-gallery-heading .secondary-btn {
-  cursor: pointer;
-  user-select: none;
-  min-height: 40px;
-  padding: 0 12px;
-  font-size: 0.82rem;
-}
-
 .boss-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
   margin-top: 14px;
 }
 
 .boss-gallery-item {
   position: relative;
   min-width: 0;
+  margin: 0;
 }
 
 .boss-gallery-image {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--border-strong);
@@ -3305,51 +3304,12 @@ body.history-reading {
   filter: brightness(1.08);
 }
 
-.boss-gallery-delete {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  background: rgba(15, 5, 10, 0.85);
-  color: white;
-  font-size: 1.2rem;
-}
-
-.boss-gallery-filename {
-  display: block;
-  margin-top: 5px;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 0.72rem;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.boss-gallery-empty {
-  display: grid;
-  justify-items: center;
-  gap: 5px;
-  min-height: 142px;
-  margin-top: 14px;
-  padding: 22px;
-  border: 1px dashed rgba(231, 189, 131, 0.28);
-  border-radius: 10px;
-  background: radial-gradient(ellipse at center, rgba(169, 31, 62, 0.1), transparent 70%);
-  text-align: center;
-}
-
-.boss-gallery-empty > span {
+.boss-gallery-caption {
+  margin-top: 6px;
   color: var(--gold);
-  font-size: 1.7rem;
-}
-
-.boss-gallery-empty small {
-  line-height: 1.5;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .boss-lightbox {
@@ -3436,7 +3396,7 @@ body.history-reading {
   }
 
   .boss-gallery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .boss-lightbox {
