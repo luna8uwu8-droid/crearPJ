@@ -54,6 +54,11 @@ export const IMAGE_LIMITS = {
   types: ['image/png', 'image/jpeg']
 };
 
+export const BOSS_GALLERY_LIMITS = {
+  maxBytes: 10 * 1024 * 1024,
+  types: ['image/png', 'image/jpeg', 'image/webp', 'image/gif']
+};
+
 export const SEX_OPTIONS = [
   { value: 'Masculino', description: 'Identidad masculina.' },
   { value: 'Femenino', description: 'Identidad femenina.' },

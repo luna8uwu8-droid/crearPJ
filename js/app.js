@@ -5,6 +5,7 @@ import {
   SEX_OPTIONS,
   ACCEPTANCE_ITEMS,
   IMAGE_LIMITS,
+  BOSS_GALLERY_LIMITS,
   defaultCharacter,
   defaultAcceptances
 } from './config.js';
@@ -669,8 +670,8 @@ const renderBossesSection = () => `
           <section class="boss-gallery" aria-label="Galería de ${escapeHtml(boss.name)}">
             <div class="boss-gallery-heading">
               <div><h4>Galería</h4><span>${images.length} ${images.length === 1 ? 'imagen' : 'imágenes'}</span></div>
-              <button class="secondary-btn" type="button" data-boss-gallery-action="add" data-boss-id="${escapeHtml(boss.id)}">＋ Agregar imágenes</button>
-              <input class="visually-hidden" id="boss-images-${escapeHtml(boss.id)}" type="file" accept="image/png,image/jpeg" multiple data-boss-file-input="${escapeHtml(boss.id)}" />
+              <label class="secondary-btn" for="boss-images-${escapeHtml(boss.id)}" role="button" tabindex="0" data-boss-upload-label>＋ Agregar imágenes</label>
+              <input class="visually-hidden" id="boss-images-${escapeHtml(boss.id)}" type="file" accept="${BOSS_GALLERY_LIMITS.types.join(',')}" multiple data-boss-file-input="${escapeHtml(boss.id)}" />
             </div>
             ${images.length ? `
               <div class="boss-gallery-grid">
@@ -1077,16 +1078,29 @@ const handleImageFile = async (file) => {
 const handleBossGalleryFiles = async (bossId, files) => {
   const selectedFiles = [...files];
   let savedCount = 0;
-  let rejectedCount = 0;
+  const problems = [];
 
   for (const file of selectedFiles) {
-    if (!IMAGE_LIMITS.types.includes(file.type) || file.size > IMAGE_LIMITS.maxBytes) {
-      rejectedCount += 1;
+    if (!BOSS_GALLERY_LIMITS.types.includes(file.type)) {
+      problems.push(`${file.name}: formato no permitido (usa PNG, JPG, WEBP o GIF)`);
+      continue;
+    }
+    if (file.size > BOSS_GALLERY_LIMITS.maxBytes) {
+      problems.push(`${file.name}: supera los 10 MB`);
+      continue;
+    }
+    const isReadable = await new Promise((resolve) => {
+      const url = URL.createObjectURL(file);
+      const probe = new Image();
+      probe.onload = () => { URL.revokeObjectURL(url); resolve(true); };
+      probe.onerror = () => { URL.revokeObjectURL(url); resolve(false); };
+      probe.src = url;
+    });
+    if (!isReadable) {
+      problems.push(`${file.name}: el archivo está dañado o no es una imagen`);
       continue;
     }
     try {
-      const bitmap = await createImageBitmap(file);
-      bitmap.close();
       const image = {
         id: crypto.randomUUID(),
         bossId,
@@ -1099,16 +1113,17 @@ const handleBossGalleryFiles = async (bossId, files) => {
       gallery.push({ ...image, url: URL.createObjectURL(file) });
       bossGalleryImages.set(bossId, gallery);
       savedCount += 1;
-    } catch {
-      rejectedCount += 1;
+    } catch (error) {
+      console.warn('No se pudo guardar la imagen del boss:', error);
+      problems.push(`${file.name}: no se pudo guardar en el almacenamiento del navegador`);
     }
   }
 
   setBanner(
-    rejectedCount
-      ? `${savedCount} imagen(es) guardada(s); ${rejectedCount} archivo(s) no válido(s) o no pudieron guardarse.`
+    problems.length
+      ? `${savedCount} imagen(es) guardada(s). No se cargaron: ${problems.join(' · ')}.`
       : `${savedCount} imagen(es) guardada(s) en la galería.`,
-    rejectedCount ? 'danger' : 'ok'
+    problems.length ? 'danger' : 'ok'
   );
   render();
 };
@@ -1134,10 +1149,6 @@ const bindAppEvents = () => {
       if (action === 'close') {
         if (galleryButton.classList.contains('boss-lightbox') && event.target !== galleryButton) return;
         bossGalleryViewer = null;
-      }
-      if (action === 'add') {
-        document.querySelector(`#boss-images-${CSS.escape(bossId)}`)?.click();
-        return;
       }
       if (action === 'open') {
         bossGalleryViewer = { bossId, index: Number(galleryButton.dataset.imageIndex) };
@@ -1297,6 +1308,14 @@ const bindAppEvents = () => {
     if (name === 'physicalDescription' || name === 'personalityTrait') {
       const counter = event.target.closest('.codex-panel')?.querySelector('.char-counter');
       if (counter) counter.textContent = `${value.length}/1500`;
+    }
+  });
+
+  appRoot.addEventListener('keydown', (event) => {
+    const uploadLabel = event.target.closest('[data-boss-upload-label]');
+    if (uploadLabel && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      uploadLabel.click();
     }
   });
 

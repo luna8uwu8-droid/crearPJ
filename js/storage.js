@@ -3,8 +3,10 @@ const IMAGE_DB = 'maledicta-images';
 const IMAGE_STORE = 'character-image';
 const BOSS_GALLERY_STORE = 'boss-gallery';
 
-const openImageDb = () => new Promise((resolve, reject) => {
-  const request = indexedDB.open(IMAGE_DB, 2);
+// Abre la base sin versión fija: si algún almacén falta (bases creadas por versiones
+// anteriores de la web), sube la versión para que onupgradeneeded lo cree.
+const openImageDb = (version) => new Promise((resolve, reject) => {
+  const request = indexedDB.open(IMAGE_DB, version);
   request.onupgradeneeded = () => {
     const db = request.result;
     if (!db.objectStoreNames.contains(IMAGE_STORE)) {
@@ -15,8 +17,19 @@ const openImageDb = () => new Promise((resolve, reject) => {
       store.createIndex('bossId', 'bossId', { unique: false });
     }
   };
-  request.onsuccess = () => resolve(request.result);
+  request.onsuccess = () => {
+    const db = request.result;
+    const missingStore = [IMAGE_STORE, BOSS_GALLERY_STORE].some((name) => !db.objectStoreNames.contains(name));
+    if (missingStore) {
+      const nextVersion = db.version + 1;
+      db.close();
+      openImageDb(nextVersion).then(resolve, reject);
+      return;
+    }
+    resolve(db);
+  };
   request.onerror = () => reject(request.error);
+  request.onblocked = () => reject(new Error('La base de imágenes está abierta en otra pestaña.'));
 });
 
 export const saveImageBlob = async (dataUrl) => {
