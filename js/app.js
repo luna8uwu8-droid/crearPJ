@@ -847,12 +847,14 @@ const renderRacePage = (entry) => {
           <p class="codex-identity"><span>Identidad racial</span>${escapeHtml(raceIdentity(entry))}</p>
         ` : ''}
         ${entry.loreSection ? `
-          <h3 class="codex-heading">${escapeHtml(entry.loreSection.title)}</h3>
+          ${entry.loreSection.title ? `<h3 class="codex-heading">${escapeHtml(entry.loreSection.title)}</h3>` : ''}
           <div class="codex-lore">
-            <p>${escapeHtml(entry.loreSection.intro)}</p>
-            <ul class="codex-lore-points">
-              ${entry.loreSection.points.map((point) => `<li>${escapeHtml(point)}</li>`).join('')}
-            </ul>
+            ${(entry.loreSection.paragraphs || []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}
+            ${entry.loreSection.points?.length ? `
+              <ul class="codex-lore-points">
+                ${entry.loreSection.points.map((point) => `<li>${escapeHtml(point)}</li>`).join('')}
+              </ul>
+            ` : ''}
           </div>
         ` : entry.lore ? `<div class="codex-lore"><p>${escapeHtml(entry.lore)}</p></div>` : ''}
         ${entry.abilities?.length ? `

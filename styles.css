@@ -2050,7 +2050,7 @@ button {
   hyphens: auto;
 }
 
-.codex-lore p::first-letter {
+.codex-lore p:first-child::first-letter {
   float: left;
   margin: 6px 10px 0 0;
   padding: 2px 8px;

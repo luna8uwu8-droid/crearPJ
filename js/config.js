@@ -31,11 +31,11 @@ export const ETHNICITIES = [
   },
   {
     value: 'Elementales',
-    description: 'Son criaturas nativas de los Planos Elementales de Fuego, Agua, Aire y Tierra, formadas por la energía pura y la materia viva de su entorno. Su naturaleza les permite prescindir de las necesidades biológicas habituales, por lo que no necesitan comer, beber, respirar ni dormir. Suelen desempeñar funciones de guardianes, protectores y custodios de lugares vinculados a su elemento.'
+    description: 'Los elementales son seres humanos con la capacidad de manipular los elementos. Estos elementales albergan el poder de los elementos en su sangre, debido a la energía planar que aparece en ellos al nacer. Son la descendencia entre genios y mortales. Tienen rasgos inusuales como color de piel peculiar (azul, rojo, verde o gris), cabellos o ojos de aspecto elemental, una esperanza de vida superior a la humana, y se relacionan con los cuatro elementos primordiales (aire, fuego, tierra y agua).'
   },
   {
     value: 'Semi-Gigantes',
-    description: 'Son seres fruto de la unión entre humanos y gigantes. Se distinguen por su gran tamaño, su fuerza física sobresaliente y un carácter directo y obstinado. Sus cualidades los convierten en excelentes guerreros, trabajadores y guardaespaldas, capaces de destacar en tareas que requieren resistencia, potencia física y determinación.'
+    description: 'Imponente sobre la mayoría de las personas, los semi-gigantes son descendientes lejanos de los gigantes. Cada semi-gigante lleva las bendiciones de los primeros gigantes—bendiciones que se manifiestan en diversos dones sobrenaturales, incluyendo la capacidad de crecer rápidamente y, temporalmente, acercarse a la altura de sus gigantescos parientes.'
   },
   {
     value: 'Serpentinos',
@@ -148,6 +148,12 @@ export const CHARACTER_CATALOG = {
     {
       value: 'Elementales',
       description: 'Identidad racial: Manipulación de las fuerzas primordiales.',
+      loreSection: {
+        paragraphs: [
+          'Los elementales son seres humanos con la capacidad de manipular los elementos. Estos elementales albergan el poder de los elementos en su sangre, debido a la energía planar que aparece en ellos al nacer. Son la descendencia entre genios y mortales.',
+          'Tienen rasgos inusuales como color de piel peculiar (azul, rojo, verde o gris), cabellos o ojos de aspecto elemental, una esperanza de vida superior a la humana, y se relacionan con los cuatro elementos primordiales (aire, fuego, tierra y agua).'
+        ]
+      },
       abilities: [
         ['Nivel 1 — Afinidad Elemental', 'Poseen afinidad natural con un elemento determinado y resistencia frente a él.'],
         ['Nivel 2 — Manifestación', 'Crean pequeñas manifestaciones de su elemento para interactuar con el entorno y generar efectos menores.'],
@@ -159,6 +165,12 @@ export const CHARACTER_CATALOG = {
     {
       value: 'Semi-Gigantes',
       description: 'Identidad racial: Tamaño, fuerza, resistencia y presencia física.',
+      loreSection: {
+        paragraphs: [
+          'Imponente sobre la mayoría de las personas, los semi-gigantes son descendientes lejanos de los gigantes. Cada semi-gigante lleva las bendiciones de los primeros gigantes—bendiciones que se manifiestan en diversos dones sobrenaturales, incluyendo la capacidad de crecer rápidamente y, temporalmente, acercarse a la altura de sus gigantescos parientes.',
+          'Los semi-gigantes tienen características físicas que recuerdan a los gigantes de sus linajes familiares. Por ejemplo, algunos semi-gigantes se parecen a los gigantes de piedra, mientras que otros recuerdan a los gigantes de fuego. Sea cual sea el tipo de gigante con el que se relacionen, los semi-gigantes han forjado su propio camino en el multiverso—sin verse obstaculizados por los conflictos internos que han asolado a la raza de los gigantes durante siglos—y buscan alcanzar alturas superiores a las de sus antepasados.'
+        ]
+      },
       abilities: [
         ['Nivel 1 — Sangre Titánica', 'Pueden cargar grandes cantidades de peso y realizar esfuerzos físicos prolongados sin agotarse con facilidad.'],
         ['Nivel 2 — Pisada Pesada', 'Ejercen mayor impacto al empujar, derribar o desplazar objetos y criaturas.'],
@@ -181,10 +193,12 @@ export const CHARACTER_CATALOG = {
     {
       value: 'Cirrus',
       description: 'Identidad racial: Dos almas, dualidad y conflicto interno.',
-      // Explicación extendida para la página de la raza (reemplaza a la descripción breve del registro).
+      // Explicación extendida para la página de la raza: `title` y `points` son opcionales.
       loreSection: {
         title: 'Compartir un cuerpo',
-        intro: 'Las dos formas de un cirrus son únicas, cada una considera a la otra como una parte más de su ser. Para un cirrus, es tan natural compartir dos formas que les resulta extraño que los individuos de otras especies sean siempre la misma persona.',
+        paragraphs: [
+          'Las dos formas de un cirrus son únicas, cada una considera a la otra como una parte más de su ser. Para un cirrus, es tan natural compartir dos formas que les resulta extraño que los individuos de otras especies sean siempre la misma persona.'
+        ],
         points: [
           'Un cirrus siempre trata su otra forma como a una persona distinta, y es común oírlos decir cosas como: “¿Oh, Torrus lo hizo de nuevo?” o “A Arven le habría encantado verlo.”',
           'Un cirrus es consciente de su poco tiempo en cada forma y aprovecha al máximo el tiempo antes de que la otra forma asuma el control.',
