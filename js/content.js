@@ -4,6 +4,243 @@ import { CHARACTER_CATALOG } from './config.js';
 export const CONTENT_PENDING =
   'El contenido oficial de esta sección será publicado por el Staff de Maledicta.';
 
+export const YOKAI_LORE_PAGES = [
+  {
+    title: 'I. ¿Qué son los Yōkai?',
+    bookTitle: 'Los Yōkai — Entidades del mundo sobrenatural',
+    body: `Los Yōkai son entidades sobrenaturales que habitan el mundo, criaturas cuya existencia trasciende las capacidades de los seres humanos. Algunos poseen cuerpos físicos, otros existen como manifestaciones espirituales y ciertas especies pueden modificar su apariencia, naturaleza o esencia.
+
+Sus formas de vida son diversas. Algunos actúan como guardianes de territorios, protectores de santuarios, custodios de conocimientos ancestrales o habitantes de comunidades ocultas. Otros son criaturas hostiles que defienden sus dominios y consideran a los humanos intrusos dentro de sus territorios.
+
+Cada Yōkai posee una naturaleza particular que determina sus características físicas, capacidades, instintos y manera de relacionarse con el mundo.
+
+Su existencia está vinculada a una esencia sobrenatural que constituye el fundamento de su identidad y les permite desarrollar facultades extraordinarias.
+
+La naturaleza de un Yōkai se expresa a través de su origen, sus instintos, su comportamiento y aquello que representa dentro del mundo espiritual.`
+  },
+  {
+    title: 'II. El origen de los Yōkai',
+    body: `El verdadero origen de los Yōkai permanece rodeado de misterio. Sus leyendas transmiten diferentes relatos sobre su nacimiento y cada comunidad conserva interpretaciones propias acerca de su aparición en el mundo.
+
+Entre las teorías más conocidas se encuentran las siguientes:
+
+### Los nacidos de la naturaleza
+Algunos Yōkai surgieron de la propia naturaleza. Bosques, montañas, ríos, océanos y fenómenos naturales pueden albergar entidades que desarrollaron conciencia y voluntad propia. Estas criaturas suelen mantener una conexión profunda con el entorno que les dio origen.
+
+### Los nacidos de la esencia espiritual
+Ciertas criaturas aparecieron cuando una concentración de energía sobrenatural alcanzó suficiente intensidad para desarrollar conciencia y adoptar una forma independiente. Su existencia depende de la naturaleza y estabilidad de esa energía.
+
+### Los nacidos de las emociones
+El miedo, la tristeza, la ira, los celos y otros sentimientos pueden generar entidades sobrenaturales. Algunos Yōkai se alimentan de estas emociones, mientras que otros manifiestan sus características y efectos sobre el mundo.
+
+### Los nacidos de los objetos
+Existen objetos que, después de acumular energía espiritual durante generaciones, desarrollan conciencia y adquieren una esencia sobrenatural propia. Estas entidades reciben el nombre de Tsukumogami.
+
+### Los nacidos de otros Yōkai
+Algunas especies pueden reproducirse, formar linajes o transmitir parte de su esencia a nuevos individuos. Sus descendientes heredan características de sus progenitores y desarrollan capacidades particulares según su naturaleza y evolución.`
+  },
+  {
+    title: 'III. Naturaleza y características',
+    body: `Los Yōkai poseen una serie de características sobrenaturales que definen su existencia y los diferencian de otras criaturas.
+
+- Esencia sobrenatural: energía que constituye su naturaleza y permite manifestar sus capacidades.
+- Longevidad: pueden vivir durante períodos considerablemente superiores a los humanos, dependiendo de su especie.
+- Naturaleza propia: cada especie posee características, afinidades e instintos particulares.
+- Transformación: determinadas especies pueden alterar su apariencia física y adoptar diferentes formas.
+- Instinto sobrenatural: sus sentidos y percepciones pueden superar las capacidades humanas.
+- Desarrollo: pueden perfeccionar sus habilidades mediante experiencia, entrenamiento y evolución espiritual.
+
+Las características de cada individuo dependen de su especie y linaje. Un Yōkai acuático puede desarrollar afinidad con las profundidades, mientras que un Oni puede destacar por su constitución física y fuerza extraordinaria. Un Kitsune, por su parte, puede manifestar habilidades relacionadas con las ilusiones y la transformación.
+
+Cada especie conserva una identidad sobrenatural particular.`
+  },
+  {
+    title: 'IV. Clasificación de las especies Yōkai',
+    body: `Las especies Yōkai se organizan según sus características, afinidades y naturaleza sobrenatural. Esta clasificación constituye una estructura propia de Maledicta para identificar y organizar las diferentes criaturas presentes en el universo.
+
+### 1. Henge — Yōkai transformistas
+Criaturas con capacidad para modificar su apariencia y adoptar diferentes formas. Su naturaleza está relacionada con la metamorfosis, las ilusiones y la adaptación física.
+
+- Kitsune: zorros sobrenaturales conocidos por su inteligencia, sus ilusiones y su capacidad de transformación.
+- Tanuki: criaturas de naturaleza bromista, reconocidas por sus engaños y habilidades metamórficas.
+- Bakeneko: gatos sobrenaturales capaces de desarrollar formas humanoides y facultades espirituales.
+- Nekomata: felinos espirituales caracterizados por sus dos colas y sus extraordinarias capacidades sobrenaturales.
+
+### 2. Oni — Yōkai demoníacos
+Criaturas de constitución extraordinaria, reconocidas por su fuerza física, resistencia y naturaleza guerrera. Algunos poseen linajes antiguos vinculados a territorios y clanes demoníacos.
+
+- Oni: seres demoníacos de gran fuerza física y presencia sobrenatural.
+- Yasha: entidades guerreras asociadas a la disciplina, el combate y la energía espiritual.
+- Gaki: espíritus caracterizados por un hambre sobrenatural insaciable.
+- Shuten: linajes demoníacos asociados a antiguos señores Oni y tradiciones ancestrales.
+
+### 3. Yama — Yōkai de las montañas
+Entidades relacionadas con las alturas, los bosques y los territorios montañosos. Su naturaleza suele estar vinculada al viento, los ecos y la protección de regiones salvajes.
+
+- Tengu: criaturas asociadas al viento, las montañas, las artes marciales y el conocimiento ancestral.
+- Yamauba: entidades femeninas que habitan regiones montañosas y poseen conocimientos vinculados a la naturaleza.
+- Yamabiko: espíritus relacionados con los ecos, las montañas y las voces del entorno natural.
+
+### 4. Mizu — Yōkai acuáticos
+Seres vinculados a las aguas, sus corrientes y sus profundidades. Algunas especies habitan ríos y lagos, mientras que otras dominan regiones oceánicas.
+
+- Kappa: criaturas anfibias con habilidades acuáticas y gran afinidad con los ríos.
+- Umibōzu: entidades gigantescas relacionadas con los océanos y las tormentas marítimas.
+- Mizuchi: criaturas serpentinas asociadas a ríos, lagos y corrientes de agua.
+- Ningyo: seres acuáticos de apariencia parcialmente humana, vinculados a antiguas leyendas marítimas.
+
+### 5. Seirei — Espíritus de la naturaleza
+Entidades cuya existencia está relacionada con fuerzas naturales, fenómenos ambientales y lugares específicos. Su esencia mantiene una conexión profunda con los elementos que representan.
+
+- Kodama: espíritus vinculados a los árboles y bosques, considerados guardianes de la naturaleza.
+- Yuki-onna: entidades sobrenaturales relacionadas con la nieve, el hielo y las temperaturas extremas.
+- Kitsunebi: manifestaciones espirituales de fuego que aparecen como llamas sobrenaturales.
+- Zashiki-warashi: espíritus domésticos asociados a los hogares, la prosperidad y la fortuna.
+
+### 6. Tsukumogami — Objetos vivientes
+Entidades que nacen cuando determinados objetos desarrollan conciencia y adquieren una esencia sobrenatural propia. Su apariencia conserva elementos de su forma original.
+
+- Kasa-obake: paraguas sobrenaturales que desarrollan movimiento y conciencia.
+- Chōchin-obake: faroles vivientes capaces de manifestar comportamientos propios.
+- Bakezōri: sandalias sobrenaturales con personalidad y movimiento independiente.
+- Biwa-bokuboku: instrumentos musicales que adquieren conciencia y facultades espirituales.
+
+### 7. Ayakashi — Entidades sobrenaturales
+Categoría que reúne entidades vinculadas a manifestaciones espirituales, fenómenos misteriosos y acontecimientos sobrenaturales. Sus características pueden variar considerablemente según su origen.
+
+- Onryō: espíritus impulsados por el resentimiento y las emociones intensas.
+- Goryō: entidades espirituales de gran influencia, frecuentemente relacionadas con figuras de importancia histórica.
+- Mononoke: presencias sobrenaturales capaces de provocar alteraciones espirituales, enfermedades y posesiones.
+- Nopperabō: entidades de apariencia humana caracterizadas por la ausencia de rasgos faciales.
+
+Nota de clasificación: esta organización constituye una estructura propia de Maledicta. Algunas denominaciones pertenecen a categorías mitológicas que pueden compartir características o relacionarse entre sí. La clasificación sirve como referencia para la organización de especies y linajes dentro del servidor.`
+  },
+  {
+    title: 'V. Evolución y crecimiento de los Yōkai',
+    body: `Los Yōkai desarrollan su potencial mediante la experiencia, el entrenamiento, la evolución espiritual y el dominio de su esencia sobrenatural.
+
+En Maledicta, los personajes comienzan su existencia como humanos y pueden alcanzar la naturaleza Yōkai mediante un pacto. Este proceso representa una transformación progresiva que modifica su cuerpo, espíritu e identidad.
+
+La progresión se divide en seis etapas:
+
+### 1. Ningen — Humano
+El individuo conserva una naturaleza completamente humana. Su desarrollo depende de sus capacidades físicas, intelectuales y personales. Esta etapa constituye el punto de partida de todos los personajes.
+
+### 2. Mezame — Despertar
+El individuo establece contacto con una entidad Yōkai y comienza a desarrollar una conexión espiritual. Durante esta etapa pueden aparecer sueños, visiones, sensaciones y manifestaciones relacionadas con la especie elegida.
+
+### 3. Yōkai no Tane — Semilla sobrenatural
+Mediante un pacto válido, el humano recibe una porción de esencia sobrenatural. Esta energía comienza a integrarse en su cuerpo y espíritu, provocando las primeras manifestaciones de su futura naturaleza.
+
+### 4. Hanka — Transformación parcial
+La esencia sobrenatural alcanza una integración más profunda. El cuerpo comienza a desarrollar características propias de la especie elegida, como orejas, colas, marcas, ojos especiales u otras particularidades físicas.
+
+### 5. Shinsei — Nacimiento Yōkai
+El individuo completa su transformación y adquiere una naturaleza sobrenatural propia. Su cuerpo, espíritu e instintos reflejan plenamente las características de su especie.
+
+### 6. Kakusei — Despertar ancestral
+El Yōkai alcanza un dominio extraordinario de su esencia. Esta etapa permite desarrollar capacidades superiores, manifestaciones ancestrales y técnicas relacionadas con su linaje.
+
+### Evolución máxima propuesta
+El Kakusei representa el máximo grado de desarrollo espiritual contemplado dentro de esta progresión. Su acceso requiere acontecimientos narrativos excepcionales, dominio de las capacidades adquiridas y aprobación correspondiente según las normas del servidor.`
+  },
+  {
+    title: 'VI. Jerarquía de los Yōkai',
+    body: `La jerarquía establece el grado de reconocimiento, influencia y autoridad de una criatura dentro de la sociedad sobrenatural.
+
+Cada nivel representa una posición dentro de la estructura social Yōkai y refleja el desarrollo, la experiencia y el prestigio alcanzados por sus integrantes.
+
+### I · Yōkai menor
+Individuos recién transformados o con un desarrollo sobrenatural inicial.
+
+### II · Yōkai común
+Criaturas que dominan sus capacidades básicas y participan activamente en la sociedad sobrenatural.
+
+### III · Yōkai superior
+Individuos con experiencia considerable, técnicas desarrolladas y reconocimiento dentro de su comunidad.
+
+### IV · Yōkai ancestral
+Entidades de gran conocimiento, experiencia y dominio espiritual, vinculadas frecuentemente a linajes antiguos.
+
+### V · Gran Yōkai
+Criaturas de enorme influencia, capaces de ejercer autoridad sobre territorios, clanes y comunidades.
+
+### VI · Yōkai soberano
+Entidades excepcionales reconocidas como autoridades supremas dentro de determinadas estructuras sobrenaturales.
+
+La jerarquía representa principalmente una posición social y un grado de reconocimiento. El resultado de un enfrentamiento depende también de la estrategia, las afinidades, la experiencia, las habilidades y las circunstancias de cada situación.`
+  },
+  {
+    title: 'VII. Los pactos sobrenaturales',
+    body: `El pacto constituye el vínculo mediante el cual un humano puede comenzar su transformación en Yōkai.
+
+Se establece a través de un acuerdo entre dos voluntades y permite la transmisión progresiva de una esencia sobrenatural. Cada pacto posee condiciones particulares que determinan los derechos, obligaciones y responsabilidades de sus participantes.
+
+Existen cuatro modalidades:
+
+### Pacto de protección
+El Yōkai concede parte de su esencia a cambio de proteger al humano. La relación se fundamenta en un compromiso de resguardo y asistencia mutua.
+
+### Pacto de servidumbre
+El humano acepta servir a una entidad superior y cumplir determinadas obligaciones. A cambio, recibe una porción de su esencia y la posibilidad de desarrollar una naturaleza sobrenatural.
+
+### Pacto de igualdad
+Ambas partes establecen una alianza basada en el respeto y el compromiso mutuo. Cada participante conserva su voluntad y asume responsabilidades dentro del acuerdo.
+
+### Pacto de sucesión
+Un Yōkai transmite su esencia a un sucesor elegido, permitiéndole heredar parte de su naturaleza, conocimientos y legado espiritual.
+
+Los pactos pueden incluir pruebas, juramentos, ofrendas y condiciones particulares establecidas por las partes involucradas.
+
+Su cumplimiento determina la estabilidad del vínculo. La ruptura puede ocasionar consecuencias espirituales, físicas o sociales, según la naturaleza del acuerdo y las condiciones establecidas.`
+  },
+  {
+    title: 'VIII. Sociedad y cultura sobrenatural',
+    body: `Los Yōkai poseen comunidades, tradiciones y estructuras sociales propias. Sus formas de organización dependen de la especie, el territorio, los linajes y las costumbres de cada grupo.
+
+- Clanes: agrupaciones de individuos que comparten una especie, territorio, tradición o vínculo de pertenencia.
+- Linajes: familias y descendencias vinculadas a entidades ancestrales, capaces de transmitir características y herencias espirituales.
+- Santuarios: lugares destinados a ceremonias, pactos, ofrendas y veneración de entidades sobrenaturales.
+- Territorios: regiones habitadas, protegidas o gobernadas por determinadas especies y comunidades.
+- Consejos: reuniones de representantes encargados de resolver conflictos, establecer acuerdos y tomar decisiones importantes para sus comunidades.
+- Rituales: ceremonias destinadas a reconocer nuevos integrantes, celebrar pactos, transmitir conocimientos o conmemorar acontecimientos importantes.
+
+Estas estructuras permiten desarrollar relaciones políticas, culturales y espirituales entre las diferentes especies Yōkai.`
+  },
+  {
+    title: 'IX. Conceptos especiales para acontecimientos del servidor',
+    body: `Los siguientes conceptos pueden utilizarse como acontecimientos globales, actividades narrativas o eventos especiales dentro de Maledicta.
+
+### Hyakki Yagyō — El desfile de los cien demonios
+Una procesión nocturna en la que diferentes especies Yōkai abandonan sus territorios y recorren el mundo. Durante este acontecimiento pueden aparecer criaturas ancestrales, representantes de clanes y entidades de gran poder.
+
+### El Santuario de los Pactos
+Un lugar neutral donde los humanos pueden solicitar audiencia con entidades sobrenaturales para iniciar su transformación. El santuario está destinado a ceremonias, negociaciones y pruebas espirituales.
+
+### El Bosque Prohibido
+Un territorio habitado por Yōkai antiguos y criaturas de naturaleza desconocida. Quienes se adentran en sus dominios pueden encontrar pruebas, reliquias, conocimientos olvidados y encuentros inesperados.
+
+### La Asamblea de los Ancestros
+Una reunión de los Yōkai más antiguos para discutir asuntos relacionados con el equilibrio entre especies, la protección de territorios y las relaciones entre clanes.
+
+### El Despertar de las Colas
+Un acontecimiento especial para los Kitsune que consiguen desarrollar una nueva cola mediante progresión narrativa. Cada nueva cola representa un grado superior de dominio espiritual y conocimiento ancestral.`
+  },
+  {
+    title: 'X. Principios fundamentales del universo',
+    body: `Para mantener la coherencia del universo Yōkai dentro de Maledicta, se establecen los siguientes principios:
+
+1. Origen humano: todos los personajes comienzan como humanos y pueden iniciar su transformación sobrenatural mediante un pacto válido.
+2. Transformación progresiva: la adquisición de una naturaleza Yōkai requiere desarrollo narrativo, evolución espiritual y cumplimiento de las condiciones del pacto.
+3. Identidad de especie: cada especie posee capacidades, afinidades, debilidades y limitaciones particulares.
+4. Límites de poder: la antigüedad y la jerarquía representan reconocimiento y experiencia, mientras que cada enfrentamiento depende de las condiciones de la situación.
+5. Evolución supervisada: las transformaciones y capacidades superiores requieren desarrollo narrativo y aprobación según las reglas del servidor.
+6. Consentimiento en el rol: los poderes y habilidades deben respetar la participación de los demás jugadores y los procedimientos establecidos para resolver acciones.
+7. Coherencia física y espiritual: las transformaciones deben respetar las características, el origen y la naturaleza de cada especie.
+8. Consecuencias narrativas: los pactos, las evoluciones y las decisiones importantes pueden generar consecuencias que deben reflejarse en la historia del personaje.`
+  }
+];
+
 export const WELCOME = {
   title: 'MALEDICTA',
   intro:

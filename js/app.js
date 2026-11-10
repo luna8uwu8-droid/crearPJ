@@ -13,6 +13,7 @@ import {
 } from './config.js';
 import {
   WELCOME,
+  YOKAI_LORE_PAGES,
   LORE_SECTIONS,
   NORMATIVE_CATEGORIES,
   FANDOM,
@@ -44,6 +45,7 @@ const baseState = {
   characterComplete: false,
   editingCharacter: false,
   sheetDelivered: false,
+  raceLorePage: 0,
   acceptances: defaultAcceptances(),
   banner: '',
   bannerTone: 'danger',
@@ -772,18 +774,40 @@ const toRoman = (number) => ROMAN_NUMERALS[number - 1] || String(number);
 // Razas en el orden del libro, combinando el catálogo (habilidades) con las descripciones del registro.
 const RACE_ENTRIES = RACE_GROUPS.flatMap((group) => group.races.map(({ race, label }) => {
   const archetype = CHARACTER_CATALOG.archetypes.find((item) => item.value === race) || { value: race, abilities: [] };
+  const lorePages = race === 'Cambiapieles / Yokai' ? YOKAI_LORE_PAGES : null;
   return {
     ...archetype,
+    ...(lorePages ? { description: '', abilities: [] } : {}),
     name: label || race,
     slug: raceSlug(label || race),
     group,
-    lore: ETHNICITIES.find((item) => item.value === race)?.description || ''
+    lore: lorePages ? '' : ETHNICITIES.find((item) => item.value === race)?.description || '',
+    lorePages
   };
 })).map((entry, index) => ({ ...entry, chapter: index + 1 }));
 
 const findRaceEntry = (slug) => RACE_ENTRIES.find((entry) => entry.slug === slug);
 
 const raceIdentity = (entry) => (entry.description || '').replace(/^Identidad racial:\s*/, '');
+
+const renderCodexLore = (body) => body
+  .trim()
+  .split(/\r?\n\r?\n+/)
+  .map((block) => {
+    const lines = block.split(/\r?\n/);
+    if (lines[0].startsWith('### ')) {
+      const description = lines.slice(1).join('\n').trim();
+      return `<h4 class="codex-subheading">${escapeHtml(lines[0].slice(4))}</h4>${description ? `<p>${escapeHtml(description).replace(/\r?\n/g, '<br>')}</p>` : ''}`;
+    }
+    if (lines.every((line) => line.startsWith('- '))) {
+      return `<ul class="codex-lore-points">${lines.map((line) => `<li>${escapeHtml(line.slice(2))}</li>`).join('')}</ul>`;
+    }
+    if (lines.every((line) => /^\d+\.\s/.test(line))) {
+      return `<ol class="codex-lore-numbered">${lines.map((line) => `<li>${escapeHtml(line.replace(/^\d+\.\s/, ''))}</li>`).join('')}</ol>`;
+    }
+    return `<p>${escapeHtml(block).replace(/\r?\n/g, '<br>')}</p>`;
+  })
+  .join('');
 
 const renderRaceIndex = () => {
   const renderGroup = (group) => `
@@ -831,6 +855,10 @@ const renderRacePage = (entry) => {
   const index = RACE_ENTRIES.indexOf(entry);
   const previous = RACE_ENTRIES[index - 1];
   const next = RACE_ENTRIES[index + 1];
+  const lorePageIndex = entry.lorePages
+    ? Math.max(0, Math.min(state.raceLorePage, entry.lorePages.length - 1))
+    : 0;
+  const lorePage = entry.lorePages?.[lorePageIndex];
 
   return `
     <nav class="codex-back">
@@ -847,7 +875,18 @@ const renderRacePage = (entry) => {
         ${raceIdentity(entry) ? `
           <p class="codex-identity"><span>Identidad racial</span>${escapeHtml(raceIdentity(entry))}</p>
         ` : ''}
-        ${entry.loreSection ? `
+        ${lorePage ? `
+          <section class="codex-lore-page" aria-label="${escapeHtml(lorePage.title)}">
+            ${lorePage.bookTitle ? `<p class="codex-page-subtitle">${escapeHtml(lorePage.bookTitle)}</p>` : ''}
+            <h3 class="codex-heading codex-page-section-title">${escapeHtml(lorePage.title)}</h3>
+            <div class="codex-lore">${renderCodexLore(lorePage.body)}</div>
+          </section>
+          <nav class="codex-page-turn" aria-label="Páginas del capítulo">
+            <button class="codex-page-turn-button" type="button" data-race-lore-page="${lorePageIndex - 1}" aria-label="Página anterior" ${lorePageIndex === 0 ? 'disabled' : ''}>← Página anterior</button>
+            <span class="codex-page-count" aria-live="polite">Página ${lorePageIndex + 1} de ${entry.lorePages.length}</span>
+            <button class="codex-page-turn-button codex-page-turn-button--next" type="button" data-race-lore-page="${lorePageIndex + 1}" aria-label="Página siguiente" ${lorePageIndex === entry.lorePages.length - 1 ? 'disabled' : ''}>Página siguiente →</button>
+          </nav>
+        ` : entry.loreSection ? `
           ${entry.loreSection.title ? `<h3 class="codex-heading">${escapeHtml(entry.loreSection.title)}</h3>` : ''}
           <div class="codex-lore">
             ${(entry.loreSection.paragraphs || []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join('')}
@@ -1415,6 +1454,19 @@ const handleImageFile = async (file) => {
 
 const bindAppEvents = () => {
   appRoot.addEventListener('click', async (event) => {
+    const raceLorePageButton = event.target.closest('[data-race-lore-page]');
+    if (raceLorePageButton) {
+      const pageIndex = Number(raceLorePageButton.dataset.raceLorePage);
+      const raceSlug = state.hubSection.slice('razas/'.length);
+      const entry = findRaceEntry(raceSlug);
+      if (entry?.lorePages && Number.isInteger(pageIndex) && pageIndex >= 0 && pageIndex < entry.lorePages.length) {
+        state.raceLorePage = pageIndex;
+        render();
+        requestAnimationFrame(() => document.querySelector('.codex-book--single')?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+      }
+      return;
+    }
+
     const historyButton = event.target.closest('[data-history-action]');
     if (historyButton) {
       const action = historyButton.dataset.historyAction;

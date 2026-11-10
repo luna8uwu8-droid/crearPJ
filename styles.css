@@ -2071,6 +2071,27 @@ body.lightbox-open .discord-badge {
   margin-bottom: 14px;
 }
 
+.codex-subheading {
+  max-width: 66ch;
+  margin: 24px auto 6px;
+  color: var(--rubric);
+  font-family: 'Cinzel', serif;
+  font-size: 0.94rem;
+  letter-spacing: 0.04em;
+}
+
+.codex-subheading:first-child {
+  margin-top: 0;
+}
+
+.codex-page-subtitle {
+  margin: 0 0 6px;
+  color: var(--ink-soft);
+  font-size: 1.05rem;
+  font-style: italic;
+  text-align: center;
+}
+
 .codex-lore-points {
   max-width: 66ch;
   margin: 0 auto 22px;
@@ -2096,6 +2117,83 @@ body.lightbox-open .discord-badge {
   .codex-lore-points li {
     text-align: left;
   }
+}
+
+.codex-lore-numbered {
+  display: grid;
+  gap: 12px;
+  max-width: 66ch;
+  margin: 0 auto 22px;
+  padding: 0;
+  list-style: none;
+  counter-reset: codex-principle;
+}
+
+.codex-lore-numbered li {
+  position: relative;
+  padding-left: 32px;
+  color: var(--ink-soft);
+  text-align: justify;
+  counter-increment: codex-principle;
+}
+
+.codex-lore-numbered li::before {
+  content: counter(codex-principle, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  color: var(--rubric);
+  font-family: 'Cinzel', serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.codex-page-turn {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  max-width: 66ch;
+  margin: 32px auto 0;
+  padding: 14px 0 0;
+  border-top: 1px solid rgba(110, 60, 30, 0.3);
+}
+
+.codex-page-turn-button {
+  min-width: 0;
+  max-width: 100%;
+  justify-self: start;
+  padding: 7px 10px;
+  border: 1px solid rgba(138, 31, 31, 0.25);
+  border-radius: 4px;
+  background: rgba(255, 250, 235, 0.28);
+  color: var(--rubric);
+  font: inherit;
+  font-size: 0.9rem;
+  transition: background var(--transition), color var(--transition), opacity var(--transition);
+}
+
+.codex-page-turn-button--next {
+  justify-self: end;
+}
+
+.codex-page-turn-button:hover,
+.codex-page-turn-button:focus-visible {
+  background: rgba(138, 31, 31, 0.1);
+  outline: 1px solid rgba(138, 31, 31, 0.3);
+}
+
+.codex-page-turn-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.codex-page-count {
+  color: var(--ink-soft);
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .codex-abilities {
@@ -2214,6 +2312,23 @@ body.lightbox-open .discord-badge {
 
   .codex-lore p {
     text-align: left;
+  }
+
+  .codex-lore-numbered li {
+    text-align: left;
+  }
+
+  .codex-page-turn {
+    gap: 4px;
+  }
+
+  .codex-page-turn-button {
+    padding: 6px 5px;
+    font-size: 0.78rem;
+  }
+
+  .codex-page-count {
+    font-size: 0.66rem;
   }
 }
 
