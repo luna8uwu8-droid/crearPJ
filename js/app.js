@@ -208,7 +208,10 @@ const applyHash = () => {
   if (hubIds.includes(section) || section === 'fandom') {
     state.phase = 'hub';
     state.hubSection = section === 'fandom' ? 'inicio' : section;
-    if (section === 'razas' && sub && findRaceEntry(sub)) state.hubSection = `razas/${sub}`;
+    if (section === 'razas' && sub && findRaceEntry(sub)) {
+      state.hubSection = `razas/${sub}`;
+      state.raceLorePage = 0;
+    }
     if (section === 'noticias' && sub && findNews(sub)) state.hubSection = `noticias/${sub}`;
   }
 };
@@ -790,7 +793,7 @@ const findRaceEntry = (slug) => RACE_ENTRIES.find((entry) => entry.slug === slug
 
 const raceIdentity = (entry) => (entry.description || '').replace(/^Identidad racial:\s*/, '');
 
-const renderCodexLore = (body) => body
+const renderCodexLore = (body = '') => body
   .trim()
   .split(/\r?\n\r?\n+/)
   .map((block) => {
@@ -879,7 +882,27 @@ const renderRacePage = (entry) => {
           <section class="codex-lore-page" aria-label="${escapeHtml(lorePage.title)}">
             ${lorePage.bookTitle ? `<p class="codex-page-subtitle">${escapeHtml(lorePage.bookTitle)}</p>` : ''}
             <h3 class="codex-heading codex-page-section-title">${escapeHtml(lorePage.title)}</h3>
-            <div class="codex-lore">${renderCodexLore(lorePage.body)}</div>
+            ${lorePage.image ? `
+              <figure class="codex-race-figure">
+                <img src="${escapeHtml(lorePage.image.src)}" alt="${escapeHtml(lorePage.image.alt)}" loading="lazy" />
+              </figure>
+            ` : ''}
+            ${lorePage.details?.length ? `
+              <dl class="codex-race-details">
+                ${lorePage.details.map((detail) => `
+                  <div class="codex-race-detail${detail.species ? ' codex-race-detail--wide' : ''}">
+                    <dt>${escapeHtml(detail.label)}</dt>
+                    <dd>${escapeHtml(detail.value)}</dd>
+                    ${detail.species ? `
+                      <ul class="codex-species-items">
+                        ${detail.species.map((species) => `<li><strong>${escapeHtml(species.label)}:</strong> ${escapeHtml(species.value)}</li>`).join('')}
+                      </ul>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </dl>
+            ` : ''}
+            ${lorePage.body ? `<div class="codex-lore">${renderCodexLore(lorePage.body)}</div>` : ''}
           </section>
           <nav class="codex-page-turn" aria-label="Páginas del capítulo">
             <button class="codex-page-turn-button" type="button" data-race-lore-page="${lorePageIndex - 1}" aria-label="Página anterior" ${lorePageIndex === 0 ? 'disabled' : ''}>← Página anterior</button>
@@ -1518,6 +1541,7 @@ const bindAppEvents = () => {
       }
       if (route.startsWith('hub/')) {
         const section = route.replace('hub/', '');
+        if (section.startsWith('razas/')) state.raceLorePage = 0;
         goToPhase('hub', { hubSection: section });
         if (section.startsWith('razas') || section.startsWith('noticias')) window.scrollTo({ top: 0 });
       }

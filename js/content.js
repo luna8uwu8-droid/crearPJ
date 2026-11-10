@@ -6,6 +6,32 @@ export const CONTENT_PENDING =
 
 export const YOKAI_LORE_PAGES = [
   {
+    title: 'Apariencia y rasgos',
+    bookTitle: 'Rasgos de los Cambiapieles / Yōkai',
+    image: {
+      src: './assets/races/yokai-group.webp',
+      alt: 'Un Oni y una Kyubi posan en una caverna rocosa, iluminados por una vela y rodeados de un aura sobrenatural.'
+    },
+    details: [
+      { label: 'Altura', value: 'Hasta 1,80 m' },
+      { label: 'Aspecto', value: 'Místico, enigmático y misterioso' }
+    ]
+  },
+  {
+    title: 'Rasgos por especie',
+    bookTitle: 'Objetos obligatorios',
+    details: [
+      {
+        label: 'Onis',
+        value: 'Cuernos de demonio y garras'
+      },
+      {
+        label: 'Kyubi',
+        value: 'Colas de zorro y garras'
+      }
+    ]
+  },
+  {
     title: 'I. ¿Qué son los Yōkai?',
     bookTitle: 'Los Yōkai — Entidades del mundo sobrenatural',
     body: `Los Yōkai son entidades sobrenaturales que habitan el mundo, criaturas cuya existencia trasciende las capacidades de los seres humanos. Algunos poseen cuerpos físicos, otros existen como manifestaciones espirituales y ciertas especies pueden modificar su apariencia, naturaleza o esencia.
