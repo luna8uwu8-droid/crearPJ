@@ -14,6 +14,7 @@ import {
 import {
   WELCOME,
   YOKAI_LORE_PAGES,
+  RACE_LORE_PAGES,
   LORE_SECTIONS,
   NORMATIVE_CATEGORIES,
   FANDOM,
@@ -777,10 +778,12 @@ const toRoman = (number) => ROMAN_NUMERALS[number - 1] || String(number);
 // Razas en el orden del libro, combinando el catálogo (habilidades) con las descripciones del registro.
 const RACE_ENTRIES = RACE_GROUPS.flatMap((group) => group.races.map(({ race, label }) => {
   const archetype = CHARACTER_CATALOG.archetypes.find((item) => item.value === race) || { value: race, abilities: [] };
-  const lorePages = race === 'Cambiapieles / Yokai' ? YOKAI_LORE_PAGES : null;
+  const raceLore = RACE_LORE_PAGES[race];
+  const lorePages = race === 'Cambiapieles / Yokai' ? YOKAI_LORE_PAGES : raceLore?.pages || null;
   return {
     ...archetype,
-    ...(lorePages ? { description: '', abilities: [] } : {}),
+    ...(raceLore ? { description: `Identidad racial: ${raceLore.identity}` } : {}),
+    ...(race === 'Cambiapieles / Yokai' ? { description: '', abilities: [] } : {}),
     name: label || race,
     slug: raceSlug(label || race),
     group,

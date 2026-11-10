@@ -267,6 +267,152 @@ Un acontecimiento especial para los Kitsune que consiguen desarrollar una nueva 
   }
 ];
 
+export const RACE_LORE_PAGES = {
+  Humanos: {
+    identity: 'Adaptabilidad, supervivencia y aprendizaje.',
+    pages: [
+      {
+        title: 'Supervivientes del Cataclismo',
+        body: `Durante siglos, se consideró que la raza humana era el pueblo más débil: sin garras, sin cola, fuerza promedio y habilidad media con la magia. En todo derecho, eran el eslabón más bajo de la cadena alimenticia de las civilizaciones, quienes temían a todo precisamente por ser conscientes de su debilidad.
+
+Aun así, son la especie más adaptable del mundo, capaz de aprender de otras civilizaciones y aplicar esos conocimientos a su propio pueblo para sobrevivir en cualquier lugar en el que se asienten. Esta resistencia e ingenio permitió que los humanos fueran los máximos supervivientes del Cataclismo y los principales beneficiarios del Pacto de Maledicta.`
+      },
+      {
+        title: 'El alma humana y el Pacto',
+        body: `Aunque no tienen una “casa” como tal, la Familia Real de los humanos es considerada líder en decisiones políticas y diplomáticas al ser descendiente directa de la reina Borghild.
+
+El alma humana, la esencia más pura de todas las fuerzas espirituales en los seres vivos, les permite resonar con otras sin perder su individualidad. Es un rasgo que comparten con enanos y elfos, aunque desarrollado en un grado muchísimo mayor.
+
+Precisamente esta habilidad es el precio a pagar si un humano deseara convertirse en otra especie, ya sea mediante el pacto… o una maldición.`
+      }
+    ]
+  },
+  Enanos: {
+    identity: 'Resistencia, metalurgia, construcción y dominio de las montañas.',
+    pages: [
+      {
+        title: 'Hijos de la montaña y la forja',
+        body: `Se dice que mientras que los elfos y humanos aún usaban armas de piedra y hueso, los enanos fueron los primeros en trabajar el metal.
+
+Los más resistentes de las tres razas humanoides puras, crearon sus hogares al interior o a los pies de grandes montañas. Su tolerancia al frío y la fatiga los convirtió en mineros natos y guerreros incansables. Sus cuerpos fornidos les permiten llevar mucha carga y su sentido para hallar yacimientos minerales es tal que afirman poder hallar el camino bajo tierra sin mapa o que sueñan con las montañas abiertas desde adentro.`
+      },
+      {
+        title: 'La Casa de la Forja',
+        body: `Los mejores artesanos, constructores, herreros y orfebres del mundo suelen ser enanos. La sólida Casa de la Forja brinda armamento a las demás casas del mundo y se volvió el escudo económico del mundo.
+
+Aun así, el temor a perder sus montañas terminó reduciendo sus números a niveles crónicos durante el gran evento al que llamaron “La Muerte del Mundo”. Junto a los elfos, fueron de los primeros que firmaron el Pacto, aún sintiendo desconfianza de los humanos.`
+      }
+    ]
+  },
+  Elfos: {
+    identity: 'Percepción, naturaleza, precisión y conocimiento ancestral.',
+    pages: [
+      {
+        title: 'Guardianes de la memoria',
+        body: `Los mejores cazadores y rastreadores entre las tres razas humanoides, su agilidad y sigilo al moverse hace que parezca que danzan al viento. Sus sentidos aguzados les permiten escuchar por largas distancias y mirar lo que otros no detectan.
+
+Su altura también es considerable, así como su esperanza de vida: pueden vivir varios siglos y aun así recordar cada día como si fuera ayer. Junto con los Elementales, son la primera raza cuya cultura mantiene un respeto enorme por la naturaleza.`
+      },
+      {
+        title: 'La Casa Élfica y la Marchitez',
+        body: `Su temor es que el pasado sea olvidado, en especial porque fueron los primeros en notar las anomalías del gran cataclismo que bautizaron “La Marchitez”. Por ello, la noble Casa Élfica tiene a cargo el cuidado de vastas bibliotecas y bosques frondosos.
+
+Este temor se une a su segunda gran debilidad: su ego. Muchos creen ser los guardianes legítimos del mundo e incluso pidieron pruebas antes de firmar el Pacto de Maledicta.`
+      }
+    ]
+  },
+  Dracónidos: {
+    identity: 'Poder físico, linaje dracónico y dominio elemental.',
+    pages: [
+      {
+        title: 'La sangre de los dragones',
+        body: `Descendientes de los grandes dragones primordiales, con escamas y resistencia elemental para demostrarlo. Cuando un dracónido debe luchar por su supervivencia, puede recurrir a la furia y las llamas de sus parientes más salvajes.
+
+Precisamente esta fuerza y resistencia los hace una raza en extremo orgullosa. El lema de la orgullosa Casa Dracónida, sin embargo, deja en claro lo conscientes que son de su poder: “El poder sin control es otra forma de debilidad”.`
+      },
+      {
+        title: 'El Agotamiento y el linaje',
+        body: `La sangre de esta raza reaccionó a la presencia del Cataclismo, al cual llamaron “El Agotamiento”. El temor a que su linaje llegue a su fin es una de las principales fobias colectivas de esta especie y lo único que los motivó a formar parte del Pacto de Maledicta.
+
+En palabras de la propia Borghild: “¿De qué sirve el linaje y la historia si no hay mundo ni futuro que lo recuerden?”`
+      }
+    ]
+  },
+  Celestiales: {
+    identity: 'Luz, voluntad, protección y conexión con fuerzas superiores.',
+    pages: [
+      {
+        title: 'Pastores y protectores',
+        body: `Seres alados con conexión a entes que podrían considerarse dioses. Su antigüedad es tal que afirman haber visto estrellas apagarse y ser los pastores y protectores de la creación.
+
+La ancestral Casa de los Celestiales admite naturalezas tanto de luz como de oscuridad, lo cual se refleja en la esencia de sus miembros y la apariencia de sus templos. Son protectores innatos que erradican el miedo solo con su presencia, invocan milagros en pleno campo de batalla o marcan a un objetivo para que caiga sobre este el juicio de los cielos o los infiernos.
+
+Pero incluso ellos tienen un temor: que estos dioses superiores abandonen el mundo. Esa posibilidad deja pensando a muchos filósofos.`
+      }
+    ]
+  },
+  Elementales: {
+    identity: 'Manipulación de las fuerzas primordiales.',
+    pages: [
+      {
+        title: 'La esencia de los elementos',
+        body: `Los Elementales son descendientes de mortales y genios: entidades espirituales que encarnan la esencia elemental del mundo. Debido a la energía planar que aparece en ellos al nacer, albergan el poder de los cuatro elementos primordiales en su sangre: aire, fuego, tierra y agua.
+
+El aspecto de cada Elemental se relaciona con su origen: los de tierra parecen árboles o rocas, los de fuego generan llamas en su cuerpo, los de aire parecen flotar como nubes y los de agua tienen aspectos acuáticos. Cuando su supervivencia está en juego, adquieren una forma más potente llamada Avatar: la encarnación misma de su elemento en su máxima expresión.
+
+Así mismo, la mística Casa Elemental enseña en sus santuarios que el elemento responde y pertenece a quien aprende a comprenderlo.`
+      },
+      {
+        title: 'Consentimiento y equilibrio',
+        body: `Esta fuerza elemental les da una esperanza de vida superior a la humana, pero también les trajo un temor enorme, casi tan grande como la extinción de las fuerzas elementales: ser utilizados como armas vivientes.
+
+Aunque no forman parte del Pacto de Maledicta, sí lograron un primer acuerdo con el mundo: que nadie pueda usar las esencias elementales sin consentimiento. Un enorme alivio para ellos, en especial luego de que el Cataclismo, al que llaman “El Desequilibrio”, volviera a amenazar este mundo.`
+      }
+    ]
+  },
+  'Semi-Gigantes': {
+    identity: 'Tamaño, fuerza, resistencia y presencia física.',
+    pages: [
+      {
+        title: 'El legado de los gigantes',
+        body: `Imponentes sobre la mayoría de las personas, los Semi-Gigantes son descendientes lejanos de los gigantes. Cada uno lleva las bendiciones de los primeros gigantes, que se manifiestan en diversos dones sobrenaturales, incluyendo la capacidad de crecer rápidamente y, temporalmente, acercarse a la altura de sus gigantescos parientes.
+
+Sus características físicas recuerdan a los gigantes de sus linajes familiares: algunos se parecen a los gigantes de piedra, mientras que otros recuerdan a los gigantes de fuego.
+
+Sea cual sea el tipo de gigante con el que se relacionen, los Semi-Gigantes han forjado su propio camino en el multiverso, sin verse obstaculizados por los conflictos internos que han asolado a la raza de los gigantes durante siglos, y buscan alcanzar alturas superiores a las de sus antepasados.`
+      }
+    ]
+  },
+  Serpentinos: {
+    identity: 'Veneno, supervivencia, sigilo y adaptación a ambientes hostiles.',
+    pages: [
+      {
+        title: 'Herencia ofídica',
+        body: `Son criaturas humanoides con rasgos de serpiente, reconocidas por su astucia, su naturaleza carnívora y su larga historia de culto a deidades ofídicas.
+
+Sus costumbres, creencias y características físicas los distinguen de las demás razas, y su vínculo con antiguas tradiciones religiosas forma parte de su identidad cultural.`
+      }
+    ]
+  },
+  Cirrus: {
+    identity: 'Dos almas, dualidad y conflicto interno.',
+    pages: [
+      {
+        title: 'Dos almas, dos formas',
+        body: `Las dos formas de un Cirrus son únicas; cada una considera a la otra como una parte más de su ser. Para un Cirrus, es tan natural compartir dos formas que le resulta extraño que los individuos de otras especies sean siempre la misma persona.`
+      },
+      {
+        title: 'Compartir un cuerpo',
+        body: `- Un Cirrus siempre trata su otra forma como a una persona distinta, y es común oírlos decir cosas como: “¿Oh, Torrus lo hizo de nuevo?” o “A Arven le habría encantado verlo.”
+- Un Cirrus es consciente de su poco tiempo en cada forma y aprovecha al máximo el tiempo antes de que la otra forma asuma el control.
+- Los Cirrus recuerdan el día vivido por la otra forma como si hubieran presenciado las situaciones en tercera persona, como simples espectadores de la vida del otro. Por eso muchos prefieren hablar en voz alta con la otra forma para que esta los escuche. Si prefieren ser discretos, escriben una nota o algo similar.
+- Es bastante común que las dos formas tengan diferentes funciones y responsabilidades, entendiendo que cada una es, de hecho, un ser distinto. Generalmente, una forma de Cirrus no se responsabiliza de las acciones de la otra, ya que se consideran seres únicos. A veces no están de acuerdo con las decisiones del otro, aunque a menudo coinciden en cosas que requieren que su cuerpo se comprometa diariamente, como aventurarse en grupo o pertenecer a un equipo.
+- Es común entre los Cirrus tener una sensación de urgencia para todo, ya que saben que sus acciones deben limitarse a un solo día. Generalmente son respetuosos y sienten mucho amor hacia la otra forma, a pesar de las enormes diferencias, porque entienden que son codependientes.`
+      }
+    ]
+  }
+};
+
 export const WELCOME = {
   title: 'MALEDICTA',
   intro:
