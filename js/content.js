@@ -410,6 +410,22 @@ Sus costumbres, creencias y características físicas los distinguen de las dem�
 - Es común entre los Cirrus tener una sensación de urgencia para todo, ya que saben que sus acciones deben limitarse a un solo día. Generalmente son respetuosos y sienten mucho amor hacia la otra forma, a pesar de las enormes diferencias, porque entienden que son codependientes.`
       }
     ]
+  },
+  Vampiros: {
+    pages: [
+      {
+        title: 'La pureza de nuestra cultura',
+        quote: 'Solo la raza humana puede ser mordida y maldita por nosotros... Ya que otras razas tienen caracteristicas incompatibles e imperdonables para la pureza de nuestra cultura'
+      }
+    ]
+  },
+  'Licántropos': {
+    pages: [
+      {
+        title: 'La pureza de nuestra cultura',
+        quote: 'Solo la raza humana puede ser mordida y maldita por nosotros... Ya que otras razas tienen caracteristicas incompatibles e imperdonables para la pureza de nuestra cultura'
+      }
+    ]
   }
 };
 

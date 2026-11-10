@@ -782,7 +782,7 @@ const RACE_ENTRIES = RACE_GROUPS.flatMap((group) => group.races.map(({ race, lab
   const lorePages = race === 'Cambiapieles / Yokai' ? YOKAI_LORE_PAGES : raceLore?.pages || null;
   return {
     ...archetype,
-    ...(raceLore ? { description: `Identidad racial: ${raceLore.identity}` } : {}),
+    ...(raceLore?.identity ? { description: `Identidad racial: ${raceLore.identity}` } : {}),
     ...(race === 'Cambiapieles / Yokai' ? { description: '', abilities: [] } : {}),
     name: label || race,
     slug: raceSlug(label || race),
@@ -890,6 +890,7 @@ const renderRacePage = (entry) => {
                 <img src="${escapeHtml(lorePage.image.src)}" alt="${escapeHtml(lorePage.image.alt)}" loading="lazy" />
               </figure>
             ` : ''}
+            ${lorePage.quote ? `<blockquote class="codex-lore-quote">${escapeHtml(lorePage.quote)}</blockquote>` : ''}
             ${lorePage.details?.length ? `
               <dl class="codex-race-details">
                 ${lorePage.details.map((detail) => `
