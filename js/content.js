@@ -291,6 +291,19 @@ Precisamente esta habilidad es el precio a pagar si un humano deseara convertirs
     identity: 'Resistencia, metalurgia, construcción y dominio de las montañas.',
     pages: [
       {
+        title: 'Apariencia y rasgos',
+        bookTitle: 'Rasgos de los Enanos',
+        image: {
+          src: './assets/races/enanos.webp',
+          alt: 'Dos Enanos robustos posan con armaduras de cuero y pieles ante un muro de roca.'
+        },
+        details: [
+          { label: 'Altura', value: 'Hasta 1,40 m' },
+          { label: 'Aspecto', value: 'Robusto y compacto' },
+          { label: 'Rasgos especiales', value: 'Los hombres tienen la barba muy poblada; las mujeres, rostros toscos.' }
+        ]
+      },
+      {
         title: 'Hijos de la montaña y la forja',
         body: `Se dice que mientras que los elfos y humanos aún usaban armas de piedra y hueso, los enanos fueron los primeros en trabajar el metal.
 
@@ -307,6 +320,20 @@ Aun así, el temor a perder sus montañas terminó reduciendo sus números a niv
   Elfos: {
     identity: 'Percepción, naturaleza, precisión y conocimiento ancestral.',
     pages: [
+      {
+        title: 'Apariencia y rasgos',
+        bookTitle: 'Rasgos de los Elfos',
+        image: {
+          src: './assets/races/elfos.webp',
+          alt: 'Dos Elfos de orejas puntiagudas y cabellos largos posan ante un muro de piedra.'
+        },
+        details: [
+          { label: 'Altura', value: 'De 1,70 a 1,90 m' },
+          { label: 'Aspecto', value: 'Delgado, ágil y elegante' },
+          { label: 'Rasgos especiales', value: 'Orejas largas, rostros hermosos y cabellos largos; no tienen barba.' },
+          { label: 'Objetos obligatorios', value: 'Orejas de elfo' }
+        ]
+      },
       {
         title: 'Guardianes de la memoria',
         body: `Los mejores cazadores y rastreadores entre las tres razas humanoides, su agilidad y sigilo al moverse hace que parezca que danzan al viento. Sus sentidos aguzados les permiten escuchar por largas distancias y mirar lo que otros no detectan.
@@ -325,6 +352,20 @@ Este temor se une a su segunda gran debilidad: su ego. Muchos creen ser los guar
     identity: 'Poder físico, linaje dracónico y dominio elemental.',
     pages: [
       {
+        title: 'Apariencia y rasgos',
+        bookTitle: 'Rasgos de los Dracónidos',
+        image: {
+          src: './assets/races/draconidos.webp',
+          alt: 'Dos Dracónidos con cabezas, cuernos y escamas de dragón posan en una caverna.'
+        },
+        details: [
+          { label: 'Altura', value: 'Hasta 2,10 m' },
+          { label: 'Aspecto', value: 'Musculoso y fornido' },
+          { label: 'Rasgos especiales', value: 'El color de sus escamas cambia según cada hábitat.' },
+          { label: 'Objetos obligatorios', value: 'Cabeza de dragón, cuernos de dragón, garras y patas' }
+        ]
+      },
+      {
         title: 'La sangre de los dragones',
         body: `Descendientes de los grandes dragones primordiales, con escamas y resistencia elemental para demostrarlo. Cuando un dracónido debe luchar por su supervivencia, puede recurrir a la furia y las llamas de sus parientes más salvajes.
 
@@ -342,6 +383,19 @@ En palabras de la propia Borghild: “¿De qué sirve el linaje y la historia si
     identity: 'Luz, voluntad, protección y conexión con fuerzas superiores.',
     pages: [
       {
+        title: 'Apariencia y rasgos',
+        bookTitle: 'Rasgos de los Celestiales',
+        image: {
+          src: './assets/races/celestiales.webp',
+          alt: 'Tres Celestiales con alas emplumadas posan en una caverna iluminada por cristales.'
+        },
+        details: [
+          { label: 'Altura', value: 'Hasta 1,90 m' },
+          { label: 'Aspecto', value: 'Elegante, bello y divino' },
+          { label: 'Objetos obligatorios', value: 'Alas de ángel, entregadas por administración en el momento pertinente según el rol.' }
+        ]
+      },
+      {
         title: 'Pastores y protectores',
         body: `Seres alados con conexión a entes que podrían considerarse dioses. Su antigüedad es tal que afirman haber visto estrellas apagarse y ser los pastores y protectores de la creación.
 
@@ -354,6 +408,28 @@ Pero incluso ellos tienen un temor: que estos dioses superiores abandonen el mun
   Elementales: {
     identity: 'Manipulación de las fuerzas primordiales.',
     pages: [
+      {
+        title: 'Apariencia y rasgos',
+        bookTitle: 'Rasgos de los Elementales',
+        image: {
+          src: './assets/races/elementales.webp',
+          alt: 'Un Djinn de aire y una criatura arbórea elemental posan en una caverna junto a un árbol antiguo.'
+        },
+        details: [
+          { label: 'Altura', value: 'Hasta 1,90 m' },
+          { label: 'Aspecto', value: 'Variable' },
+          {
+            label: 'Rasgos especiales',
+            value: 'Según cada elemento: su apariencia debe recordar a una criatura mítica.',
+            species: [
+              { label: 'Elemental de aire', value: 'Djinn' },
+              { label: 'Elemental de tierra', value: 'Dríades, Treants' },
+              { label: 'Elemental de fuego', value: 'Espectro de fuego' },
+              { label: 'Elemental de agua', value: 'Sirenas, Nereidas' }
+            ]
+          }
+        ]
+      },
       {
         title: 'La esencia de los elementos',
         body: `Los Elementales son descendientes de mortales y genios: entidades espirituales que encarnan la esencia elemental del mundo. Debido a la energía planar que aparece en ellos al nacer, albergan el poder de los cuatro elementos primordiales en su sangre: aire, fuego, tierra y agua.
@@ -374,6 +450,28 @@ Aunque no forman parte del Pacto de Maledicta, sí lograron un primer acuerdo co
     identity: 'Tamaño, fuerza, resistencia y presencia física.',
     pages: [
       {
+        title: 'Apariencia y rasgos',
+        bookTitle: 'Rasgos de los Semi-Gigantes',
+        image: {
+          src: './assets/races/semi-giants.webp',
+          alt: 'Dos Semi-Gigantes muestran su fuerza en una caverna rocosa, junto a cristales de hielo.'
+        },
+        details: [
+          { label: 'Altura', value: 'De 200 a 240 m' },
+          { label: 'Aspecto', value: 'Musculoso' },
+          {
+            label: 'Rasgos especiales',
+            value: 'Según cada estirpe',
+            species: [
+              { label: 'Gigantes de fuego', value: 'Piel de magma' },
+              { label: 'Gigantes de piedra', value: 'Piel de roca' },
+              { label: 'Gigantes de hielo', value: 'Piel celeste' },
+              { label: 'Gigantes de montaña', value: 'Solo gran altura' }
+            ]
+          }
+        ]
+      },
+      {
         title: 'El legado de los gigantes',
         body: `Imponentes sobre la mayoría de las personas, los Semi-Gigantes son descendientes lejanos de los gigantes. Cada uno lleva las bendiciones de los primeros gigantes, que se manifiestan en diversos dones sobrenaturales, incluyendo la capacidad de crecer rápidamente y, temporalmente, acercarse a la altura de sus gigantescos parientes.
 
@@ -387,6 +485,23 @@ Sea cual sea el tipo de gigante con el que se relacionen, los Semi-Gigantes han 
     identity: 'Veneno, supervivencia, sigilo y adaptación a ambientes hostiles.',
     pages: [
       {
+        title: 'Apariencia y rasgos',
+        bookTitle: 'Rasgos de los Serpentinos',
+        image: {
+          src: './assets/races/serpentinos.webp',
+          alt: 'Dos Serpentinos de piel escamosa posan junto a un antiguo asiento de piedra en una caverna.'
+        },
+        details: [
+          { label: 'Altura', value: 'Hasta 1,80 m' },
+          { label: 'Aspecto', value: 'Delgado y ágil' },
+          {
+            label: 'Rasgos especiales',
+            value: 'Piel escamosa y rostro de serpiente; la cabeza serpentina es opcional.'
+          },
+          { label: 'Objetos obligatorios', value: 'Garras y colmillos' }
+        ]
+      },
+      {
         title: 'Herencia ofídica',
         body: `Son criaturas humanoides con rasgos de serpiente, reconocidas por su astucia, su naturaleza carnívora y su larga historia de culto a deidades ofídicas.
 
@@ -397,6 +512,19 @@ Sus costumbres, creencias y características físicas los distinguen de las dem�
   Cirrus: {
     identity: 'Dos almas, dualidad y conflicto interno.',
     pages: [
+      {
+        title: 'Apariencia y rasgos',
+        bookTitle: 'Rasgos de los Cirrus',
+        image: {
+          src: './assets/races/cirrus.webp',
+          alt: 'Un Cirrus vestido de oscuro aparece junto a la manifestación espiritual azul de su otra forma.'
+        },
+        details: [
+          { label: 'Altura', value: 'Estándar hasta 1,80 m' },
+          { label: 'Aspecto', value: 'Variable' },
+          { label: 'Rasgos especiales', value: 'Piel azul y doble personalidad: una forma durante el día y otra durante la noche.' }
+        ]
+      },
       {
         title: 'Dos almas, dos formas',
         body: `Las dos formas de un Cirrus son únicas; cada una considera a la otra como una parte más de su ser. Para un Cirrus, es tan natural compartir dos formas que le resulta extraño que los individuos de otras especies sean siempre la misma persona.`
