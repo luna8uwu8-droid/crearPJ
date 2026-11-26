@@ -548,7 +548,6 @@ export const renderGrimoire = () => {
       <section class="grim-section grim-initiation" id="grimorio-protocolo" aria-labelledby="grim-initiation-title">
         <div class="grim-section-heading"><p class="grim-kicker">Propuesta narrativa · No es una regla oficial</p>
           <h2 id="grim-initiation-title">Protocolo de aprendizaje arcano</h2>
-          <p>Una plantilla opcional para una futura adaptación al sistema de dados del servidor; no es una fórmula oficial de Maléfica Redux.</p>
         </div>
         <div class="grim-initiation-path">${initiations.map(([roman, title, description], index) => `
           <details class="grim-initiation-step" ${index === 0 ? 'open' : ''}>
@@ -585,31 +584,6 @@ export const renderGrimoire = () => {
         <div class="grim-all-school-spells">${schools.map(renderSchoolSection).join('')}</div>
       </section>
 
-      <section class="grim-section grim-sources" id="grimorio-fuentes" aria-labelledby="grim-sources-title">
-        <details class="grim-sources-details">
-          <summary><span><small>Apéndice documental</small><strong id="grim-sources-title">Fuentes, alcance y verificación</strong></span><span class="grim-sources-mark" aria-hidden="true">＋</span></summary>
-          <div class="grim-sources-body">
-            <p>Corte de consulta: 23 de noviembre de 2026. Se utilizaron fuentes públicas de los creadores y de un complemento comunitario de la versión Enhanced.</p>
-            <ol>
-              <li><strong>Mod principal (Enhanced) / The Vault-Dragon.</strong><p>Descripción de compatibilidad, gestión, fórmulas y modo de acceso al grimorio.</p><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3729183417" target="_blank" rel="noopener noreferrer">Abrir fuente del mod principal ↗</a></li>
-              <li><strong>Feats And Pages [Enhanced] / Moisture.</strong><p>Catálogo de 93 nombres y 16 escuelas. Complemento no oficial: no añade hechizos.</p><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3756497548" target="_blank" rel="noopener noreferrer">Abrir catálogo comunitario ↗</a></li>
-              <li><strong>Registro de actualizaciones del mod.</strong><p>Efectos verificados y novedades hasta el 23/11/2026.</p><a href="https://steamcommunity.com/sharedfiles/filedetails/changelog/3729183417" target="_blank" rel="noopener noreferrer">Abrir registro de cambios ↗</a></li>
-            </ol>
-            <h3>Advertencias de método</h3>
-            <ul>
-              <li>El catálogo contiene 93 hechizos identificados: es una selección identificable en las fuentes, no un inventario extraído de archivos .pak. Las actualizaciones pueden haber añadido más hechizos.</li>
-              <li>Las cuatro incorporaciones recientes proceden de notas oficiales del mod. Feats and Pages [Enhanced] es un complemento comunitario de catálogo.</li>
-              <li>Las ilustraciones son representaciones temáticas creadas para la guía; no son arte oficial ni capturas de efectos reales del mod.</li>
-              <li>Las fichas «Lectura para rol» no aseguran alcance, daño, curación, duración, forma de objetivo ni coste en el juego. Toda interpretación conserva su condición interpretativa.</li>
-              <li>Los parámetros reales dependen de las fórmulas del mod y de la configuración del servidor. Para una adaptación definitiva, verificar el conjuro en el cliente del servidor y registrar su fórmula real antes de aprobarlo.</li>
-            </ul>
-            <p class="grim-editorial-note">VERIFICADO: efecto respaldado por información oficial del mod. · LECTURA PARA ROL: interpretación funcional basada en el nombre; revisar en el juego antes de fijar reglas.</p>
-          </div>
-        </details>
-        <footer class="grim-footer"><img src="./assets/maledicta-logo.webp" alt="" width="42" height="42" /><p>GRIMORIO DE MALEDICTA <span>·</span> El conocimiento permanece escrito.</p>
-          <button type="button" data-grim-action="atlas">Volver al Atlas ↑</button>
-        </footer>
-      </section>
     </main>`;
 };
 
