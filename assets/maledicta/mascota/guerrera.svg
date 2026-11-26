@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 184" role="img" aria-labelledby="title">
+  <title id="title">Pequeña guerrera rubia de Maledicta</title>
+  <defs>
+    <linearGradient id="hair" x2=".8" y2="1"><stop stop-color="#fff0b0"/><stop offset=".48" stop-color="#d89e4a"/><stop offset="1" stop-color="#8a512f"/></linearGradient>
+    <linearGradient id="leather" x2="0" y2="1"><stop stop-color="#684a4b"/><stop offset="1" stop-color="#30212d"/></linearGradient>
+    <linearGradient id="steel" x2=".8" y2="1"><stop stop-color="#f8e6d3"/><stop offset=".5" stop-color="#9b8a9a"/><stop offset="1" stop-color="#514256"/></linearGradient>
+    <filter id="sticker" x="-30%" y="-20%" width="160%" height="150%"><feMorphology in="SourceAlpha" operator="dilate" radius="4" result="outline"/><feFlood flood-color="#fff0df" result="color"/><feComposite in="color" in2="outline" operator="in" result="border"/><feMerge><feMergeNode in="border"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g filter="url(#sticker)" stroke="#211823" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- boots and legs -->
+    <path fill="#382731" d="m47 139-9 22q-2 8 7 9h22l4-7-8-7 7-16m24-1 5 18q-1 8 8 8h19q8-2 3-9l-17-20"/>
+    <path fill="#82604f" d="m41 158 18 2 7 7H43q-7-1-2-9m58-1 14 1 11 8h-20q-7-1-5-9"/>
+    <!-- cloak -->
+    <path fill="#443140" d="M47 72q-17 10-18 37l-8 22q14 12 33 4l9-38z"/>
+    <path fill="#72535d" d="m35 112-12 19 18-3 9-12m-4-26-8 18 16-6"/>
+    <!-- body armor -->
+    <path fill="url(#leather)" d="M57 77q-12 2-17 16l-7 27q9 11 28 8l13-16 17 18q15 0 24-9L105 91Q98 78 83 77z"/>
+    <path fill="#9c7560" d="m47 97 14 5-7 20-15-2m43-20 12 1 8 19-16 6z"/>
+    <path fill="url(#steel)" d="m68 83 12 7 11-7 8 7-5 29-14 8-16-9-5-27z"/>
+    <path fill="#d9b178" d="m76 91 5 5 5-5-2 15-3 7-3-7z" stroke-width="2"/>
+    <path fill="none" stroke="#eac98e" stroke-width="2" d="m48 108 11 4m34-7 9 2M42 119l17 3m40-4 9-3"/>
+    <!-- arms and fur -->
+    <path fill="url(#hair)" d="M46 86 31 99q-5 6 0 12l18 9 8-8-12-9 12-10m39-9 15 11q8 6 3 14l-13 12-10-7 8-10-12-7"/>
+    <path fill="#9a6849" d="m26 102 11 2 6 9-8 7-11-8m81-14 12 3 2 10-10 7-9-7"/>
+    <path fill="url(#steel)" d="m29 104 8-3 7 6-5 7-9-2m78-8 8-2 3 8-8 5-7-5"/>
+    <!-- head and wild hair -->
+    <path fill="url(#hair)" d="M42 52q-5-15 4-28l-2-13 13 8Q67 7 83 11l9-8 4 14q19-3 28 13l13 3-9 11q8 17-2 34l-8 18q-8 8-14 0L45 83 34 68z"/>
+    <path fill="#f3c7a2" d="M51 34q11-16 31-12 18 1 23 19l-2 25q-5 19-23 23-19-3-28-18l-7-23z"/>
+    <!-- fringe -->
+    <path fill="url(#hair)" d="M42 50q-7-20 7-31 13 11 21 9 10-8 15-18l8 13q9-8 15-5l-3 15 15 7-8 13-14-10q-11 0-19-8-8 13-21 17l-2 13-8-7-3 16-9-9z"/>
+    <path fill="none" stroke="#fff0b0" stroke-width="2" d="m52 29 9-12m16 0 7 11m14-7-2 12m14 4 9 8"/>
+    <!-- ears and headband -->
+    <path fill="#f3c7a2" d="M48 53q-13-5-12 7 3 9 12 7m57-14q13-5 12 7-3 9-12 7"/>
+    <path fill="none" stroke="#8c5238" stroke-width="4" d="M51 35q27 12 55-1"/>
+    <path fill="url(#steel)" d="m78 31 6-7 6 7-6 7z" stroke-width="2"/>
+    <!-- face -->
+    <path fill="#fffdf3" d="M57 52q8-7 16 0-2 10-9 10-7-1-7-10m26 0q8-7 16 0-2 10-9 10-7-1-7-10"/>
+    <ellipse cx="67" cy="56" fill="#6ba5ae" stroke="none" rx="3.3" ry="5"/>
+    <ellipse cx="92" cy="56" fill="#6ba5ae" stroke="none" rx="3.3" ry="5"/>
+    <circle cx="68" cy="54" r="1.2" fill="#fff" stroke="none"/><circle cx="93" cy="54" r="1.2" fill="#fff" stroke="none"/>
+    <path fill="none" stroke="#704537" stroke-width="2.4" d="m56 48 10-3 8 4m8 0 9-4 9 4"/>
+    <path fill="none" stroke="#cf806d" stroke-width="2" d="m51 68 8 2m43-2 7-2"/>
+    <path fill="#fff1dd" d="M72 71q9 3 18-1-2 12-10 12-7-1-8-11"/>
+    <path fill="none" stroke="#8d4c47" stroke-width="1.5" d="M73 73q7 3 15-1"/>
+    <!-- belt, pouch, sword -->
+    <path fill="none" stroke="#d7ae75" stroke-width="5" d="M41 122q32 12 67-1"/>
+    <path fill="#c18d54" d="m70 119 11-3 9 6-4 10-12 1-7-6z"/>
+    <path fill="#453342" d="m102 120 12-2 4 15-12 3z"/>
+    <path fill="url(#steel)" d="m119 115 10-36 4 2-5 38z"/>
+    <path fill="#d7ae75" d="m125 79 9-6 3 3-9 7z"/>
+    <path fill="none" stroke="#cdb3a3" stroke-width="1.4" d="m128 108 4-22"/>
+    <!-- little shoulder fur -->
+    <path fill="#b28b70" d="m46 82 8-8 8 8 9-5 8 9-10 4-7-4-8 5-9-2z"/>
+    <!-- cheek freckles -->
+    <g fill="#bc7667" stroke="none"><circle cx="56" cy="67" r="1.1"/><circle cx="60" cy="70" r="1"/><circle cx="99" cy="67" r="1.1"/><circle cx="95" cy="71" r="1"/></g>
+  </g>
+  <path d="M75 176q7-4 14 0" fill="none" stroke="#d7ae75" stroke-width="2" opacity=".8"/>
+</svg>

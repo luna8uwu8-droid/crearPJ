@@ -43,6 +43,7 @@ import {
   renderGrimoireModal,
   updateGrimoireProgress
 } from './grimorio.js';
+import { initializeMascot } from './mascota.js';
 
 const appRoot = document.querySelector('#app');
 const printRoot = document.querySelector('#print-sheet');
@@ -1741,6 +1742,7 @@ const initialize = async () => {
     }
   });
   render();
+  initializeMascot();
 };
 
 initialize();

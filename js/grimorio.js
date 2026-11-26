@@ -1,4 +1,4 @@
-const CATEGORY_NAMES = {
+  const CATEGORY_NAMES = {
   exploration: 'Viaje y exploración',
   combat: 'Combate y control',
   intrigue: 'Intriga y sigilo',
