@@ -34,6 +34,15 @@ import {
   hydrateImage
 } from './storage.js';
 import { downloadCharacterSheet, generateValidationCode, printCharacterSheet } from './sheet.js';
+import {
+  handleGrimoireAction,
+  handleGrimoireFilters,
+  handleGrimoireEscape,
+  handleGrimoireTab,
+  renderGrimoire,
+  renderGrimoireModal,
+  updateGrimoireProgress
+} from './grimorio.js';
 
 const appRoot = document.querySelector('#app');
 const printRoot = document.querySelector('#print-sheet');
@@ -1311,6 +1320,7 @@ const renderHubHome = () => `
 const renderHubSection = () => {
   const id = state.hubSection;
   if (id === 'inicio') return renderHubHome();
+  if (id === 'grimorio') return renderGrimoire();
   if (id === 'mi-personaje') return renderMiPersonaje();
   if (id === 'razas') return renderRaceIndex();
   if (id.startsWith('razas/')) {
@@ -1351,6 +1361,7 @@ const renderHub = () => `
       ${renderHubSection()}
     </main>
   </div>
+  ${state.hubSection === 'grimorio' ? renderGrimoireModal() : ''}
   ${state.hubSection === 'historia' && historyReaderIndex !== null ? renderHistoryReader() : ''}
   ${state.hubSection === 'jefes-del-mapa' ? renderBossGalleryViewer() : ''}
 `;
@@ -1391,6 +1402,8 @@ const render = () => {
   else if (state.phase === 'creating') appRoot.innerHTML = renderWizard();
   else if (state.phase === 'entrega') appRoot.innerHTML = renderEntrega();
   else appRoot.innerHTML = renderHub();
+  handleGrimoireFilters();
+  updateGrimoireProgress();
   fillPrintSheet();
   syncHash();
 };
@@ -1481,6 +1494,8 @@ const handleImageFile = async (file) => {
 
 const bindAppEvents = () => {
   appRoot.addEventListener('click', async (event) => {
+    if (handleGrimoireAction(event.target, render)) return;
+
     const raceLorePageButton = event.target.closest('[data-race-lore-page]');
     if (raceLorePageButton) {
       const pageIndex = Number(raceLorePageButton.dataset.raceLorePage);
@@ -1547,7 +1562,7 @@ const bindAppEvents = () => {
         const section = route.replace('hub/', '');
         if (section.startsWith('razas/')) state.raceLorePage = 0;
         goToPhase('hub', { hubSection: section });
-        if (section.startsWith('razas') || section.startsWith('noticias')) window.scrollTo({ top: 0 });
+        if (section.startsWith('razas') || section.startsWith('noticias') || section === 'grimorio') window.scrollTo({ top: 0 });
       }
       return;
     }
@@ -1619,6 +1634,10 @@ const bindAppEvents = () => {
   });
 
   appRoot.addEventListener('change', (event) => {
+    if (event.target.matches('#grim-school-filter, #grim-category-filter')) {
+      handleGrimoireFilters();
+      return;
+    }
     if (event.target.matches('[data-accept]')) {
       state.acceptances[event.target.dataset.accept] = event.target.checked;
       persist();
@@ -1637,6 +1656,10 @@ const bindAppEvents = () => {
   });
 
   appRoot.addEventListener('input', (event) => {
+    if (event.target.matches('#grim-search')) {
+      handleGrimoireFilters();
+      return;
+    }
     const { name, value } = event.target;
     if (!name || !(name in state.character)) return;
     if (name === 'age') {
@@ -1697,6 +1720,8 @@ const initialize = async () => {
     render();
   });
   window.addEventListener('keydown', (event) => {
+    if (handleGrimoireTab(event)) return;
+    if (event.key === 'Escape' && handleGrimoireEscape(render)) return;
     if (event.key === 'Escape' && historyReaderIndex !== null) {
       historyReaderIndex = null;
       render();

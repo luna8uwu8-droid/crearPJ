@@ -14,6 +14,7 @@ export const HUB_SECTIONS = [
   { id: 'mi-personaje', label: 'Mi Personaje', icon: '✦', requiresCharacter: true },
   { id: 'razas', label: 'Razas', icon: '☘' },
   { id: 'historia', label: 'Historia', icon: '⌛' },
+  { id: 'grimorio', label: 'Grimorio', icon: '✧' },
   { id: 'eventos', label: 'Eventos', icon: '⚡' },
   { id: 'jefes-del-mapa', label: 'Jefes del mapa', icon: '♜' },
   { id: 'noticias', label: 'Noticias', icon: '▣' },
