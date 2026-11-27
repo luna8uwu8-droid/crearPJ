@@ -1,0 +1,355 @@
+/* Oni: companion independiente, con estados espirituales y CTA contextual. */
+.maledicta-oni,
+.maledicta-oni * {
+  box-sizing: border-box;
+}
+
+.maledicta-oni [hidden] {
+  display: none !important;
+}
+
+.maledicta-oni {
+  position: fixed;
+  z-index: 19;
+  left: 14px;
+  top: auto;
+  right: auto;
+  bottom: 10px;
+  width: 108px;
+  height: 136px;
+  color: #fff3ec;
+  font-family: 'Manrope', sans-serif;
+  pointer-events: none;
+}
+
+.oni-companion {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 100px;
+  height: 126px;
+  padding: 2px;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  filter: drop-shadow(0 6px 12px rgba(4, 1, 8, .72));
+}
+
+.oni-companion:active {
+  cursor: grabbing;
+}
+
+.oni-companion:focus-visible,
+.oni-paypal-link:focus-visible {
+  outline: 2px solid #f4cf90;
+  outline-offset: 3px;
+}
+
+.oni-companion img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 82%;
+  filter: drop-shadow(0 0 7px rgba(218, 66, 75, .38));
+  animation: oni-dominant-breathe 2.8s ease-in-out infinite;
+  transition: filter 650ms ease;
+  user-select: none;
+}
+
+.oni-companion:hover img {
+  animation: mascot-hop 560ms ease;
+}
+
+.oni-paypal-link {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 90px;
+  min-height: 25px;
+  padding: 3px 9px;
+  border: 1px solid rgba(255, 222, 189, .78);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #581f2a, #a3383e);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .45);
+  color: #fff5e8;
+  font-size: .64rem;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(4px);
+  transition: background 250ms ease, box-shadow 250ms ease, opacity 180ms ease, transform 250ms ease, visibility 0s linear 180ms;
+}
+
+.maledicta-oni.is-support-open .oni-paypal-link {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%);
+  transition-delay: 0s;
+}
+
+.oni-paypal-link:hover {
+  background: linear-gradient(135deg, #7d2939, #cd5c62);
+  box-shadow: 0 0 16px rgba(248, 112, 121, .5);
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.oni-paypal-link span:first-child {
+  color: #ffd5dd;
+  font-size: .8rem;
+}
+
+.oni-speech {
+  position: fixed;
+  z-index: 22;
+  left: 0;
+  top: 0;
+  width: fit-content;
+  min-width: min(120px, calc(100vw - 24px));
+  max-width: min(310px, calc(100vw - 24px));
+  overflow-wrap: anywhere;
+  padding: 11px 13px;
+  border: 1px solid rgba(232, 161, 133, .78);
+  border-radius: 15px;
+  background: linear-gradient(145deg, #fff2df, #e6c19a);
+  box-shadow: 0 8px 26px rgba(6, 2, 10, .45);
+  color: #352331;
+  font-size: clamp(.65rem, 2vw, .79rem);
+  font-weight: 700;
+  line-height: 1.45;
+  pointer-events: none;
+  animation: mascot-bubble-in 180ms ease-out both;
+}
+
+.oni-speech[data-anchor="top"] { border-radius: 15px 15px 4px 15px; }
+.oni-speech[data-anchor="bottom"] { border-radius: 15px 4px 15px 15px; }
+
+.oni-speech::after {
+  position: absolute;
+  left: calc(var(--oni-tail-offset) - 8px);
+  width: 0;
+  height: 0;
+  border: 8px solid transparent;
+  content: "";
+}
+
+.oni-speech[data-anchor="top"]::after {
+  top: 100%;
+  border-top-color: #e6c19a;
+  border-bottom: 0;
+}
+
+.oni-speech[data-anchor="bottom"]::after {
+  bottom: 100%;
+  border-bottom-color: #fff2df;
+  border-top: 0;
+}
+
+.oni-speech[data-anchor="left"]::after {
+  top: calc(var(--oni-tail-offset) - 8px);
+  left: 100%;
+  border-left-color: #e6c19a;
+  border-right: 0;
+}
+
+.oni-speech[data-anchor="right"]::after {
+  top: calc(var(--oni-tail-offset) - 8px);
+  right: 100%;
+  left: auto;
+  border-right-color: #fff2df;
+  border-left: 0;
+}
+
+.oni-mood-mark {
+  position: absolute;
+  top: 16px;
+  left: 8px;
+  z-index: 2;
+  color: #ffe3a2;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.maledicta-oni[data-mood] .oni-mood-mark {
+  opacity: 1;
+  animation: mascot-mark-pop 300ms ease-out both;
+}
+
+.maledicta-oni[data-mood="stern"] .oni-mood-mark::before { content: "!"; color: #ff9a79; }
+.maledicta-oni[data-mood="proud"] .oni-mood-mark::before { content: "✦"; color: #ffd18a; }
+.maledicta-oni[data-mood="fire"] .oni-mood-mark::before { content: "♨"; color: #ff9a79; }
+.maledicta-oni[data-mood="wise"] .oni-mood-mark::before { content: "✧"; color: #b7efbd; }
+.maledicta-oni[data-mood="calm"] .oni-mood-mark::before { content: "◇"; color: #b7efbd; }
+.maledicta-oni[data-mood="sweet"] .oni-mood-mark::before { content: "♥"; color: #ff9cce; }
+.maledicta-oni[data-mood="playful"] .oni-mood-mark::before { content: "✿"; color: #ff9cce; }
+.maledicta-oni[data-mood="shy"] .oni-mood-mark::before { content: "…"; color: #c4b8db; }
+.maledicta-oni[data-mood="soft"] .oni-mood-mark::before { content: "♡"; color: #c4b8db; }
+
+.maledicta-oni[data-spirit="green"] .oni-companion img {
+  filter: hue-rotate(112deg) saturate(.78) drop-shadow(0 0 9px rgba(106, 213, 122, .5));
+  animation-name: oni-guardian-breathe;
+}
+
+.maledicta-oni[data-spirit="pink"] .oni-companion img {
+  filter: hue-rotate(318deg) saturate(.82) drop-shadow(0 0 10px rgba(255, 117, 184, .55));
+  animation-name: oni-pink-sway;
+}
+
+.maledicta-oni[data-spirit="black"] .oni-companion img {
+  filter: grayscale(.58) brightness(.53) saturate(.75) drop-shadow(0 0 8px rgba(130, 113, 165, .42));
+  animation-name: oni-shadow-waver;
+}
+
+.maledicta-oni[data-spirit="green"] .oni-paypal-link {
+  border-color: rgba(182, 239, 177, .78);
+  background: linear-gradient(135deg, #20503b, #36835a);
+}
+
+.maledicta-oni[data-spirit="pink"] .oni-paypal-link {
+  border-color: rgba(255, 194, 224, .84);
+  background: linear-gradient(135deg, #7f315e, #c45089);
+}
+
+.maledicta-oni[data-spirit="black"] .oni-paypal-link {
+  border-color: rgba(196, 184, 219, .7);
+  background: linear-gradient(135deg, #282434, #514761);
+}
+
+.maledicta-oni.is-spirit-impact::before {
+  position: absolute;
+  top: 39%;
+  left: 50%;
+  width: 84px;
+  height: 84px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  color: #ff967b;
+  content: "";
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: oni-spirit-ring 800ms ease-out both;
+}
+
+.maledicta-oni[data-spirit="green"].is-spirit-impact::before { color: #9aedaa; }
+.maledicta-oni[data-spirit="pink"].is-spirit-impact::before { color: #ff9ecb; }
+.maledicta-oni[data-spirit="black"].is-spirit-impact::before { color: #c1b2e2; }
+
+.maledicta-oni.is-dragging .oni-companion img {
+  animation: mascot-dizzy 700ms ease-in-out infinite;
+}
+
+.maledicta-oni.is-character-bump .oni-companion img {
+  animation: oni-character-bump 650ms ease-in-out;
+}
+
+.maledicta-oni.is-recovering .oni-companion img {
+  animation: oni-recover 650ms ease-out;
+}
+
+.maledicta-oni.is-spirit-impact .oni-companion img {
+  animation: oni-spirit-hit 800ms ease-in-out;
+}
+
+.maledicta-mascot.is-character-bump .mascot-companion img {
+  animation: mascot-friendly-clash 620ms ease-in-out;
+}
+
+@keyframes oni-dominant-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.015, .99); }
+}
+
+@keyframes oni-guardian-breathe {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-1px) rotate(1deg); }
+}
+
+@keyframes oni-pink-sway {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  50% { transform: rotate(-2deg) translateY(-3px); }
+}
+
+@keyframes oni-shadow-waver {
+  0%, 100% { transform: translateY(1px) rotate(1deg); }
+  50% { transform: translateY(-1px) rotate(-1deg); }
+}
+
+@keyframes oni-character-bump {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-6px) rotate(-5deg); }
+  55% { transform: translateX(4px) rotate(4deg) translateY(-3px); }
+  78% { transform: translateX(-2px) rotate(-2deg); }
+}
+
+@keyframes oni-spirit-hit {
+  0%, 100% { transform: scale(1) rotate(0); }
+  28% { transform: scale(1.1) rotate(-6deg); }
+  60% { transform: scale(.96) rotate(5deg); }
+}
+
+@keyframes oni-recover {
+  0% { transform: rotate(7deg) scale(.96); }
+  55% { transform: rotate(-3deg) scale(1.025); }
+  100% { transform: rotate(0) scale(1); }
+}
+
+@keyframes oni-spirit-ring {
+  from { opacity: .9; transform: translate(-50%, -50%) scale(.55); }
+  to { opacity: 0; transform: translate(-50%, -50%) scale(1.8); }
+}
+
+@media (max-width: 560px) {
+  .maledicta-oni {
+    left: 5px;
+    bottom: 5px;
+    width: 82px;
+    height: 110px;
+  }
+
+  .oni-companion {
+    width: 78px;
+    height: 105px;
+    bottom: 0;
+  }
+
+  .oni-paypal-link {
+    min-width: 78px;
+    min-height: 22px;
+    padding: 2px 6px;
+    font-size: .57rem;
+  }
+
+  .oni-mood-mark {
+    top: 10px;
+    left: 5px;
+    font-size: 19px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .maledicta-oni *,
+  .maledicta-oni *::before,
+  .maledicta-oni *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -1,3 +1,5 @@
+import { resolveCharacterCollision } from './character-physics.js';
+
 const DONATION_URL = 'https://www.g-portal.com/int/donate/ae314d607f3e8a9d8f6ad43cabff0bc2/maledicta';
 const GPORTAL_URL = 'https://www.g-portal.com/';
 const STORAGE_KEY = 'maledicta-donation-mascot-v1';
@@ -114,6 +116,11 @@ const dialogueBanks = {
     line('¡Uy, perdón, colega! Casi te piso el canal de bienvenida.', 'blushing'),
     line('¡A la cuenta de tres, choque de escudos! Uno, dos... mejor vamos por hidromiel.', 'cheerful')
   ],
+  oni: [
+    line('¡Eh! ¡Cuidado con esos cuernos! ¡Compartimos el reino, grandulón!', 'surprised'),
+    line('¡No ocupes todo el espacio! ¡Yo también tengo que patrullar!', 'playful'),
+    line('¡Vaya choque! Espero que tus cuatro colas estén bien.', 'curious')
+  ],
   click: [
     line('¡Oh! ¡Alguien quiere hablar conmigo! ¿Traés noticias del reino? ¿O quizás unas monedas?', 'surprised'),
     line('¡Aquí estoy! Siempre disponible para conversaciones, aventuras y pequeños aportes al tesoro.', 'cheerful'),
@@ -179,12 +186,15 @@ export const initializeMascot = () => {
   root.className = 'maledicta-mascot';
   root.innerHTML = `
     <div class="mascot-speech" hidden role="status"></div>
-    <button class="mascot-companion" type="button" aria-label="Abrir la guía de donaciones" aria-expanded="false">
+    <button class="mascot-companion" type="button" aria-label="Abrir la guía de donaciones" aria-expanded="false" aria-controls="mascot-support-link">
       <span class="mascot-mood-mark" aria-hidden="true"></span>
       <span class="mascot-zs" aria-hidden="true">Z<span>z</span></span>
       <img src="./assets/maledicta/mascota/guerrera.svg" alt="" width="118" height="140" draggable="false" />
       <span class="mascot-food" aria-hidden="true">♡</span>
     </button>
+    <a id="mascot-support-link" class="mascot-support-link" href="${DONATION_URL}" target="_blank" rel="noopener noreferrer" aria-label="Apoyar a Maledicta mediante GPORTAL">
+      <span aria-hidden="true">♡</span> Apoyar <span aria-hidden="true">↗</span>
+    </a>
     <section class="mascot-guide" aria-label="Guía de donaciones a Maledicta" hidden>
       <header class="mascot-guide-header">
         <span class="mascot-guide-emblem" aria-hidden="true">M</span>
@@ -220,13 +230,17 @@ export const initializeMascot = () => {
   let pendingDialogueTimer;
   let welcomeTimer;
   let dragStart = null;
+  let guideDragStart = null;
   let moved = false;
+  let guideDragMoved = false;
   let dragAnnounced = false;
   let discordOverlap = false;
   let discordEncounterThisDrag = false;
   let lastDiscordDialogueAt = 0;
   let discordReactionTimer;
   let discordBadgeTimer;
+  let characterOverlap = false;
+  let lastCharacterDialogueAt = 0;
   let lastInteractionAt = Date.now();
   const recentPhrases = [];
   const moodClasses = ['dizzy', 'cheerful', 'hungry', 'blushing', 'curious', 'surprised', 'dreamy', 'grateful', 'proud', 'playful'];
@@ -266,14 +280,23 @@ export const initializeMascot = () => {
       { anchor: 'left', left: mascot.left - bubbleWidth - gap, top: centeredTop },
       { anchor: 'right', left: mascot.right + gap, top: centeredTop }
     ];
-    const fits = ({ left, top }) => left >= margin
-      && top >= margin
-      && left + bubbleWidth <= viewportWidth - margin
-      && top + bubbleHeight <= viewportHeight - margin;
     const overlapsMascot = ({ left, top }) => left < mascot.right
       && left + bubbleWidth > mascot.left
       && top < mascot.bottom
       && top + bubbleHeight > mascot.top;
+    const overlapsOtherSpeech = ({ left, top }) => {
+      const otherSpeech = document.querySelector('.oni-speech');
+      if (!otherSpeech || otherSpeech.hidden) return false;
+      const other = otherSpeech.getBoundingClientRect();
+      return left < other.right && left + bubbleWidth > other.left
+        && top < other.bottom && top + bubbleHeight > other.top;
+    };
+    const fits = ({ left, top }) => left >= margin
+      && top >= margin
+      && left + bubbleWidth <= viewportWidth - margin
+      && top + bubbleHeight <= viewportHeight - margin
+      && !overlapsMascot({ left, top })
+      && !overlapsOtherSpeech({ left, top });
     let placement = candidates.find((candidate) => fits(candidate) && !overlapsMascot(candidate));
     if (!placement) {
       const preferTop = mascot.top >= viewportHeight - mascot.bottom;
@@ -329,6 +352,127 @@ export const initializeMascot = () => {
     }
     sayRandom('discord');
   };
+  const checkOniCollision = () => {
+    const oni = document.querySelector('#maledicta-oni');
+    const collided = resolveCharacterCollision(root, oni);
+    if (!collided) {
+      characterOverlap = false;
+      return;
+    }
+    if (characterOverlap) return;
+    characterOverlap = true;
+    root.classList.add('is-character-bump');
+    window.setTimeout(() => root.classList.remove('is-character-bump'), 700);
+    document.dispatchEvent(new CustomEvent('maledicta:character-contact', { detail: { source: 'warrior' } }));
+  };
+  const moveToward = (left, top) => {
+    const target = clampPosition(left, top);
+    for (let step = 0; step < 256; step += 1) {
+      const currentLeft = root.offsetLeft;
+      const currentTop = root.offsetTop;
+      const dx = target.left - currentLeft;
+      const dy = target.top - currentTop;
+      const distance = Math.hypot(dx, dy);
+      if (distance < 0.5) return;
+      const travel = Math.min(24, distance);
+      setPosition(currentLeft + dx / distance * travel, currentTop + dy / distance * travel, false);
+      checkOniCollision();
+      checkDiscordCollision();
+      if (root.offsetLeft === currentLeft && root.offsetTop === currentTop) return;
+    }
+  };
+  const positionGuide = () => {
+    if (panel.hidden || guideDragStart) return;
+    const margin = 12;
+    const gap = 14;
+    const mascot = companion.getBoundingClientRect();
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = window.innerHeight;
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    panel.style.maxHeight = '';
+    const panelWidth = panel.offsetWidth;
+    const panelHeight = panel.offsetHeight;
+    const maxLeft = Math.max(margin, viewportWidth - panelWidth - margin);
+    const maxTop = Math.max(margin, viewportHeight - panelHeight - margin);
+    const centeredLeft = clamp(mascot.left + mascot.width / 2 - panelWidth / 2, margin, maxLeft);
+    const characters = [...document.querySelectorAll('#maledicta-mascot, #maledicta-oni')]
+      .map((character) => character.getBoundingClientRect());
+    const leftCandidates = [
+      centeredLeft,
+      mascot.left - panelWidth - gap,
+      mascot.right + gap,
+      margin,
+      maxLeft
+    ].map((left) => clamp(left, margin, maxLeft))
+      .filter((left, index, list) => list.indexOf(left) === index);
+    const spaces = leftCandidates.flatMap((left, index) => {
+      const obstructions = characters
+        .filter((character) => left < character.right && left + panelWidth > character.left)
+        .map((character) => ({
+          top: Math.max(margin, character.top),
+          bottom: Math.min(viewportHeight - margin, character.bottom)
+        }))
+        .filter((character) => character.bottom > character.top)
+        .sort((a, b) => a.top - b.top);
+      const available = [];
+      let cursor = margin;
+      obstructions.forEach((character) => {
+        if (character.top > cursor) available.push({ left, top: cursor, bottom: character.top, index });
+        cursor = Math.max(cursor, character.bottom);
+      });
+      if (cursor < viewportHeight - margin) {
+        available.push({ left, top: cursor, bottom: viewportHeight - margin, index });
+      }
+      return available;
+    });
+    const fullSpace = spaces.find((space) => space.bottom - space.top >= panelHeight);
+    let placement;
+    if (fullSpace) {
+      const top = clamp(
+        mascot.top + mascot.height / 2 - panelHeight / 2,
+        fullSpace.top,
+        fullSpace.bottom - panelHeight
+      );
+      placement = { left: fullSpace.left, top };
+    } else {
+      const bestSpace = spaces.reduce((best, space) => (
+        !best || space.bottom - space.top > best.bottom - best.top ? space : best
+      ), null);
+      const availableHeight = bestSpace ? bestSpace.bottom - bestSpace.top : viewportHeight - margin * 2;
+      panel.style.maxHeight = `${availableHeight}px`;
+      placement = bestSpace
+        ? { left: bestSpace.left, top: bestSpace.top }
+        : { left: margin, top: margin };
+    }
+    panel.style.left = `${placement.left}px`;
+    panel.style.top = `${placement.top}px`;
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+  };
+  const guidePositionIsClear = (left, top) => {
+    const margin = 8;
+    const maxLeft = Math.max(margin, document.documentElement.clientWidth - panel.offsetWidth - margin);
+    const maxTop = Math.max(margin, window.innerHeight - panel.offsetHeight - margin);
+    const position = {
+      left: Math.max(margin, Math.min(maxLeft, left)),
+      top: Math.max(margin, Math.min(maxTop, top))
+    };
+    const right = position.left + panel.offsetWidth;
+    const bottom = position.top + panel.offsetHeight;
+    const overlapsCharacter = [...document.querySelectorAll('#maledicta-mascot, #maledicta-oni')]
+      .some((character) => {
+        if (character === root) return false;
+        const bounds = character.getBoundingClientRect();
+        return position.left < bounds.right && right > bounds.left
+          && position.top < bounds.bottom && bottom > bounds.top;
+      });
+    if (overlapsCharacter) return false;
+    panel.style.left = `${position.left}px`;
+    panel.style.top = `${position.top}px`;
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
+    return true;
+  };
   const clampPosition = (left, top) => ({
     left: Math.max(8, Math.min(window.innerWidth - root.offsetWidth - 8, left)),
     top: Math.max(8, Math.min(window.innerHeight - root.offsetHeight - 8, top))
@@ -340,6 +484,7 @@ export const initializeMascot = () => {
     root.style.right = 'auto';
     root.style.bottom = 'auto';
     positionSpeech();
+    positionGuide();
     if (shouldSave) save();
   };
   if (Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
@@ -459,10 +604,12 @@ export const initializeMascot = () => {
     root.classList.remove('is-sleeping');
     root.classList.remove('is-yawning');
     root.classList.add('is-excited');
+    root.classList.add('is-support-open');
     panel.hidden = false;
     companion.setAttribute('aria-expanded', 'true');
     companion.setAttribute('aria-label', 'Hablar con la guardiana');
     renderGuide();
+    positionGuide();
     sayRandom(dialogueBank);
     if (dialogueBank === 'wake') {
       pendingDialogueTimer = window.setTimeout(() => {
@@ -478,6 +625,11 @@ export const initializeMascot = () => {
     window.clearTimeout(pendingDialogueTimer);
     clearDialogue();
     panel.hidden = true;
+    root.classList.remove('is-support-open');
+    panel.style.left = '';
+    panel.style.top = '';
+    panel.style.right = '';
+    panel.style.bottom = '';
     companion.setAttribute('aria-expanded', 'false');
     companion.setAttribute('aria-label', 'Despertar y abrir la guía de donaciones');
     root.classList.add('is-sleeping');
@@ -487,17 +639,40 @@ export const initializeMascot = () => {
   };
 
   root.addEventListener('pointerdown', (event) => {
-    if (event.target.closest('.mascot-guide, .mascot-close')) return;
+    if (event.target.closest('.mascot-guide-header') && !event.target.closest('.mascot-close')) {
+      guideDragStart = {
+        x: event.clientX,
+        y: event.clientY,
+        left: panel.offsetLeft,
+        top: panel.offsetTop,
+        pointerId: event.pointerId,
+        pointerType: event.pointerType
+      };
+      guideDragMoved = false;
+      if (event.pointerType !== 'mouse') panel.setPointerCapture(event.pointerId);
+      return;
+    }
+    if (event.target.closest('.mascot-guide')) return;
     if (event.target.closest('.mascot-companion')) {
-      dragStart = { x: event.clientX, y: event.clientY, left: root.offsetLeft, top: root.offsetTop, pointerId: event.pointerId };
+      dragStart = {
+        x: event.clientX,
+        y: event.clientY,
+        left: root.offsetLeft,
+        top: root.offsetTop,
+        pointerId: event.pointerId,
+        pointerType: event.pointerType
+      };
       moved = false;
       dragAnnounced = false;
       discordEncounterThisDrag = false;
-      companion.setPointerCapture(event.pointerId);
+      if (event.pointerType !== 'mouse') companion.setPointerCapture(event.pointerId);
     }
   });
-  root.addEventListener('pointermove', (event) => {
-    if (!dragStart || event.pointerId !== dragStart.pointerId) return;
+  const moveDrag = (event) => {
+    if (!dragStart) return;
+    if (event.pointerId !== undefined
+      && (dragStart.pointerType === 'mouse' || event.pointerId !== dragStart.pointerId)) return;
+    if (event.pointerId === undefined && (dragStart.pointerType !== 'mouse' || event.buttons !== 1)) return;
     const dx = event.clientX - dragStart.x;
     const dy = event.clientY - dragStart.y;
     if (Math.abs(dx) + Math.abs(dy) > 8) moved = true;
@@ -508,12 +683,16 @@ export const initializeMascot = () => {
         root.classList.add('is-dragging');
         sayRandom('drag');
       }
-      setPosition(dragStart.left + dx, dragStart.top + dy, false);
-      checkDiscordCollision();
+      moveToward(dragStart.left + dx, dragStart.top + dy);
     }
-  });
+  };
+  window.addEventListener('pointermove', moveDrag);
+  window.addEventListener('mousemove', moveDrag);
   const finishDrag = (event) => {
-    if (!dragStart || event.pointerId !== dragStart.pointerId) return;
+    if (!dragStart) return;
+    if (event.pointerId !== undefined
+      && (dragStart.pointerType === 'mouse' || event.pointerId !== dragStart.pointerId)) return;
+    if (event.pointerId === undefined && dragStart.pointerType !== 'mouse') return;
     if (moved) {
       root.classList.remove('is-dragging');
       companion.dataset.dragged = 'true';
@@ -525,8 +704,44 @@ export const initializeMascot = () => {
     }
     dragStart = null;
   };
-  root.addEventListener('pointerup', finishDrag);
-  root.addEventListener('pointercancel', finishDrag);
+  window.addEventListener('pointerup', finishDrag);
+  window.addEventListener('pointercancel', finishDrag);
+  window.addEventListener('mouseup', finishDrag);
+  const moveGuideDrag = (event) => {
+    if (!guideDragStart) return;
+    if (event.pointerId !== undefined
+      && (guideDragStart.pointerType === 'mouse' || event.pointerId !== guideDragStart.pointerId)) return;
+    if (event.pointerId === undefined && (guideDragStart.pointerType !== 'mouse' || event.buttons !== 1)) return;
+    const dx = event.clientX - guideDragStart.x;
+    const dy = event.clientY - guideDragStart.y;
+    if (Math.abs(dx) + Math.abs(dy) > 5) guideDragMoved = true;
+    if (!guideDragMoved) return;
+    event.preventDefault();
+    panel.classList.add('is-guide-dragging');
+    guidePositionIsClear(guideDragStart.left + dx, guideDragStart.top + dy);
+  };
+  window.addEventListener('pointermove', moveGuideDrag);
+  window.addEventListener('mousemove', moveGuideDrag);
+  const finishGuideDrag = (event) => {
+    if (!guideDragStart) return;
+    if (event.pointerId !== undefined
+      && (guideDragStart.pointerType === 'mouse' || event.pointerId !== guideDragStart.pointerId)) return;
+    if (event.pointerId === undefined && guideDragStart.pointerType !== 'mouse') return;
+    panel.classList.remove('is-guide-dragging');
+    guideDragStart = null;
+  };
+  window.addEventListener('pointerup', finishGuideDrag);
+  window.addEventListener('pointercancel', finishGuideDrag);
+  window.addEventListener('mouseup', finishGuideDrag);
+  document.addEventListener('maledicta:character-contact', () => {
+    const now = Date.now();
+    if (now - lastCharacterDialogueAt < 10000) return;
+    lastCharacterDialogueAt = now;
+    root.classList.add('is-character-bump');
+    window.setTimeout(() => root.classList.remove('is-character-bump'), 700);
+    save();
+    sayRandom('oni');
+  });
 
   companion.addEventListener('click', () => {
     if (companion.dataset.dragged === 'true') return;
@@ -570,7 +785,9 @@ export const initializeMascot = () => {
 
   window.addEventListener('resize', () => {
     setPosition(root.offsetLeft, root.offsetTop);
+    checkOniCollision();
     positionSpeech();
+    positionGuide();
   });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {

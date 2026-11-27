@@ -4028,6 +4028,49 @@ body.lightbox-open .discord-badge {
   animation: mascot-hop 560ms ease;
 }
 
+.mascot-support-link {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 90px;
+  min-height: 25px;
+  padding: 3px 9px;
+  border: 1px solid rgba(255, 222, 189, .78);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #253d68, #3f72a8);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, .45);
+  color: #fff5e8;
+  font-size: .64rem;
+  font-weight: 800;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(4px);
+  transition: background 250ms ease, box-shadow 250ms ease, opacity 180ms ease, transform 250ms ease, visibility 0s linear 180ms;
+}
+
+.mascot-support-link:hover {
+  background: linear-gradient(135deg, #31568e, #6094c6);
+  box-shadow: 0 0 16px rgba(121, 177, 235, .5);
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.maledicta-mascot.is-support-open .mascot-support-link {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%);
+  transition-delay: 0s;
+}
+
 .mascot-speech {
   position: fixed;
   z-index: 2;
@@ -4271,6 +4314,13 @@ body.lightbox-open .discord-badge {
   gap: 10px;
   padding: 14px 14px 12px;
   border-bottom: 1px solid rgba(210, 178, 222, .16);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.mascot-guide.is-guide-dragging .mascot-guide-header {
+  cursor: grabbing;
 }
 
 .mascot-guide-emblem {
@@ -4319,6 +4369,8 @@ body.lightbox-open .discord-badge {
   color: #f6dcb6;
   font-size: 23px;
   line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 .mascot-region-warning {
@@ -4939,6 +4991,13 @@ body.lightbox-open .discord-badge {
   .mascot-companion {
     width: 78px;
     height: 105px;
+  }
+
+  .mascot-support-link {
+    min-width: 78px;
+    min-height: 22px;
+    padding: 2px 6px;
+    font-size: .57rem;
   }
 
   .mascot-guide {
